@@ -741,7 +741,7 @@ private fun AppActionsOverlay(
                 color = LumaColors.Tertiary,
             )
             Spacer(Modifier.height(8.dp))
-            DuoSettingRow("启动", "A", onActivate = { onAction(DuoAppAction.LAUNCH) })
+            DuoSettingRow("启动", "B", onActivate = { onAction(DuoAppAction.LAUNCH) })
             DuoSettingRow(
                 "使用上次设置启动",
                 "上次会话",
