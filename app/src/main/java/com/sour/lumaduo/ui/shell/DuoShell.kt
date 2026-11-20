@@ -28,10 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -133,6 +135,7 @@ private fun DuoRail(
     onDestinationChange: (DuoDestination) -> Unit,
     requesters: Map<DuoDestination, FocusRequester>,
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         Modifier
             .width(LumaMetrics.RailWidth)
@@ -160,7 +163,15 @@ private fun DuoRail(
         DuoDestination.entries.forEach { item ->
             val selected = item == destination
             LumaFocusable(
-                onClick = { onDestinationChange(item) },
+                onClick = {
+                    // A on the already-active rail item moves into the page; this
+                    // avoids a dead A press and gives the page a predictable entry.
+                    if (selected) {
+                        focusManager.moveFocus(FocusDirection.Right)
+                    } else {
+                        onDestinationChange(item)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

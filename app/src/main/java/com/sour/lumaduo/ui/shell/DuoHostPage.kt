@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,54 +65,58 @@ fun DuoHostsPage(
     modifier: Modifier = Modifier,
 ) {
     val selected = hosts.firstOrNull { it.uuid == selectedUuid } ?: hosts.firstOrNull()
-    Row(
-        modifier
-            .fillMaxSize()
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Column(Modifier.weight(1f).fillMaxSize()) {
-            DuoSectionHeader("最近主机", "${hosts.size} 台 · 实时")
-            Spacer(Modifier.height(6.dp))
-            if (hosts.isEmpty()) {
-                DuoEmpty(
-                    title = "还没有主机",
-                    detail = "手动添加 PC，或先在远程页连接 EasyTier",
-                    modifier = Modifier.weight(1f),
-                    action = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            DuoTextButton("添加主机", onClick = onAdd, accent = true)
-                            DuoTextButton("刷新", onClick = onRefresh)
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val detailWidth = if (maxWidth < 560.dp) 200.dp else 232.dp
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Column(Modifier.weight(1f).fillMaxSize()) {
+                DuoSectionHeader("最近主机", "${hosts.size} 台 · 实时")
+                Spacer(Modifier.height(6.dp))
+                if (hosts.isEmpty()) {
+                    DuoEmpty(
+                        title = "还没有主机",
+                        detail = "手动添加 PC，或先在远程页连接 EasyTier",
+                        modifier = Modifier.weight(1f),
+                        action = {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                DuoTextButton("添加主机", onClick = onAdd, accent = true)
+                                DuoTextButton("刷新", onClick = onRefresh)
+                            }
+                        },
+                    )
+                } else {
+                    LazyColumn(
+                        Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        items(hosts, key = { it.uuid.orEmpty() + (it.name ?: "") }) { host ->
+                            DuoHostRow(
+                                host = host,
+                                selected = host.uuid == selected?.uuid,
+                                onFocus = { if (host.uuid != selected?.uuid) onSelect(host) },
+                                onClick = { onSelect(host) },
+                            )
                         }
-                    },
-                )
-            } else {
-                LazyColumn(
-                    Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    items(hosts, key = { it.uuid.orEmpty() + (it.name ?: "") }) { host ->
-                        DuoHostRow(
-                            host = host,
-                            selected = host.uuid == selected?.uuid,
-                            onClick = { onSelect(host) },
-                        )
                     }
                 }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "A 选择 · → 详情 · + 添加",
+                    style = LumaType.micro,
+                    color = LumaColors.Tertiary,
+                )
             }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "A 选择 · ▶ 应用 · + 添加；长按/菜单键打开主机操作",
-                style = LumaType.micro,
-                color = LumaColors.Tertiary,
+            DuoHostDetail(
+                host = selected,
+                onAction = onAction,
+                onAdd = onAdd,
+                modifier = Modifier.width(detailWidth).fillMaxSize(),
             )
         }
-        DuoHostDetail(
-            host = selected,
-            onAction = onAction,
-            onAdd = onAdd,
-            modifier = Modifier.width(232.dp).fillMaxSize(),
-        )
     }
 }
 
@@ -119,6 +124,7 @@ fun DuoHostsPage(
 private fun DuoHostRow(
     host: ComputerDetails,
     selected: Boolean,
+    onFocus: () -> Unit,
     onClick: () -> Unit,
 ) {
     val online = host.state == ComputerDetails.State.ONLINE
@@ -132,6 +138,7 @@ private fun DuoHostRow(
     }
     LumaFocusable(
         onClick = onClick,
+        onFocused = { focused -> if (focused) onFocus() },
         modifier = Modifier
             .fillMaxWidth()
             .height(74.dp),

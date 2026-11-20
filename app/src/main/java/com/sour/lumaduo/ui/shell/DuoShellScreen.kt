@@ -47,6 +47,12 @@ import com.sour.lumaduo.ui.luma.LumaType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
+/** Read-only context mirrored to the top display. Never editable from the top. */
+data class DuoTopContext(
+    val hostName: String? = null,
+    val appName: String? = null,
+)
+
 /**
  * Everything the shell needs from the Activity. Keeping this as one interface avoids
  * threading a dozen unrelated lambdas through every page.
@@ -95,6 +101,7 @@ fun DuoShellScreen(
     onSettingsChanged: (DuoSettingsRepository.Snapshot) -> Unit,
     externalNotice: String? = null,
     onExternalNoticeConsumed: () -> Unit = {},
+    onTopContextChanged: (DuoTopContext) -> Unit = {},
     rootBackArmed: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
@@ -113,6 +120,7 @@ fun DuoShellScreen(
     var pairHost by remember { mutableStateOf<ComputerDetails?>(null) }
     var notice by remember { mutableStateOf<String?>(null) }
     var showHidden by rememberSaveable { mutableStateOf(false) }
+    var appSelection by remember { mutableStateOf<NvApp?>(null) }
 
     val hostList by hosts.collectAsState()
     val appList by apps.collectAsState()
@@ -147,6 +155,19 @@ fun DuoShellScreen(
         if (destination == DuoDestination.APPS) {
             selected?.let(host::openApps)
         }
+    }
+
+    LaunchedEffect(selected?.uuid) {
+        appSelection = null
+    }
+
+    LaunchedEffect(selected?.name, appSelection?.appName, destination) {
+        onTopContextChanged(
+            DuoTopContext(
+                hostName = selected?.name,
+                appName = appSelection?.appName?.takeIf { destination == DuoDestination.APPS },
+            ),
+        )
     }
 
     LaunchedEffect(pairState.success) {
@@ -288,6 +309,7 @@ fun DuoShellScreen(
                         else -> handleAppAction(selected, app, action, host)
                     }
                 },
+                onSelectionChanged = { appSelection = it },
             )
             DuoDestination.REMOTE -> DuoRemotePage(
                 snapshot = remote,

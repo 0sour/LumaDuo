@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,9 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -56,57 +58,71 @@ fun DuoAppsPage(
     error: String?,
     onOpenApp: (NvApp) -> Unit,
     onAppAction: (NvApp, DuoAppAction) -> Unit,
+    onSelectionChanged: (NvApp?) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(apps.size) {
+        if (apps.isEmpty()) {
+            selectedIndex = 0
+        } else {
+            selectedIndex = selectedIndex.coerceIn(0, apps.lastIndex)
+        }
+    }
     val selected = apps.getOrNull(selectedIndex.coerceIn(0, (apps.size - 1).coerceAtLeast(0)))
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-    ) {
-        DuoSectionHeader(
-            "全部应用",
+    LaunchedEffect(selected?.appId) {
+        onSelectionChanged(selected)
+    }
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val columns = if (maxWidth < 600.dp) 2 else 3
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+        ) {
+            DuoSectionHeader(
+                "全部应用",
+                when {
+                    loading -> "读取中"
+                    error != null -> "读取失败"
+                    else -> "${apps.size} 个 · 实时"
+                },
+            )
+            Spacer(Modifier.height(6.dp))
             when {
-                loading -> "读取中"
-                error != null -> "读取失败"
-                else -> "${apps.size} 个 · 实时"
-            },
-        )
-        Spacer(Modifier.height(6.dp))
-        when {
-            host == null -> DuoEmpty("先在主机页选择一台主机", "应用列表来自当前主机", Modifier.weight(1f))
-            loading -> DuoEmpty("正在读取主机应用列表…", modifier = Modifier.weight(1f))
-            error != null -> DuoEmpty("读取失败：$error", "检查主机在线状态后重试", Modifier.weight(1f))
-            apps.isEmpty() -> DuoEmpty("主机没有可启动的应用", "在 PC 上启动一个游戏或桌面", Modifier.weight(1f))
-            else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentPadding = PaddingValues(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    items(apps, key = { it.appId }) { app ->
-                        val index = apps.indexOf(app)
-                        DuoAppCard(
-                            app = app,
-                            selected = index == selectedIndex,
-                            onClick = {
-                                selectedIndex = index
-                                onOpenApp(app)
-                            },
-                        )
+                host == null -> DuoEmpty("先在主机页选择一台主机", "应用列表来自当前主机", Modifier.weight(1f))
+                loading -> DuoEmpty("正在读取主机应用列表…", modifier = Modifier.weight(1f))
+                error != null -> DuoEmpty("读取失败：$error", "检查主机在线状态后重试", Modifier.weight(1f))
+                apps.isEmpty() -> DuoEmpty("主机没有可启动的应用", "在 PC 上启动一个游戏或桌面", Modifier.weight(1f))
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(columns),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentPadding = PaddingValues(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        verticalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        itemsIndexed(apps, key = { _, app -> app.appId }) { index, app ->
+                            DuoAppCard(
+                                app = app,
+                                selected = index == selectedIndex,
+                                onFocus = { selectedIndex = index },
+                                onClick = {
+                                    selectedIndex = index
+                                    onOpenApp(app)
+                                },
+                            )
+                        }
                     }
+                    Spacer(Modifier.height(7.dp))
+                    DuoAppDetail(
+                        host = host,
+                        app = selected,
+                        onAction = onAppAction,
+                    )
                 }
-                Spacer(Modifier.height(7.dp))
-                DuoAppDetail(
-                    host = host,
-                    app = selected,
-                    onAction = onAppAction,
-                )
             }
         }
     }
@@ -116,12 +132,14 @@ fun DuoAppsPage(
 private fun DuoAppCard(
     app: NvApp,
     selected: Boolean,
+    onFocus: () -> Unit,
     onClick: () -> Unit,
 ) {
     val color = duoAppColors[((app.appId % duoAppColors.size) + duoAppColors.size) % duoAppColors.size]
     val initial = app.appName.trim().firstOrNull()?.uppercase() ?: "?"
     LumaFocusable(
         onClick = onClick,
+        onFocused = { focused -> if (focused) onFocus() },
         modifier = Modifier
             .fillMaxWidth()
             .height(96.dp),

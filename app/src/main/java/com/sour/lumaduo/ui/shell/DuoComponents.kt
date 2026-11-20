@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -286,37 +287,64 @@ fun DuoSliderRow(
     detail: String? = null,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 4.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, style = LumaType.bodyM, color = LumaColors.Text)
-                if (detail != null) {
-                    Text(detail, style = LumaType.micro, color = LumaColors.Tertiary)
+    val step = (range.endInclusive - range.start) / (steps + 1).coerceAtLeast(1)
+    fun adjust(delta: Float) {
+        onValueChange((value + delta).coerceIn(range.start, range.endInclusive))
+        onValueChangeFinished?.invoke()
+    }
+    LumaFocusable(
+        onClick = { adjust(step) },
+        onNavigateKey = { key ->
+            when (key) {
+                Key.DirectionLeft -> {
+                    adjust(-step)
+                    true
                 }
+                Key.DirectionRight -> {
+                    adjust(step)
+                    true
+                }
+                else -> false
             }
-            Text(
-                valueLabel,
-                style = LumaType.bodyM.copy(fontWeight = FontWeight.Medium),
-                color = LumaColors.Accent,
+        },
+        modifier = modifier.fillMaxWidth(),
+        cornerRadius = 8.dp,
+    ) { focused ->
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(if (focused) LumaColors.Surface3 else Color.Transparent)
+                .padding(horizontal = 10.dp, vertical = 4.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(title, style = LumaType.bodyM, color = LumaColors.Text)
+                    if (detail != null) {
+                        Text(detail, style = LumaType.micro, color = LumaColors.Tertiary)
+                    }
+                }
+                Text(
+                    valueLabel,
+                    style = LumaType.bodyM.copy(fontWeight = FontWeight.Medium),
+                    color = LumaColors.Accent,
+                )
+            }
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = range,
+                steps = steps,
+                onValueChangeFinished = onValueChangeFinished,
+                colors = SliderDefaults.colors(
+                    thumbColor = LumaColors.Accent,
+                    activeTrackColor = LumaColors.Accent,
+                    inactiveTrackColor = LumaColors.Surface3,
+                ),
+                modifier = Modifier
+                    .height(24.dp)
+                    .focusProperties { canFocus = false },
             )
         }
-        Slider(
-            value = value,
-            onValueChange = onValueChange,
-            valueRange = range,
-            steps = steps,
-            onValueChangeFinished = onValueChangeFinished,
-            colors = SliderDefaults.colors(
-                thumbColor = LumaColors.Accent,
-                activeTrackColor = LumaColors.Accent,
-                inactiveTrackColor = LumaColors.Surface3,
-            ),
-            modifier = Modifier.height(24.dp),
-        )
     }
 }
 

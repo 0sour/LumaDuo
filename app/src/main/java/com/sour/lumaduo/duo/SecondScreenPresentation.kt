@@ -18,6 +18,9 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -100,7 +103,18 @@ class SecondScreenPresentation(
             setBackgroundDrawable(ColorDrawable(Color.BLACK))
             clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
+            addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+            )
             decorView.setBackgroundColor(Color.BLACK)
+            WindowCompat.setDecorFitsSystemWindows(this, false)
+            WindowInsetsControllerCompat(this, decorView).apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
         }
     }
 
@@ -164,9 +178,14 @@ class SecondScreenPresentation(
 fun findPresentationDisplay(context: Context, excludeDisplayId: Int = Display.DEFAULT_DISPLAY): Display? {
     val manager = context.getSystemService(Context.DISPLAY_SERVICE) as? android.hardware.display.DisplayManager
         ?: return null
-    return manager.displays.firstOrNull { display ->
-        display.displayId != excludeDisplayId &&
-            display.isValid &&
-            (display.flags and Display.FLAG_PRESENTATION) != 0
-    }
+    return manager.displays
+        .asSequence()
+        .filter { display ->
+            display.displayId != excludeDisplayId &&
+                display.isValid &&
+                (display.flags and Display.FLAG_PRESENTATION) != 0
+        }
+        // Stable choice if a device exposes more than one presentation display.
+        .sortedBy { it.displayId }
+        .firstOrNull()
 }

@@ -6,10 +6,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.hardware.display.DisplayManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.Display
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -17,6 +21,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -57,6 +64,7 @@ import com.sour.lumaduo.ui.shell.DuoDestination
 import com.sour.lumaduo.ui.shell.DuoHostAction
 import com.sour.lumaduo.ui.shell.DuoShellHost
 import com.sour.lumaduo.ui.shell.DuoShellScreen
+import com.sour.lumaduo.ui.shell.DuoTopContext
 import com.sour.lumaduo.utils.AppSettingsManager
 import com.sour.lumaduo.utils.ConfigurationSyncScheduler
 import com.sour.lumaduo.utils.ServerHelper
@@ -72,11 +80,22 @@ import kotlinx.coroutines.launch
  */
 class DuoMainActivity : ComponentActivity(), DuoShellHost {
     private var bottomPresentation: SecondScreenPresentation? = null
-    private var bottomDisplay: Display? = null
-    private var bottomMetrics: DisplayMetrics? = null
+    private var bottomDisplay by mutableStateOf<Display?>(null)
+    private var bottomMetrics by mutableStateOf<DisplayMetrics?>(null)
+    private var topContext by mutableStateOf(DuoTopContext())
+    private var started = false
     private val hostRepository by lazy { DuoHostRepository(this) }
     private val settingsRepository by lazy { DuoSettingsRepository(this) }
     private val remoteRepository by lazy { DuoRemoteRepository(this) }
+    private val displayManager by lazy {
+        getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
+    }
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val displayListener = object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) = refreshDisplays()
+        override fun onDisplayRemoved(displayId: Int) = refreshDisplays()
+        override fun onDisplayChanged(displayId: Int) = refreshDisplays()
+    }
 
     private val vpnPermissionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -116,6 +135,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             },
         )
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         WindowInsetsControllerCompat(window, window.decorView).apply {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior =
@@ -127,10 +147,8 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         remoteSnapshot = remoteRepository.read()
         remoteConfig = remoteRepository.readConfig()
 
-        bottomDisplay = findPresentationDisplay(this, windowManager.defaultDisplay.displayId)
-        bottomMetrics = bottomDisplay?.let { display ->
-            DisplayMetrics().also { display.getRealMetrics(it) }
-        }
+        bottomDisplay = findPresentationDisplay(this, ownDisplayId())
+        bottomMetrics = bottomDisplay?.let(::metricsFor)
         LimeLog.info(
             "LumaDuo: bottom display=${bottomDisplay?.displayId} " +
                 "${bottomMetrics?.widthPixels}x${bottomMetrics?.heightPixels} " +
@@ -143,6 +161,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
                     metrics = bottomMetrics,
                     hostCount = hostRepository.hosts.collectAsState().value.size,
                     destination = destination,
+                    context = topContext,
                 )
             }
         }
@@ -150,19 +169,24 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
 
     override fun onStart() {
         super.onStart()
+        started = true
+        displayManager?.registerDisplayListener(displayListener, mainHandler)
         hostRepository.start()
         settingsSnapshot = settingsRepository.read()
         remoteSnapshot = remoteRepository.read()
         remoteConfig = remoteRepository.readConfig()
-        showBottomPresentation()
+        refreshDisplays()
     }
 
     override fun onStop() {
+        started = false
+        displayManager?.unregisterDisplayListener(displayListener)
         bottomPresentation?.hide()
         super.onStop()
     }
 
     override fun onDestroy() {
+        displayManager?.unregisterDisplayListener(displayListener)
         remoteController.destroy()
         hostRepository.stop()
         bottomPresentation?.dismiss()
@@ -170,10 +194,61 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         super.onDestroy()
     }
 
+    /** Re-homes the bottom shell when a display is added, removed or resized. */
+    private fun refreshDisplays() {
+        val target = findPresentationDisplay(this, ownDisplayId())
+        val changed = target?.displayId != bottomDisplay?.displayId
+        if (changed) {
+            bottomPresentation?.dismiss()
+            bottomPresentation = null
+            bottomDisplay = target
+            bottomMetrics = target?.let(::metricsFor)
+        } else if (target != null) {
+            val metrics = metricsFor(target)
+            val previous = bottomMetrics
+            if (previous == null ||
+                previous.widthPixels != metrics.widthPixels ||
+                previous.heightPixels != metrics.heightPixels ||
+                previous.densityDpi != metrics.densityDpi
+            ) {
+                bottomMetrics = metrics
+            }
+        }
+        if (!started) return
+        if (target == null) {
+            bottomPresentation?.dismiss()
+            bottomPresentation = null
+            bottomMetrics = null
+        } else {
+            showBottomPresentation()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun ownDisplayId(): Int = windowManager.defaultDisplay.displayId
+
+    private fun metricsFor(display: Display): DisplayMetrics =
+        DisplayMetrics().also { display.getRealMetrics(it) }
+
     private fun showBottomPresentation() {
-        if (bottomPresentation != null) {
-            bottomPresentation?.show()
-            return
+        bottomPresentation?.let { existing ->
+            try {
+                existing.show()
+                return
+            } catch (e: WindowManager.InvalidDisplayException) {
+                LimeLog.warning("LumaDuo: bottom display disappeared: ${e.message}")
+                runCatching { existing.dismiss() }
+                bottomPresentation = null
+                bottomMetrics = null
+                scheduleDisplayRefresh()
+                return
+            } catch (e: WindowManager.BadTokenException) {
+                LimeLog.warning("LumaDuo: bottom presentation token lost: ${e.message}")
+                runCatching { existing.dismiss() }
+                bottomPresentation = null
+                scheduleDisplayRefresh()
+                return
+            }
         }
         val display = bottomDisplay ?: run {
             LimeLog.warning("LumaDuo: no presentation display; staying single-screen")
@@ -215,12 +290,28 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
                 onSettingsChanged = { settingsSnapshot = it },
                 externalNotice = shellNotice,
                 onExternalNoticeConsumed = { shellNotice = null },
+                onTopContextChanged = { topContext = it },
                 rootBackArmed = rootBackArmed,
             )
         }
-        bottomPresentation = presentation
-        presentation.show()
-        LimeLog.info("LumaDuo: bottom shell shown on display ${display.displayId}")
+        try {
+            presentation.show()
+            bottomPresentation = presentation
+            LimeLog.info("LumaDuo: bottom shell shown on display ${display.displayId}")
+        } catch (e: WindowManager.InvalidDisplayException) {
+            LimeLog.warning("LumaDuo: bottom display disappeared before show: ${e.message}")
+            runCatching { presentation.dismiss() }
+            scheduleDisplayRefresh()
+        } catch (e: WindowManager.BadTokenException) {
+            LimeLog.warning("LumaDuo: bottom presentation token invalid: ${e.message}")
+            runCatching { presentation.dismiss() }
+            scheduleDisplayRefresh()
+        }
+    }
+
+    private fun scheduleDisplayRefresh() {
+        if (!started) return
+        mainHandler.postDelayed({ if (started) refreshDisplays() }, 400L)
     }
 
     private fun handleBottomBack() {
@@ -442,7 +533,14 @@ private fun DuoTopScreen(
     metrics: DisplayMetrics?,
     hostCount: Int,
     destination: DuoDestination,
+    context: DuoTopContext,
 ) {
+    val location = when (destination) {
+        DuoDestination.HOSTS -> "主机"
+        DuoDestination.APPS -> "应用"
+        DuoDestination.REMOTE -> "远程"
+        DuoDestination.SETTINGS -> "设置"
+    }
     Box(
         Modifier
             .fillMaxSize()
@@ -457,46 +555,89 @@ private fun DuoTopScreen(
                 painter = painterResource(R.drawable.duo_logo_full),
                 contentDescription = "LumaDuo",
                 modifier = Modifier
-                    .size(96.dp)
+                    .size(64.dp)
                     .clip(LumaShapes.panel),
             )
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(14.dp))
             Text(
                 text = "LumaDuo",
-                style = LumaType.display,
+                style = LumaType.titleL,
                 color = LumaColors.Text,
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = "上屏只读 · 所有操作在下屏",
-                style = LumaType.titleM,
-                color = LumaColors.Secondary,
-                textAlign = TextAlign.Center,
+            Spacer(Modifier.height(12.dp))
+
+            if (display == null) {
+                Text(
+                    text = "未检测到下屏",
+                    style = LumaType.titleM,
+                    color = LumaColors.Warning,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "单屏回退尚未接入",
+                    style = LumaType.bodyM,
+                    color = LumaColors.Secondary,
+                    textAlign = TextAlign.Center,
+                )
+            } else if (context.hostName != null) {
+                Text(
+                    text = context.hostName,
+                    style = LumaType.titleM,
+                    color = LumaColors.Text,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text = context.appName ?: "在下屏选择应用",
+                    style = LumaType.bodyM,
+                    color = if (context.appName != null) LumaColors.Accent else LumaColors.Secondary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else {
+                Text(
+                    text = if (hostCount > 0) "已发现 $hostCount 台主机" else "等待主机",
+                    style = LumaType.titleM,
+                    color = LumaColors.Secondary,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text = "在下屏选择",
+                    style = LumaType.bodyM,
+                    color = LumaColors.Accent,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Box(
+                Modifier
+                    .width(200.dp)
+                    .height(2.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(LumaColors.Accent.copy(alpha = 0.45f)),
             )
             Spacer(Modifier.height(10.dp))
-            val location = when (destination) {
-                DuoDestination.HOSTS -> "主机"
-                DuoDestination.APPS -> "应用"
-                DuoDestination.REMOTE -> "远程"
-                DuoDestination.SETTINGS -> "设置"
-            }
             Text(
-                text = if (display != null && metrics != null) {
-                    "下屏 ${metrics.widthPixels}×${metrics.heightPixels} @${metrics.densityDpi}dpi · $location"
-                } else {
-                    "未找到下屏 · 单屏回退尚未接入"
-                },
-                style = LumaType.caption,
-                color = if (display != null) LumaColors.Accent else LumaColors.Warning,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = if (hostCount > 0) "已发现 $hostCount 台主机" else "尚未发现主机",
+                text = "下屏：$location · 上屏只读",
                 style = LumaType.caption,
                 color = LumaColors.Tertiary,
                 textAlign = TextAlign.Center,
             )
+            if (BuildConfig.DEBUG && metrics != null) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "${metrics.widthPixels}×${metrics.heightPixels} @${metrics.densityDpi}dpi",
+                    style = LumaType.micro,
+                    color = LumaColors.Disabled,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
