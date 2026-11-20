@@ -763,23 +763,7 @@ class EasyTierController(
     // ==================== 配置管理 ====================
 
     private fun getEasyTierConfig(): String {
-        val prefs = activity.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)
-        val defaultConfig = "instance_name = \"Default\"\n" +
-                "hostname = \"moonlight-V+\"\n" +
-                "ipv4 = \"10.0.0.1/24\"\n" +
-                "dhcp = false\n" +
-                "listeners = [\"tcp://0.0.0.0:11010\", \"udp://0.0.0.0:11010\", \"wg://0.0.0.0:11011\"]\n" +
-                "rpc_portal = \"0.0.0.0:0\"\n" +
-                "\n" +
-                "[network_identity]\n" +
-                "network_name = \"easytier\"\n" +
-                "network_secret = \"\"\n" +
-                "\n" +
-                "[[peer]]\n" +
-                "uri = \"tcp://public.easytier.top:11010\"\n" +
-                "\n" +
-                "[flags]\n"
-        return prefs.getString(KEY_TOML_CONFIG, defaultConfig)!!
+        return readStoredConfig(activity)
     }
 
     private fun loadConfigurationState(): EasyTierConfigUiState {
@@ -1066,5 +1050,33 @@ class EasyTierController(
         private const val TAG = "EasyTierController"
         private const val EASYTIER_PREFS = "easytier_preferences"
         private const val KEY_TOML_CONFIG = "toml_config_string"
+
+        private val DEFAULT_TOML_CONFIG = """
+            instance_name = "Default"
+            hostname = "moonlight-V+"
+            ipv4 = "10.0.0.1/24"
+            dhcp = false
+            listeners = ["tcp://0.0.0.0:11010", "udp://0.0.0.0:11010", "wg://0.0.0.0:11011"]
+            rpc_portal = "0.0.0.0:0"
+
+            [network_identity]
+            network_name = "easytier"
+            network_secret = ""
+
+            [[peer]]
+            uri = "tcp://public.easytier.top:11010"
+
+            [flags]
+        """.trimIndent() + "\n"
+
+        /**
+         * Read-only access for the LumaDuo remote page. Returning the stored TOML (or the
+         * built-in default) lets the page show real configuration without starting the VPN.
+         */
+        @JvmStatic
+        fun readStoredConfig(context: Context): String {
+            return context.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_TOML_CONFIG, DEFAULT_TOML_CONFIG) ?: DEFAULT_TOML_CONFIG
+        }
     }
 }

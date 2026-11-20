@@ -64,13 +64,18 @@ fun LumaFocusable(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 8.dp,
     enabled: Boolean = true,
+    onNavigateKey: ((Key) -> Boolean)? = null,
+    onFocused: ((Boolean) -> Unit)? = null,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .onFocusChanged { focused = it.isFocused }
+            .onFocusChanged {
+                focused = it.isFocused
+                onFocused?.invoke(it.isFocused)
+            }
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -78,12 +83,15 @@ fun LumaFocusable(
                 onClick = onClick,
             )
             .onKeyEvent { event ->
-                if (enabled &&
-                    event.type == KeyEventType.KeyDown &&
-                    event.key == Key.ButtonA
-                ) {
-                    onClick()
-                    true
+                if (enabled && event.type == KeyEventType.KeyDown) {
+                    when {
+                        event.key == Key.ButtonA -> {
+                            onClick()
+                            true
+                        }
+                        onNavigateKey?.invoke(event.key) == true -> true
+                        else -> false
+                    }
                 } else {
                     false
                 }

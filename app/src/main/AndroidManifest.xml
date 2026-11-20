@@ -189,6 +189,22 @@
              in each activity even though it is implied by targeting API 24+ -->
 
         <activity
+            android:name=".duo.DuoMainActivity"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:banner="@drawable/atv_banner"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:label="@string/app_label"
+            android:theme="@style/Theme.App.Starting"
+            android:enableOnBackInvokedCallback="true"
+            android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection">
+
+            <meta-data android:name="WindowManagerPreference:FreeformWindowSize" android:value="system-default" />
+            <meta-data android:name="WindowManagerPreference:FreeformWindowOrientation" android:value="landscape" />
+        </activity>
+
+        <activity
             android:name=".PcView"
             android:exported="true"
             android:resizeableActivity="true"
@@ -215,7 +231,7 @@
             android:name=".LauncherSaba"
             android:enabled="true"
             android:exported="true"
-            android:targetActivity=".PcView"
+            android:targetActivity=".duo.DuoMainActivity"
             android:banner="@drawable/atv_banner"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
@@ -234,7 +250,7 @@
             android:name=".LauncherSabaDark"
             android:enabled="false"
             android:exported="true"
-            android:targetActivity=".PcView"
+            android:targetActivity=".duo.DuoMainActivity"
             android:banner="@drawable/atv_banner"
             android:icon="@mipmap/ic_launcher_round"
             android:roundIcon="@mipmap/ic_launcher_round"

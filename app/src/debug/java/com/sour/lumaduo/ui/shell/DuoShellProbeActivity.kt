@@ -3,50 +3,34 @@ package com.sour.lumaduo.ui.shell
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.Display
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -55,51 +39,76 @@ import com.sour.lumaduo.LimeLog
 import com.sour.lumaduo.PcView
 import com.sour.lumaduo.R
 import com.sour.lumaduo.duo.DuoHostRepository
+import com.sour.lumaduo.duo.DuoRemoteRepository
+import com.sour.lumaduo.duo.DuoSettingsRepository
 import com.sour.lumaduo.duo.SecondScreenPresentation
 import com.sour.lumaduo.duo.findPresentationDisplay
 import com.sour.lumaduo.nvstream.http.ComputerDetails
 import com.sour.lumaduo.nvstream.http.NvApp
 import com.sour.lumaduo.nvstream.http.PairingManager
 import com.sour.lumaduo.ui.luma.LumaColors
-import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaTheme
 import com.sour.lumaduo.ui.luma.LumaType
 import com.sour.lumaduo.utils.ServerHelper
-import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Debug-only 640x480 shell probe. Launch it on either physical display to check rail,
- * app bar, mode bar and focus behavior without touching the production PcView flow.
+ * Debug-only 640x480 probe. It now hosts the production [DuoShellScreen] against real data,
+ * so layout/focus checks exercise the same composables as [com.sour.lumaduo.duo.DuoMainActivity].
  *
  * adb shell am start -n com.sour.lumaduo.debug/com.sour.lumaduo.ui.shell.DuoShellProbeActivity
- * adb shell am start --display 2 -n com.sour.lumaduo.debug/com.sour.lumaduo.ui.shell.DuoShellProbeActivity
  */
 class DuoShellProbeActivity : ComponentActivity() {
     private var bottomPresentation: SecondScreenPresentation? = null
     private var bottomDisplay: Display? = null
+    private var bottomMetrics: DisplayMetrics? = null
     private val hostRepository by lazy { DuoHostRepository(this) }
+    private val settingsRepository by lazy { DuoSettingsRepository(this) }
+    private val remoteRepository by lazy { DuoRemoteRepository(this) }
+
+    private var destination by mutableStateOf(DuoDestination.HOSTS)
+    private var settingsSnapshot by mutableStateOf(
+        DuoSettingsRepository.Snapshot("", "", false, 0, 0, "", false, false, "", ""),
+    )
+    private var remoteSnapshot by mutableStateOf(
+        DuoRemoteRepository.Snapshot("", "", false, emptyList(), emptyList(), true),
+    )
+    private var settingsNotice by mutableStateOf<String?>(null)
+    private var rootBackArmed by mutableStateOf(false)
+    private var lastBackAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = handleBottomBack()
+            },
+        )
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).apply {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        settingsSnapshot = settingsRepository.read()
+        remoteSnapshot = remoteRepository.read()
         bottomDisplay = findPresentationDisplay(this, windowManager.defaultDisplay.displayId)
-        val metrics = bottomDisplay?.let { display ->
+        bottomMetrics = bottomDisplay?.let { display ->
             DisplayMetrics().also { display.getRealMetrics(it) }
         }
         LimeLog.info(
-            "LumaDuo probe: bottom display=" +
-                "${bottomDisplay?.displayId} ${metrics?.widthPixels}x${metrics?.heightPixels} " +
-                "@${metrics?.densityDpi}dpi"
+            "LumaDuo probe: bottom display=${bottomDisplay?.displayId} " +
+                "${bottomMetrics?.widthPixels}x${bottomMetrics?.heightPixels} " +
+                "@${bottomMetrics?.densityDpi}dpi",
         )
         setContent {
             LumaTheme {
-                ProbeTopScreen(bottomDisplay, metrics)
+                ProbeTopScreen(
+                    display = bottomDisplay,
+                    metrics = bottomMetrics,
+                    hostCount = hostRepository.hosts.collectAsState().value.size,
+                )
             }
         }
     }
@@ -107,12 +116,12 @@ class DuoShellProbeActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         hostRepository.start()
+        settingsSnapshot = settingsRepository.read()
+        remoteSnapshot = remoteRepository.read()
         showBottomPresentation()
     }
 
     override fun onStop() {
-        // Keep the Presentation instance (and Compose state) across a temporary stop;
-        // dismiss only when the Activity is going away.
         bottomPresentation?.hide()
         super.onStop()
     }
@@ -136,26 +145,63 @@ class DuoShellProbeActivity : ComponentActivity() {
         val presentation = SecondScreenPresentation(
             activity = this,
             display = display,
-            onBack = {
-                LimeLog.info("LumaDuo probe: bottom back/escape received")
-                Toast.makeText(this, "下屏收到 Return/Back", Toast.LENGTH_SHORT).show()
-            },
+            onBack = ::handleBottomBack,
         ) {
-            DuoShellProbe(
+            LaunchedEffect(destination) {
+                when (destination) {
+                    DuoDestination.REMOTE -> remoteSnapshot = remoteRepository.read()
+                    DuoDestination.SETTINGS -> settingsSnapshot = settingsRepository.read()
+                    else -> Unit
+                }
+            }
+            DuoShellScreen(
+                destination = destination,
+                onDestinationChange = { next ->
+                    destination = next
+                    rootBackArmed = false
+                    settingsNotice = null
+                },
                 hosts = hostRepository.hosts,
                 apps = hostRepository.apps,
                 appsLoading = hostRepository.appsLoading,
                 appsError = hostRepository.appsError,
+                settings = settingsSnapshot,
+                remote = remoteSnapshot,
                 onOpenLegacy = { startActivity(Intent(this, PcView::class.java)) },
-                onRefresh = { hostRepository.refresh() },
+                onRefreshHosts = { hostRepository.refresh() },
                 onRequestApps = { hostRepository.loadApps(it) },
                 onRefreshApps = { host -> hostRepository.refreshAppList(host) },
                 onOpenApp = ::openApp,
+                onSettingsAdjust = ::adjustSetting,
+                settingsNotice = settingsNotice,
+                onSettingsNoticeExpired = { settingsNotice = null },
+                rootBackArmed = rootBackArmed,
             )
         }
         bottomPresentation = presentation
         presentation.show()
         LimeLog.info("LumaDuo probe: presentation shown on display ${display.displayId}")
+    }
+
+    private fun adjustSetting(field: DuoSettingsRepository.Field, delta: Int) {
+        settingsSnapshot = settingsRepository.adjust(field, delta)
+        settingsNotice = "已保存 · 下次串流生效"
+    }
+
+    private fun handleBottomBack() {
+        if (destination != DuoDestination.HOSTS) {
+            destination = DuoDestination.HOSTS
+            rootBackArmed = false
+            settingsNotice = null
+            return
+        }
+        val now = SystemClock.uptimeMillis()
+        if (now - lastBackAt <= 2_000L) {
+            finish()
+        } else {
+            lastBackAt = now
+            rootBackArmed = true
+        }
     }
 
     private fun openApp(host: ComputerDetails, app: NvApp) {
@@ -177,7 +223,11 @@ class DuoShellProbeActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ProbeTopScreen(display: Display?, metrics: DisplayMetrics?) {
+private fun ProbeTopScreen(
+    display: Display?,
+    metrics: DisplayMetrics?,
+    hostCount: Int,
+) {
     Box(
         Modifier
             .fillMaxSize()
@@ -223,557 +273,11 @@ private fun ProbeTopScreen(display: Display?, metrics: DisplayMetrics?) {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "下屏可触摸/手柄操作；Return 由 Presentation 自己接收",
+                text = if (hostCount > 0) "已发现 $hostCount 台主机" else "尚未发现主机",
                 style = LumaType.caption,
                 color = LumaColors.Tertiary,
                 textAlign = TextAlign.Center,
             )
-        }
-    }
-}
-
-private data class ProbeHost(
-    val uuid: String,
-    val name: String,
-    val address: String,
-    val tag: String,
-    val online: Boolean,
-    val paired: Boolean,
-)
-
-private val probeAppColors = listOf(
-    Color(0xFF7BA7C7),
-    Color(0xFF9B9BA8),
-    Color(0xFFF2C14E),
-    Color(0xFF4CC38A),
-    Color(0xFF5ED0FF),
-    Color(0xFFA78BFA),
-)
-
-@Composable
-private fun DuoShellProbe(
-    hosts: StateFlow<List<ComputerDetails>>,
-    apps: StateFlow<List<NvApp>>,
-    appsLoading: StateFlow<Boolean>,
-    appsError: StateFlow<String?>,
-    onOpenLegacy: () -> Unit,
-    onRefresh: () -> Unit,
-    onRequestApps: (ComputerDetails) -> Unit,
-    onRefreshApps: (ComputerDetails) -> Unit,
-    onOpenApp: (ComputerDetails, NvApp) -> Unit,
-) {
-    var destinationName by rememberSaveable { mutableStateOf(DuoDestination.HOSTS.name) }
-    var selectedUuid by rememberSaveable { mutableStateOf("") }
-    var selectedSettings by rememberSaveable { mutableIntStateOf(0) }
-    val hostList by hosts.collectAsState()
-    val appList by apps.collectAsState()
-    val appLoading by appsLoading.collectAsState()
-    val appError by appsError.collectAsState()
-    val destination = DuoDestination.valueOf(destinationName)
-    val effectiveSelectedUuid = selectedUuid.ifEmpty { hostList.firstOrNull()?.uuid.orEmpty() }
-    val selectedHost = hostList.firstOrNull { it.uuid == effectiveSelectedUuid }
-
-    LaunchedEffect(destination, selectedHost?.uuid) {
-        if (destination == DuoDestination.APPS) {
-            selectedHost?.let(onRequestApps)
-        }
-    }
-
-    val title = when (destination) {
-        DuoDestination.HOSTS -> "主机"
-        DuoDestination.APPS -> selectedHost?.name?.let { "$it · 应用" } ?: "应用"
-        DuoDestination.REMOTE -> "远程"
-        DuoDestination.SETTINGS -> "设置"
-    }
-    val subtitle = when (destination) {
-        DuoDestination.HOSTS -> "真实数据 · ComputerManagerService"
-        DuoDestination.APPS -> "真实应用列表 · ${appList.size} 个"
-        DuoDestination.REMOTE -> "DEMO · EasyTier 状态占位"
-        DuoDestination.SETTINGS -> "DEMO · 分类与行布局"
-    }
-    val actions = when (destination) {
-        DuoDestination.HOSTS -> buildList {
-            add(DuoAction(R.drawable.duo_ic_plus, "添加主机") { onOpenLegacy() })
-            if (selectedHost?.pairState == PairingManager.PairState.PAIRED) {
-                add(DuoAction(R.drawable.duo_ic_play, "进入应用列表") {
-                    selectedHost?.let(onRequestApps)
-                    destinationName = DuoDestination.APPS.name
-                })
-            }
-            add(DuoAction(R.drawable.duo_ic_refresh, "刷新主机") { onRefresh() })
-        }
-        DuoDestination.APPS -> listOf(
-            DuoAction(R.drawable.duo_ic_refresh, "刷新应用") {
-                selectedHost?.let(onRefreshApps)
-            },
-        )
-        else -> emptyList()
-    }
-
-    LumaDuoShell(
-        destination = destination,
-        onDestinationChange = { next ->
-            destinationName = next.name
-            if (next == DuoDestination.APPS) {
-                selectedHost?.let(onRequestApps)
-            }
-        },
-        title = title,
-        subtitle = subtitle,
-        actions = actions,
-        modeLabel = "手柄：下屏",
-        modeHint = when (destination) {
-            DuoDestination.HOSTS -> "选择主机 · 右上角进入应用"
-            DuoDestination.APPS -> "选择应用 · 启动串流"
-            else -> "本地壳层"
-        },
-        keyHints = listOf(
-            DuoKeyHint("A", if (destination == DuoDestination.APPS) "启动" else "选择"),
-            DuoKeyHint("B", "返回"),
-        ),
-    ) {
-        when (destination) {
-            DuoDestination.HOSTS -> ProbeHosts(
-                hosts = hostList,
-                selectedUuid = effectiveSelectedUuid,
-                onSelectHost = { host ->
-                    selectedUuid = host.uuid.orEmpty()
-                },
-            )
-            DuoDestination.APPS -> ProbeApps(
-                host = selectedHost,
-                apps = appList,
-                loading = appLoading,
-                error = appError,
-                onOpenApp = { app ->
-                    selectedHost?.let { onOpenApp(it, app) }
-                },
-            )
-            DuoDestination.REMOTE -> DemoRemote()
-            DuoDestination.SETTINGS -> DemoSettings(
-                selected = selectedSettings,
-                onSelect = { selectedSettings = it },
-            )
-        }
-    }
-}
-
-private fun ComputerDetails.toProbeHost(): ProbeHost {
-    val address = (activeAddress ?: localAddress ?: remoteAddress ?: ipv6Address)?.address ?: "—"
-    val tag = when {
-        activeAddress != null && activeAddress == localAddress -> "LAN"
-        manualAddress != null -> "手动"
-        else -> "远程"
-    }
-    return ProbeHost(
-        uuid = uuid.orEmpty(),
-        name = name ?: "未命名主机",
-        address = address,
-        tag = tag,
-        online = state == ComputerDetails.State.ONLINE,
-        paired = pairState == PairingManager.PairState.PAIRED,
-    )
-}
-
-@Composable
-private fun ProbeHosts(
-    hosts: List<ComputerDetails>,
-    selectedUuid: String?,
-    onSelectHost: (ComputerDetails) -> Unit,
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        DemoSectionHeader("最近主机", "${hosts.size} 台 · 实时")
-        Spacer(Modifier.height(8.dp))
-        if (hosts.isEmpty()) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = "还没有主机",
-                    style = LumaType.titleM,
-                    color = LumaColors.Text,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = "用右上角 + 打开旧版主机管理添加/配对",
-                    style = LumaType.caption,
-                    color = LumaColors.Tertiary,
-                )
-            }
-            return@Column
-        }
-        hosts.forEach { computer ->
-            val host = computer.toProbeHost()
-            val selected = host.uuid == selectedUuid
-            LumaFocusable(
-                onClick = { onSelectHost(computer) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(82.dp)
-                    .padding(vertical = 4.dp),
-                cornerRadius = 10.dp,
-            ) { focused ->
-                Row(
-                    Modifier
-                        .fillMaxSize()
-                        .clip(LumaShapes.card)
-                        .background(
-                            when {
-                                selected -> Brush.horizontalGradient(
-                                    colors = listOf(
-                                        LumaColors.Accent.copy(alpha = 0.13f),
-                                        LumaColors.Surface1,
-                                    ),
-                                )
-                                focused -> Brush.horizontalGradient(
-                                    listOf(LumaColors.Surface3, LumaColors.Surface3),
-                                )
-                                else -> Brush.horizontalGradient(
-                                    listOf(LumaColors.Surface1, LumaColors.Surface1),
-                                )
-                            },
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = if (selected) {
-                                LumaColors.Accent.copy(alpha = 0.38f)
-                            } else {
-                                Color.Transparent
-                            },
-                            shape = LumaShapes.card,
-                        )
-                        .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.duo_ic_monitor),
-                        contentDescription = null,
-                        modifier = Modifier.size(28.dp),
-                        tint = if (host.online) LumaColors.Accent else LumaColors.Disabled,
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(if (host.online) LumaColors.Success else LumaColors.Disabled),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = host.name,
-                                style = LumaType.titleM,
-                                color = LumaColors.Text,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text = "${host.address} · ${if (host.paired) "已配对" else "未配对"}",
-                            style = LumaType.caption,
-                            color = LumaColors.Secondary,
-                            maxLines = 1,
-                        )
-                    }
-                    Text(
-                        text = host.tag,
-                        style = LumaType.micro.copy(fontWeight = FontWeight.Medium),
-                        color = if (host.tag == "LAN") LumaColors.Tertiary else LumaColors.Signal,
-                        modifier = Modifier
-                            .clip(LumaShapes.chip)
-                            .background(LumaColors.Surface3)
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
-                    )
-                }
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = "右上角 ▶ 进入真实应用列表；+ 打开旧版主机管理添加/配对。",
-            style = LumaType.caption,
-            color = LumaColors.Tertiary,
-        )
-    }
-}
-
-@Composable
-private fun ProbeApps(
-    host: ComputerDetails?,
-    apps: List<NvApp>,
-    loading: Boolean,
-    error: String?,
-    onOpenApp: (NvApp) -> Unit,
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        DemoSectionHeader("全部应用", if (loading) "读取中" else "${apps.size} 个 · 实时")
-        Spacer(Modifier.height(8.dp))
-        when {
-            host == null -> ProbeEmpty("先在主机页选择一台主机", Modifier.weight(1f))
-            loading -> ProbeEmpty("正在读取主机应用列表…", Modifier.weight(1f))
-            error != null -> ProbeEmpty("读取失败：$error", Modifier.weight(1f))
-            apps.isEmpty() -> ProbeEmpty("主机没有可启动的应用", Modifier.weight(1f))
-            else -> LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(apps, key = { it.appId }) { app ->
-                    val color = probeAppColors[((app.appId % probeAppColors.size) + probeAppColors.size) % probeAppColors.size]
-                    val initial = app.appName.trim().firstOrNull()?.uppercase() ?: "?"
-                    LumaFocusable(
-                        onClick = { onOpenApp(app) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(104.dp),
-                        cornerRadius = 10.dp,
-                    ) { focused ->
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .clip(LumaShapes.card)
-                                .background(if (focused) LumaColors.Surface3 else LumaColors.Surface1)
-                                .padding(10.dp),
-                        ) {
-                            Box(
-                                Modifier
-                                    .size(40.dp)
-                                    .clip(LumaShapes.control)
-                                    .background(color),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = initial,
-                                    style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
-                                    color = Color(0xFF121216),
-                                )
-                            }
-                            Spacer(Modifier.weight(1f))
-                            Text(
-                                text = app.appName,
-                                style = LumaType.bodyM,
-                                color = LumaColors.Text,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProbeEmpty(message: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = message,
-            style = LumaType.bodyM,
-            color = LumaColors.Tertiary,
-        )
-    }
-}
-
-@Composable
-private fun DemoRemote() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        DemoSectionHeader("EasyTier", "已连接 · DEMO")
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DemoInfoPanel(
-                modifier = Modifier.weight(1.35f),
-                title = "网络",
-                rows = listOf(
-                    "网络名" to "family-net",
-                    "密钥" to "••••••••",
-                    "Peer" to "public.easytier.top:11010",
-                ),
-            )
-            DemoInfoPanel(
-                modifier = Modifier.weight(1f),
-                title = "本机",
-                rows = listOf(
-                    "虚拟 IP" to "10.0.0.1/24",
-                    "节点" to "2",
-                    "延迟" to "18 ms",
-                ),
-            )
-        }
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = "启动/停止、复制 PC 配置、二维码和手动添加主机在 M2 页面接入。",
-            style = LumaType.caption,
-            color = LumaColors.Tertiary,
-        )
-    }
-}
-
-@Composable
-private fun DemoSettings(selected: Int, onSelect: (Int) -> Unit) {
-    val categories = listOf("画面", "音频", "输入", "网络", "外观", "关于")
-    val rows = when (selected) {
-        0 -> listOf("分辨率" to "1920 × 1080", "帧率" to "60 Hz", "码率" to "50 Mbps", "HDR" to "开")
-        1 -> listOf("音量" to "80%", "静音" to "关", "输出" to "设备")
-        2 -> listOf("输入模式" to "直通优先", "震动" to "开", "键盘" to "数字 + ASCII")
-        3 -> listOf("EasyTier 自启" to "开", "虚拟 IP" to "10.0.0.1/24")
-        4 -> listOf("主题" to "深色", "强调色" to "Lumen Gold")
-        else -> listOf("版本" to "0.1.0", "许可证" to "GPL-3.0")
-    }
-    Row(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Column(Modifier.width(132.dp)) {
-            categories.forEachIndexed { index, name ->
-                LumaFocusable(
-                    onClick = { onSelect(index) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                        .padding(vertical = 2.dp),
-                    cornerRadius = 8.dp,
-                ) { focused ->
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .clip(LumaShapes.control)
-                            .background(
-                                when {
-                                    index == selected -> LumaColors.AccentSoft
-                                    focused -> LumaColors.Surface3
-                                    else -> Color.Transparent
-                                },
-                            )
-                            .padding(horizontal = 10.dp),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        Text(
-                            text = name,
-                            style = LumaType.bodyM,
-                            color = if (index == selected) LumaColors.Accent else LumaColors.Secondary,
-                        )
-                    }
-                }
-            }
-        }
-        Column(
-            Modifier
-                .weight(1f)
-                .fillMaxSize()
-                .clip(LumaShapes.card)
-                .background(LumaColors.Surface1),
-        ) {
-            DemoSectionHeader(categories[selected], "DEMO")
-            rows.forEach { (label, value) ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = label,
-                        style = LumaType.bodyM,
-                        color = LumaColors.Text,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        text = value,
-                        style = LumaType.caption,
-                        color = LumaColors.Secondary,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DemoSectionHeader(title: String, meta: String) {
-    Row(
-        Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = title,
-            style = LumaType.label,
-            color = LumaColors.Text,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            text = meta,
-            style = LumaType.micro,
-            color = LumaColors.Tertiary,
-        )
-    }
-}
-
-@Composable
-private fun DemoInfoPanel(
-    modifier: Modifier = Modifier,
-    title: String,
-    rows: List<Pair<String, String>>,
-) {
-    Column(
-        modifier
-            .clip(LumaShapes.card)
-            .background(LumaColors.Surface1)
-            .padding(12.dp),
-    ) {
-        Text(
-            text = title,
-            style = LumaType.label,
-            color = LumaColors.Text,
-        )
-        Spacer(Modifier.height(8.dp))
-        rows.forEach { (label, value) ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-            ) {
-                Text(
-                    text = label,
-                    style = LumaType.caption,
-                    color = LumaColors.Tertiary,
-                    modifier = Modifier.width(72.dp),
-                )
-                Text(
-                    text = value,
-                    style = LumaType.caption,
-                    color = LumaColors.Secondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
     }
 }

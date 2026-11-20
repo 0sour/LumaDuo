@@ -131,9 +131,11 @@ class SecondScreenPresentation(
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN &&
-            (event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_ESCAPE)
+            (event.keyCode == KeyEvent.KEYCODE_BACK ||
+                event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
-            LimeLog.info("LumaDuo bottom presentation received back/escape")
+            LimeLog.info("LumaDuo bottom presentation received back/escape/button-b")
             onBack()
             return true
         }
