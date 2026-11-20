@@ -2364,6 +2364,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         grabbedInput = grab
     }
 
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (duoSingleScreenHost?.dispatchKeyEvent(event) == true) return true
         return super.dispatchKeyEvent(event)

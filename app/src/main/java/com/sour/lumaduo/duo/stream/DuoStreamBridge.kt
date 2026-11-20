@@ -206,6 +206,7 @@ class DuoStreamBridge(
     }
 
     private fun readNetworkLabel(): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return "—"
         val manager = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return "—"
         val network = manager.activeNetwork ?: return "—"
@@ -220,6 +221,7 @@ class DuoStreamBridge(
     }
 
     private fun isVpnActive(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
         val manager = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return false
         val network = manager.activeNetwork ?: return false

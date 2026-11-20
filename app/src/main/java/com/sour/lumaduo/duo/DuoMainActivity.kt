@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.duo
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -237,6 +238,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         // Single-screen fallback hosts the shell in this window, so it needs the same
         // physical B-confirm / A-back contract as the bottom Presentation.
