@@ -14,6 +14,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,10 +23,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,7 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.sour.lumaduo.AppView
 import com.sour.lumaduo.LimeLog
 import com.sour.lumaduo.PcView
 import com.sour.lumaduo.R
@@ -54,12 +58,14 @@ import com.sour.lumaduo.duo.DuoHostRepository
 import com.sour.lumaduo.duo.SecondScreenPresentation
 import com.sour.lumaduo.duo.findPresentationDisplay
 import com.sour.lumaduo.nvstream.http.ComputerDetails
+import com.sour.lumaduo.nvstream.http.NvApp
 import com.sour.lumaduo.nvstream.http.PairingManager
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaTheme
 import com.sour.lumaduo.ui.luma.LumaType
+import com.sour.lumaduo.utils.ServerHelper
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -137,9 +143,14 @@ class DuoShellProbeActivity : ComponentActivity() {
         ) {
             DuoShellProbe(
                 hosts = hostRepository.hosts,
-                onOpenHost = ::openHost,
+                apps = hostRepository.apps,
+                appsLoading = hostRepository.appsLoading,
+                appsError = hostRepository.appsError,
                 onOpenLegacy = { startActivity(Intent(this, PcView::class.java)) },
                 onRefresh = { hostRepository.refresh() },
+                onRequestApps = { hostRepository.loadApps(it) },
+                onRefreshApps = { host -> hostRepository.refreshAppList(host) },
+                onOpenApp = ::openApp,
             )
         }
         bottomPresentation = presentation
@@ -147,7 +158,7 @@ class DuoShellProbeActivity : ComponentActivity() {
         LimeLog.info("LumaDuo probe: presentation shown on display ${display.displayId}")
     }
 
-    private fun openHost(host: ComputerDetails) {
+    private fun openApp(host: ComputerDetails, app: NvApp) {
         if (host.state == ComputerDetails.State.OFFLINE) {
             Toast.makeText(this, "主机离线", Toast.LENGTH_SHORT).show()
             return
@@ -157,12 +168,11 @@ class DuoShellProbeActivity : ComponentActivity() {
             startActivity(Intent(this, PcView::class.java))
             return
         }
-        startActivity(
-            Intent(this, AppView::class.java).apply {
-                putExtra(AppView.NAME_EXTRA, host.name)
-                putExtra(AppView.UUID_EXTRA, host.uuid)
-            },
-        )
+        val binder = hostRepository.currentBinder() ?: run {
+            Toast.makeText(this, "主机服务尚未就绪", Toast.LENGTH_SHORT).show()
+            return
+        }
+        ServerHelper.doStart(this, app, host, binder)
     }
 }
 
@@ -231,36 +241,43 @@ private data class ProbeHost(
     val paired: Boolean,
 )
 
-private data class DemoApp(
-    val name: String,
-    val initial: String,
-    val color: Color,
-)
-
-private val demoApps = listOf(
-    DemoApp("Steam 大屏", "S", Color(0xFF7BA7C7)),
-    DemoApp("桌面", "D", Color(0xFF9B9BA8)),
-    DemoApp("赛博朋克 2077", "C", Color(0xFFF2C14E)),
-    DemoApp("极限竞速：地平线 5", "F", Color(0xFF4CC38A)),
-    DemoApp("RetroArch", "R", Color(0xFF5ED0FF)),
-    DemoApp("Moonlight 测试", "M", Color(0xFFA78BFA)),
+private val probeAppColors = listOf(
+    Color(0xFF7BA7C7),
+    Color(0xFF9B9BA8),
+    Color(0xFFF2C14E),
+    Color(0xFF4CC38A),
+    Color(0xFF5ED0FF),
+    Color(0xFFA78BFA),
 )
 
 @Composable
 private fun DuoShellProbe(
     hosts: StateFlow<List<ComputerDetails>>,
-    onOpenHost: (ComputerDetails) -> Unit,
+    apps: StateFlow<List<NvApp>>,
+    appsLoading: StateFlow<Boolean>,
+    appsError: StateFlow<String?>,
     onOpenLegacy: () -> Unit,
     onRefresh: () -> Unit,
+    onRequestApps: (ComputerDetails) -> Unit,
+    onRefreshApps: (ComputerDetails) -> Unit,
+    onOpenApp: (ComputerDetails, NvApp) -> Unit,
 ) {
     var destinationName by rememberSaveable { mutableStateOf(DuoDestination.HOSTS.name) }
     var selectedUuid by rememberSaveable { mutableStateOf("") }
     var selectedSettings by rememberSaveable { mutableIntStateOf(0) }
     val hostList by hosts.collectAsState()
+    val appList by apps.collectAsState()
+    val appLoading by appsLoading.collectAsState()
+    val appError by appsError.collectAsState()
     val destination = DuoDestination.valueOf(destinationName)
-    val context = LocalContext.current
     val effectiveSelectedUuid = selectedUuid.ifEmpty { hostList.firstOrNull()?.uuid.orEmpty() }
     val selectedHost = hostList.firstOrNull { it.uuid == effectiveSelectedUuid }
+
+    LaunchedEffect(destination, selectedHost?.uuid) {
+        if (destination == DuoDestination.APPS) {
+            selectedHost?.let(onRequestApps)
+        }
+    }
 
     val title = when (destination) {
         DuoDestination.HOSTS -> "主机"
@@ -270,22 +287,24 @@ private fun DuoShellProbe(
     }
     val subtitle = when (destination) {
         DuoDestination.HOSTS -> "真实数据 · ComputerManagerService"
-        DuoDestination.APPS -> "DEMO · 应用网格待接入"
+        DuoDestination.APPS -> "真实应用列表 · ${appList.size} 个"
         DuoDestination.REMOTE -> "DEMO · EasyTier 状态占位"
         DuoDestination.SETTINGS -> "DEMO · 分类与行布局"
     }
     val actions = when (destination) {
-        DuoDestination.HOSTS -> listOf(
-            DuoAction(R.drawable.duo_ic_plus, "添加主机") {
-                onOpenLegacy()
-            },
-            DuoAction(R.drawable.duo_ic_refresh, "刷新主机") {
-                onRefresh()
-            },
-        )
+        DuoDestination.HOSTS -> buildList {
+            add(DuoAction(R.drawable.duo_ic_plus, "添加主机") { onOpenLegacy() })
+            if (selectedHost?.pairState == PairingManager.PairState.PAIRED) {
+                add(DuoAction(R.drawable.duo_ic_play, "进入应用列表") {
+                    selectedHost?.let(onRequestApps)
+                    destinationName = DuoDestination.APPS.name
+                })
+            }
+            add(DuoAction(R.drawable.duo_ic_refresh, "刷新主机") { onRefresh() })
+        }
         DuoDestination.APPS -> listOf(
             DuoAction(R.drawable.duo_ic_refresh, "刷新应用") {
-                Toast.makeText(context, "应用网格待接入", Toast.LENGTH_SHORT).show()
+                selectedHost?.let(onRefreshApps)
             },
         )
         else -> emptyList()
@@ -293,14 +312,23 @@ private fun DuoShellProbe(
 
     LumaDuoShell(
         destination = destination,
-        onDestinationChange = { destinationName = it.name },
+        onDestinationChange = { next ->
+            destinationName = next.name
+            if (next == DuoDestination.APPS) {
+                selectedHost?.let(onRequestApps)
+            }
+        },
         title = title,
         subtitle = subtitle,
         actions = actions,
         modeLabel = "手柄：下屏",
-        modeHint = "真实主机 · 点击连接",
+        modeHint = when (destination) {
+            DuoDestination.HOSTS -> "选择主机 · 右上角进入应用"
+            DuoDestination.APPS -> "选择应用 · 启动串流"
+            else -> "本地壳层"
+        },
         keyHints = listOf(
-            DuoKeyHint("A", "连接"),
+            DuoKeyHint("A", if (destination == DuoDestination.APPS) "启动" else "选择"),
             DuoKeyHint("B", "返回"),
         ),
     ) {
@@ -308,12 +336,19 @@ private fun DuoShellProbe(
             DuoDestination.HOSTS -> ProbeHosts(
                 hosts = hostList,
                 selectedUuid = effectiveSelectedUuid,
-                onOpenHost = { host ->
+                onSelectHost = { host ->
                     selectedUuid = host.uuid.orEmpty()
-                    onOpenHost(host)
                 },
             )
-            DuoDestination.APPS -> DemoApps()
+            DuoDestination.APPS -> ProbeApps(
+                host = selectedHost,
+                apps = appList,
+                loading = appLoading,
+                error = appError,
+                onOpenApp = { app ->
+                    selectedHost?.let { onOpenApp(it, app) }
+                },
+            )
             DuoDestination.REMOTE -> DemoRemote()
             DuoDestination.SETTINGS -> DemoSettings(
                 selected = selectedSettings,
@@ -344,7 +379,7 @@ private fun ComputerDetails.toProbeHost(): ProbeHost {
 private fun ProbeHosts(
     hosts: List<ComputerDetails>,
     selectedUuid: String?,
-    onOpenHost: (ComputerDetails) -> Unit,
+    onSelectHost: (ComputerDetails) -> Unit,
 ) {
     Column(
         Modifier
@@ -379,7 +414,7 @@ private fun ProbeHosts(
             val host = computer.toProbeHost()
             val selected = host.uuid == selectedUuid
             LumaFocusable(
-                onClick = { onOpenHost(computer) },
+                onClick = { onSelectHost(computer) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(82.dp)
@@ -464,7 +499,7 @@ private fun ProbeHosts(
         }
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "已配对接现有 AppView；未配对接旧版主机管理。应用页仍为 DEMO。",
+            text = "右上角 ▶ 进入真实应用列表；+ 打开旧版主机管理添加/配对。",
             style = LumaType.caption,
             color = LumaColors.Tertiary,
         )
@@ -472,21 +507,41 @@ private fun ProbeHosts(
 }
 
 @Composable
-private fun DemoApps() {
+private fun ProbeApps(
+    host: ComputerDetails?,
+    apps: List<NvApp>,
+    loading: Boolean,
+    error: String?,
+    onOpenApp: (NvApp) -> Unit,
+) {
     Column(
         Modifier
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        DemoSectionHeader("全部应用", "6 个 · DEMO")
+        DemoSectionHeader("全部应用", if (loading) "读取中" else "${apps.size} 个 · 实时")
         Spacer(Modifier.height(8.dp))
-        demoApps.chunked(3).forEach { rowApps ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                rowApps.forEach { app ->
+        when {
+            host == null -> ProbeEmpty("先在主机页选择一台主机", Modifier.weight(1f))
+            loading -> ProbeEmpty("正在读取主机应用列表…", Modifier.weight(1f))
+            error != null -> ProbeEmpty("读取失败：$error", Modifier.weight(1f))
+            apps.isEmpty() -> ProbeEmpty("主机没有可启动的应用", Modifier.weight(1f))
+            else -> LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentPadding = PaddingValues(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(apps, key = { it.appId }) { app ->
+                    val color = probeAppColors[((app.appId % probeAppColors.size) + probeAppColors.size) % probeAppColors.size]
+                    val initial = app.appName.trim().firstOrNull()?.uppercase() ?: "?"
                     LumaFocusable(
-                        onClick = {},
+                        onClick = { onOpenApp(app) },
                         modifier = Modifier
-                            .weight(1f)
+                            .fillMaxWidth()
                             .height(104.dp),
                         cornerRadius = 10.dp,
                     ) { focused ->
@@ -501,18 +556,18 @@ private fun DemoApps() {
                                 Modifier
                                     .size(40.dp)
                                     .clip(LumaShapes.control)
-                                    .background(app.color),
+                                    .background(color),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
-                                    text = app.initial,
+                                    text = initial,
                                     style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
                                     color = Color(0xFF121216),
                                 )
                             }
                             Spacer(Modifier.weight(1f))
                             Text(
-                                text = app.name,
+                                text = app.appName,
                                 style = LumaType.bodyM,
                                 color = LumaColors.Text,
                                 maxLines = 2,
@@ -521,10 +576,22 @@ private fun DemoApps() {
                         }
                     }
                 }
-                repeat(3 - rowApps.size) { Spacer(Modifier.weight(1f)) }
             }
-            Spacer(Modifier.height(8.dp))
         }
+    }
+}
+
+@Composable
+private fun ProbeEmpty(message: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = message,
+            style = LumaType.bodyM,
+            color = LumaColors.Tertiary,
+        )
     }
 }
 
