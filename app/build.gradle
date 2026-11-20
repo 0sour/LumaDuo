@@ -35,16 +35,6 @@ if (audioHapticsSdkDir.isEmpty()) {
     )
 }
 
-// 仅在存在 google-services.json 且满足条件时应用 Google Services 插件
-def hasGoogleServicesJson = file('google-services.json').exists()
-if (hasGoogleServicesJson && (project.hasProperty('enableAnalytics') || gradle.startParameter.taskNames.any { it.contains('Release') })) {
-    apply plugin: 'com.google.gms.google-services'
-    // Crashlytics requires google-services to be applied first.
-    apply plugin: 'com.google.firebase.crashlytics'
-} else if (!hasGoogleServicesJson) {
-    logger.lifecycle("google-services.json not found; skipping Google Services + Crashlytics plugins")
-}
-
 android {
     ndkVersion "28.2.13676358"
 
@@ -154,6 +144,13 @@ android {
             buildConfigField "boolean", "ROOT_BUILD", "false"
             buildConfigField "boolean", "MINIMAL_EDITION", "true"
         }
+    }
+
+    sourceSets {
+        // Audio-haptics sample assets are only referenced by the full editions.
+        // Keeping them out of main stops them from being packaged into duo.
+        nonRoot { assets.srcDirs += 'src/full/assets' }
+        root { assets.srcDirs += 'src/full/assets' }
     }
 
     compileOptions {
@@ -269,6 +266,17 @@ android {
 androidComponents {
     onVariants(selector().withFlavor("root", "duo")) { variant ->
         variant.androidResources.localeFilters.addAll(["en", "zh-rCN"])
+
+        // Optional engine add-ons stay available to the full editions but are not
+        // shipped in the minimal product. Java call sites are guarded by
+        // BuildConfig.MINIMAL_EDITION and degrade gracefully when a library is absent.
+        variant.packaging.jniLibs.excludes.addAll([
+                "**/libmoonlight-framegen.so",
+                "**/libmoonlight_usbip.so",
+                "**/libmoonlight_haptics_android.so",
+                "**/libiperf3.so",
+                "**/libc++_shared.so",
+        ])
     }
 }
 
@@ -315,14 +323,6 @@ dependencies {
     implementation libs.androidx.compose.ui
     implementation libs.androidx.compose.ui.tooling.preview
     implementation libs.compose.showcase.sequence
-
-    // Firebase Analytics + Crashlytics
-    // BOM 版本说明: https://firebase.google.com/support/release-notes/android
-    // 注意: Firebase 33.0.0+ 需要 minSdk 23，我们使用 32.8.1 保持 API 22 兼容
-    // 没有 google-services.json 时 Crashlytics 仍能编译进 APK 但不会上报 (init 静默失败)
-    implementation platform(libs.firebase.bom)
-    implementation libs.firebase.analytics
-    implementation libs.firebase.crashlytics
 
     // Kotlin
     implementation libs.kotlin.stdlib

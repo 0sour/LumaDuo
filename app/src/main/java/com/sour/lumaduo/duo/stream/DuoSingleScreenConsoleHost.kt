@@ -70,7 +70,7 @@ class DuoSingleScreenConsoleHost(
             LumaTheme {
                 SingleScreenOverlay(
                     visible = visible,
-                    onClose = { game.setDuoConsoleMode(DuoStreamMode.PASSTHROUGH) },
+                    onClose = { actions.setMode(DuoStreamMode.PASSTHROUGH) },
                     bridge = bridge,
                     actions = actions,
                     settingsRepository = settingsRepository,
@@ -93,14 +93,14 @@ class DuoSingleScreenConsoleHost(
     val isOverlayVisible: Boolean get() = visible
 
     fun open() {
-        game.setDuoConsoleMode(DuoStreamMode.LOCAL)
+        actions.setMode(DuoStreamMode.LOCAL)
     }
 
     fun handleBack(): Boolean {
         if (visible) {
-            game.setDuoConsoleMode(DuoStreamMode.PASSTHROUGH)
+            actions.setMode(DuoStreamMode.PASSTHROUGH)
         } else {
-            game.setDuoConsoleMode(DuoStreamMode.LOCAL)
+            actions.setMode(DuoStreamMode.LOCAL)
         }
         return true
     }
@@ -118,14 +118,14 @@ class DuoSingleScreenConsoleHost(
 
     fun onPictureInPictureChanged(inPip: Boolean) {
         if (inPip && visible) {
-            game.setDuoConsoleMode(DuoStreamMode.PASSTHROUGH)
+            actions.setMode(DuoStreamMode.PASSTHROUGH)
         }
     }
 
     /** Hide and restore passthrough input before the Activity stops. */
     fun stop() {
         if (visible) {
-            game.setDuoConsoleMode(DuoStreamMode.PASSTHROUGH)
+            actions.setMode(DuoStreamMode.PASSTHROUGH)
         }
     }
 

@@ -13,6 +13,7 @@ import android.os.Looper
 import android.os.PowerManager
 import com.sour.lumaduo.binding.video.PerformanceInfo
 import com.sour.lumaduo.preferences.PreferenceConfiguration
+import com.sour.lumaduo.stream.StreamMetrics
 import com.sour.lumaduo.ui.stream.DuoStreamMode
 import com.sour.lumaduo.ui.stream.DuoStreamPhase
 import com.sour.lumaduo.ui.stream.DuoStreamState
@@ -232,17 +233,10 @@ class DuoStreamBridge(
     companion object {
         private const val TICK_INTERVAL_MS = 1_000L
         private const val TREND_SAMPLES = 60
-        private val BANDWIDTH_PATTERN = Regex("([0-9]+(?:\\.[0-9]+)?)")
 
-        /** rttInfo packs average RTT in the high 32 bits and variance in the low 32 bits. */
-        internal fun rttFrom(rttInfo: Long): Double? {
-            val high = (rttInfo ushr 32) and 0xFFFF_FFFFL
-            return high.takeIf { it > 0L }?.toDouble()
-        }
+        internal fun rttFrom(rttInfo: Long): Double? = StreamMetrics.rttFrom(rttInfo)
 
-        internal fun parseBandwidthMbps(text: String?): Double? {
-            val value = text?.let { BANDWIDTH_PATTERN.find(it)?.groupValues?.getOrNull(1)?.toDoubleOrNull() }
-            return value?.takeIf { it > 0.0 }
-        }
+        internal fun parseBandwidthMbps(text: String?): Double? =
+            StreamMetrics.parseBandwidthMbps(text)
     }
 }

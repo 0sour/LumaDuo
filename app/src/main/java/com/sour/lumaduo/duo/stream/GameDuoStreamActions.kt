@@ -3,21 +3,21 @@ package com.sour.lumaduo.duo.stream
 
 import android.os.Handler
 import android.os.Looper
-import com.sour.lumaduo.Game
-import com.sour.lumaduo.binding.input.evdev.EvdevListener
+import com.sour.lumaduo.stream.StreamConsoleMode
+import com.sour.lumaduo.stream.StreamSessionController
 import com.sour.lumaduo.ui.stream.DuoStreamActions
 import com.sour.lumaduo.ui.stream.DuoStreamMode
 import kotlin.math.roundToInt
 
 /**
- * Real implementation of the console actions, bound to one live [Game] session.
+ * Real implementation of the console actions, bound to one live [StreamSessionController].
  *
  * Every method runs on the UI thread (the console invokes actions from Compose). The key
  * sender talks directly to [com.sour.lumaduo.nvstream.NvConnection], so local console
- * input never depends on Game's input-grab state or on a synthetic Android KeyEvent.
+ * input never depends on the engine's input-grab state or on a synthetic Android KeyEvent.
  */
 class GameDuoStreamActions(
-    private val game: Game,
+    private val controller: StreamSessionController,
     private val bridge: DuoStreamBridge,
     private val keySender: DuoStreamKeySender,
 ) : DuoStreamActions {
@@ -25,19 +25,24 @@ class GameDuoStreamActions(
     private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun setMode(mode: DuoStreamMode) {
-        game.setDuoConsoleMode(mode)
+        controller.setConsoleMode(
+            when (mode) {
+                DuoStreamMode.PASSTHROUGH -> StreamConsoleMode.PASSTHROUGH
+                DuoStreamMode.LOCAL -> StreamConsoleMode.LOCAL
+            }
+        )
     }
 
     override fun exitStream() {
-        game.disconnect()
+        controller.exitStream()
     }
 
     override fun reconnect() {
-        game.duoReconnect()
+        controller.reconnectStream()
     }
 
     override fun disconnect() {
-        game.duoDisconnect()
+        controller.disconnectStream()
     }
 
     override fun openRemote() {
@@ -67,25 +72,18 @@ class GameDuoStreamActions(
     }
 
     override fun unlockHost() {
-        game.startHostUnlock()
+        controller.unlockHost()
     }
 
     override fun mouseMove(dx: Float, dy: Float) {
         val x = dx.roundToInt()
         val y = dy.roundToInt()
         if (x == 0 && y == 0) return
-        game.mouseMove(x, y)
+        controller.mouseMove(x, y)
     }
 
     override fun mouseButton(button: Int) {
-        val evdevButton = when (button) {
-            1 -> EvdevListener.BUTTON_LEFT
-            2 -> EvdevListener.BUTTON_MIDDLE
-            3 -> EvdevListener.BUTTON_RIGHT
-            else -> return
-        }
-        game.mouseButtonEvent(evdevButton, true)
-        game.mouseButtonEvent(evdevButton, false)
+        controller.mouseButton(button)
     }
 
     override fun sendKey(key: String, modifiers: Set<String>) {

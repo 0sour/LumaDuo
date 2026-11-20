@@ -397,13 +397,13 @@ private fun VideoParent(
         onSubpage,
         "display",
     )
-    SubpageEntry(
-        "性能浮层",
-        if (config.enablePerfOverlay) "开 · ${config.perfOverlayStyle.name.lowercase()}" else "关",
-        onSubpage,
-        "overlay",
-    )
     if (!BuildConfig.MINIMAL_EDITION) {
+        SubpageEntry(
+            "性能浮层",
+            if (config.enablePerfOverlay) "开 · ${config.perfOverlayStyle.name.lowercase()}" else "关",
+            onSubpage,
+            "overlay",
+        )
         SubpageEntry("实验性", "帧生成 · PyroWave · 高级", onSubpage, "experimental")
     }
 }
@@ -769,17 +769,19 @@ private fun DisplayPage(
             onRefresh()
         },
     )
-    DuoSettingRow(
-        title = "外接显示器",
-        value = if (external) "开" else "关",
-        detail = "HDMI / DP 输出；需要设备能力",
-        isSwitch = true,
-        switchOn = external,
-        onActivate = {
-            repository.putBoolean("use_external_display", !external)
-            onRefresh()
-        },
-    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow(
+            title = "外接显示器",
+            value = if (external) "开" else "关",
+            detail = "HDMI / DP 输出；需要设备能力",
+            isSwitch = true,
+            switchOn = external,
+            onActivate = {
+                repository.putBoolean("use_external_display", !external)
+                onRefresh()
+            },
+        )
+    }
     DuoSettingRow(
         title = "画中画",
         value = if (pip) "开" else "关",
@@ -1214,29 +1216,31 @@ private fun GamepadPage(
             onRefresh()
         },
     )
-    DuoSettingRow(
-        title = "原生设备触觉",
-        value = if (nativeHaptics) "开" else "关",
-        detail = "Android 12+ / 设备支持时",
-        isSwitch = true,
-        switchOn = nativeHaptics,
-        onActivate = {
-            repository.putBoolean("checkbox_native_device_haptics", !nativeHaptics)
-            onRefresh()
-        },
-    )
-    DuoSettingRow(
-        title = "USB 手柄驱动",
-        value = if (repository.getBoolean("checkbox_usb_driver", true)) "开" else "关",
-        detail = "DS4 / DS5 / Xbox / Switch Pro",
-        isSwitch = true,
-        switchOn = repository.getBoolean("checkbox_usb_driver", true),
-        onActivate = {
-            val current = repository.getBoolean("checkbox_usb_driver", true)
-            repository.putBoolean("checkbox_usb_driver", !current)
-            onRefresh()
-        },
-    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow(
+            title = "原生设备触觉",
+            value = if (nativeHaptics) "开" else "关",
+            detail = "Android 12+ / 设备支持时",
+            isSwitch = true,
+            switchOn = nativeHaptics,
+            onActivate = {
+                repository.putBoolean("checkbox_native_device_haptics", !nativeHaptics)
+                onRefresh()
+            },
+        )
+        DuoSettingRow(
+            title = "USB 手柄驱动",
+            value = if (repository.getBoolean("checkbox_usb_driver", true)) "开" else "关",
+            detail = "DS4 / DS5 / Xbox / Switch Pro",
+            isSwitch = true,
+            switchOn = repository.getBoolean("checkbox_usb_driver", true),
+            onActivate = {
+                val current = repository.getBoolean("checkbox_usb_driver", true)
+                repository.putBoolean("checkbox_usb_driver", !current)
+                onRefresh()
+            },
+        )
+    }
 }
 
 @Composable

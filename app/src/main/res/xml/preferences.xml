@@ -1278,11 +1278,6 @@
             android:title="@string/title_checkbox_disable_warnings"
             android:summary="@string/summary_checkbox_disable_warnings"
             android:defaultValue="false" />
-        <CheckBoxPreference
-            android:key="checkbox_enable_analytics"
-            android:title="@string/title_enable_analytics"
-            android:summary="@string/summary_enable_analytics"
-            android:defaultValue="true" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_backup_restore"
         android:key="category_backup_restore"

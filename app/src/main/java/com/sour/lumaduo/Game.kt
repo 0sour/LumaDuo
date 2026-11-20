@@ -152,14 +152,23 @@ import com.sour.lumaduo.duo.stream.DuoStreamKeySender
 import com.sour.lumaduo.duo.stream.DuoSingleScreenConsoleHost
 import com.sour.lumaduo.duo.stream.GameDuoConsoleHost
 import com.sour.lumaduo.duo.stream.GameDuoStreamActions
+import com.sour.lumaduo.stream.StreamConsoleMode
+import com.sour.lumaduo.stream.StreamMetrics
+import com.sour.lumaduo.stream.StreamPhase
+import com.sour.lumaduo.stream.StreamSessionController
+import com.sour.lumaduo.stream.StreamSnapshot
 import com.sour.lumaduo.ui.stream.DuoStreamMode
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
     OnSystemUiVisibilityChangeListener, GameGestures, GameMenuAxisSourceLifecycle,
     StreamView.InputCallbacks,
     PerfOverlayListener, UsbDriverService.UsbDriverStateListener, View.OnKeyListener,
-    KeyboardAccessibilityService.KeyEventCallback {
+    KeyboardAccessibilityService.KeyEventCallback, StreamSessionController {
 
     // 这个标志位用于区分事件是来自无障碍服务还是来自UI（如StreamView）
     var isEventFromAccessibilityService = false
@@ -201,6 +210,12 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     private var duoStreamBridge: DuoStreamBridge? = null
     private var duoConsoleHost: GameDuoConsoleHost? = null
     private var duoSingleScreenHost: DuoSingleScreenConsoleHost? = null
+
+    // Engine-facing session state. Product UI reads this instead of reaching into Game
+    // internals; DuoStreamBridge remains the product display adapter (device telemetry,
+    // trends) until the engine is moved out of Game.
+    private val _streamSnapshot = MutableStateFlow(StreamSnapshot())
+    override val snapshot: StateFlow<StreamSnapshot> = _streamSnapshot.asStateFlow()
 
     // 智能码率
     var adaptiveBitrateService: AdaptiveBitrateService? = null
@@ -415,7 +430,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         window.decorView.findViewById<View>(android.R.id.content).isFocusable = true
 
         targetDisplayResolver = TargetDisplayResolver(this)
-        duoConsoleEnabled = intent.getBooleanExtra(EXTRA_DUO_CONSOLE, false)
+        duoConsoleEnabled = BuildConfig.MINIMAL_EDITION ||
+            intent.getBooleanExtra(EXTRA_DUO_CONSOLE, false)
         val initialTargetDisplay = targetDisplayResolver.resolve(
             !duoConsoleEnabled && PreferenceConfiguration.isExternalDisplayEnabled(this)
         )
@@ -517,13 +533,19 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             MicrophoneButtonPositionController.attach(this, it)
         }
 
-        performanceOverlayManager = PerformanceOverlayManager(this, prefConfig) { enabled ->
-            jitterMonitorManager?.setEnabled(enabled)
+        performanceOverlayManager = if (BuildConfig.MINIMAL_EDITION) {
+            null
+        } else {
+            PerformanceOverlayManager(this, prefConfig) { enabled ->
+                jitterMonitorManager?.setEnabled(enabled)
+            }.also { it.initialize() }
         }
-        performanceOverlayManager?.initialize()
 
-        jitterMonitorManager = JitterMonitorManager(this, prefConfig)
-        jitterMonitorManager?.initialize()
+        jitterMonitorManager = if (BuildConfig.MINIMAL_EDITION) {
+            null
+        } else {
+            JitterMonitorManager(this, prefConfig).also { it.initialize() }
+        }
 
         inputCaptureProvider = InputCaptureManager.getInputCaptureProvider(this, this)
 
@@ -586,32 +608,34 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         keyboardInputHandler = KeyboardInputHandler(this)
         keyboardInputHandler.keyboardTranslator = KeyboardTranslator()
 
-        audioVibrationService = AudioVibrationService(this)
-        audioVibrationService?.controllerHandler = controllerHandler
-        bindAudioHapticsTouchArbitration()
-        audioVibrationService?.detachSystemAudioHaptics = {
-            audioRenderer?.detachSystemAudioHaptics() == true
+        if (!BuildConfig.MINIMAL_EDITION) {
+            audioVibrationService = AudioVibrationService(this)
+            audioVibrationService?.controllerHandler = controllerHandler
+            bindAudioHapticsTouchArbitration()
+            audioVibrationService?.detachSystemAudioHaptics = {
+                audioRenderer?.detachSystemAudioHaptics() == true
+            }
+            audioVibrationService?.attachSystemAudioHaptics = {
+                audioRenderer?.attachSystemAudioHaptics() == true
+            }
+            audioVibrationService?.setSettings(
+                prefConfig.enableAudioVibration,
+                prefConfig.audioVibrationStrength,
+                prefConfig.audioVibrationMode,
+                prefConfig.audioVibrationScene
+            )
+            appliedAudioHapticsSettings = AudioHapticsSettings(
+                enabled = prefConfig.enableAudioVibration,
+                strength = prefConfig.audioVibrationStrength,
+                mode = prefConfig.audioVibrationMode,
+                scene = prefConfig.audioVibrationScene
+            )
+            MoonBridge.setAudioHapticsSessionHandle(
+                audioVibrationService?.nativeSessionHandle ?: 0L
+            )
+            MoonBridge.setAudioHapticsSceneMode(prefConfig.audioVibrationScene)
+            updateAudioHapticsRuntimeEnabled(true)
         }
-        audioVibrationService?.attachSystemAudioHaptics = {
-            audioRenderer?.attachSystemAudioHaptics() == true
-        }
-        audioVibrationService?.setSettings(
-            prefConfig.enableAudioVibration,
-            prefConfig.audioVibrationStrength,
-            prefConfig.audioVibrationMode,
-            prefConfig.audioVibrationScene
-        )
-        appliedAudioHapticsSettings = AudioHapticsSettings(
-            enabled = prefConfig.enableAudioVibration,
-            strength = prefConfig.audioVibrationStrength,
-            mode = prefConfig.audioVibrationMode,
-            scene = prefConfig.audioVibrationScene
-        )
-        MoonBridge.setAudioHapticsSessionHandle(
-            audioVibrationService?.nativeSessionHandle ?: 0L
-        )
-        MoonBridge.setAudioHapticsSceneMode(prefConfig.audioVibrationScene)
-        updateAudioHapticsRuntimeEnabled(true)
 
         val inputManager = getSystemService(INPUT_SERVICE) as InputManager
         inputManager.registerInputDeviceListener(keyboardInputHandler.keyboardTranslator, null)
@@ -645,7 +669,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         }
         streamView.post { cursorServiceManager.syncCursorWithStream() }
 
-        if (prefConfig.onscreenController) {
+        if (!BuildConfig.MINIMAL_EDITION && prefConfig.onscreenController) {
             virtualController = VirtualController(
                 controllerHandler,
                 streamView.parent as FrameLayout,
@@ -654,11 +678,13 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             refreshVirtualControllerLayout()
         }
 
-        if (prefConfig.enableCrownFeatures) {
+        if (!BuildConfig.MINIMAL_EDITION && prefConfig.enableCrownFeatures) {
             initializeControllerManager()
         }
 
-        if (prefConfig.usbDriver || prefConfig.dualSenseWirelessBridge || packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_USB_HOST)) {
+        if (!BuildConfig.MINIMAL_EDITION &&
+            (prefConfig.usbDriver || prefConfig.dualSenseWirelessBridge ||
+                packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_USB_HOST))) {
             bindUsbDriverService()
         }
 
@@ -683,13 +709,26 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
         DisplayPositionManager(this, prefConfig, streamView).setupDisplayPosition()
 
-        floatBallHandler = FloatBallHandler(this, prefConfig)
-        floatBallHandler.initialize()
+        if (!BuildConfig.MINIMAL_EDITION) {
+            floatBallHandler = FloatBallHandler(this, prefConfig)
+            floatBallHandler.initialize()
+        }
 
         connectionCallbackHandler = ConnectionCallbackHandler(this)
         bindExternalDisplay()
 
         if (duoConsoleEnabled) {
+            _streamSnapshot.value = StreamSnapshot(
+                phase = StreamPhase.CONNECTING,
+                hostName = pcName ?: "主机",
+                appName = appName ?: "应用",
+                address = intent.getStringExtra(EXTRA_HOST) ?: "—",
+                resolution = if (prefConfig.isNativeResolution) "原生" else "${prefConfig.width}×${prefConfig.height}",
+                configuredFps = prefConfig.fps.takeIf { it > 0 },
+                configuredBitrateMbps = (prefConfig.bitrate / 1000).takeIf { it > 0 },
+                codec = getDecoderFormatLabel(),
+                hdr = isNegotiatedHdrEnabled(),
+            )
             val bridge = DuoStreamBridge(this) { duoSessionSeconds() }
             bridge.startSession(
                 hostName = pcName ?: "主机",
@@ -849,7 +888,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             .getBoolean("checkbox_resume_stream", false)
 
     private fun shouldUseFramegen(prefs: SharedPreferences = defaultPreferences()): Boolean =
-        prefConfig.videoFormat != PreferenceConfiguration.FormatOption.FORCE_PYROWAVE &&
+        !BuildConfig.MINIMAL_EDITION &&
+            prefConfig.videoFormat != PreferenceConfiguration.FormatOption.FORCE_PYROWAVE &&
             FramegenRuntimePlanner.shouldUse(prefs, prefConfig.width, prefConfig.height, prefConfig.fps)
 
     private fun framegenPresentationFps(prefs: SharedPreferences = defaultPreferences()): Int =
@@ -995,12 +1035,13 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         // extension is available; no dynamic format is reduced to its static
         // base layer.
         val pyrowaveSelected = forcePyrowave
-        val framegenRequestedByPreference = FramegenRuntimePlanner.shouldUse(
-            defaultPreferences(),
-            prefConfig.width,
-            prefConfig.height,
-            prefConfig.fps,
-        )
+        val framegenRequestedByPreference = !BuildConfig.MINIMAL_EDITION &&
+            FramegenRuntimePlanner.shouldUse(
+                defaultPreferences(),
+                prefConfig.width,
+                prefConfig.height,
+                prefConfig.fps,
+            )
         if (pyrowaveSelected && framegenRequestedByPreference) {
             LimeLog.info("PyroWave selected: frame generation is disabled for this stream")
         }
@@ -1481,12 +1522,17 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
         createConnectionAndHandler()
         duoStreamBridge?.onConnecting()
+        _streamSnapshot.update {
+            it.copy(phase = StreamPhase.CONNECTING, notice = null, sessionSeconds = 0L)
+        }
         performanceOverlayManager?.recordStreamStart()
 
         audioVibrationService?.controllerHandler = controllerHandler
         bindAudioHapticsTouchArbitration()
 
-        if (prefConfig.usbDriver || prefConfig.dualSenseWirelessBridge || packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_USB_HOST)) {
+        if (!BuildConfig.MINIMAL_EDITION &&
+            (prefConfig.usbDriver || prefConfig.dualSenseWirelessBridge ||
+                packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_USB_HOST))) {
             bindUsbDriverService()
         } else {
             usbDriverServiceManager?.refreshListener()
@@ -2027,8 +2073,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     private fun updateKeyboardInterception() {
-        val overlayVisible = activeGameMenu?.isShowing() == true || Dialog.hasVisibleDialog() ||
-            hostUnlockController?.isOverlayVisible == true
+        val overlayVisible = (!BuildConfig.MINIMAL_EDITION && activeGameMenu?.isShowing() == true) ||
+            Dialog.hasVisibleDialog() || hostUnlockController?.isOverlayVisible == true
         val intercepting = streamInForeground && !overlayVisible
         if (!intercepting && KeyboardAccessibilityService.interceptingEnabled) {
             keyboardInputHandler.releaseForwardedKeys()
@@ -2037,6 +2083,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     private fun updateAudioHapticsRuntimeEnabled(foreground: Boolean) {
+        if (BuildConfig.MINIMAL_EDITION) {
+            MoonBridge.setAudioHapticsOutputEnabled(false)
+            return
+        }
         val featureEnabled = foreground && prefConfig.enableAudioVibration
         MoonBridge.setAudioHapticsOutputEnabled(featureEnabled)
     }
@@ -2124,8 +2174,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             return
         }
         displaySettingsCommitted = true
-        activeGameMenu?.dismiss()
-        activeGameMenu = null
+        if (!BuildConfig.MINIMAL_EDITION) {
+            activeGameMenu?.dismiss()
+            activeGameMenu = null
+        }
         resolutionSwitchController.start(connection, renderer, requested, previous.bitrate, activeStreamView) {
             !destroying && conn === connection && decoderRenderer === renderer
         }
@@ -2136,8 +2188,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             if (isChangingResolution) return@runOnUiThread
             isChangingResolution = true
             displaySettingsCommitted = true
-            activeGameMenu?.dismiss()
-            activeGameMenu = null
+            if (!BuildConfig.MINIMAL_EDITION) {
+                activeGameMenu?.dismiss()
+                activeGameMenu = null
+            }
             val backdrop = resolutionSwitchController.takeBackdrop()
             if (backdrop != null) {
                 StreamReconnectBackdrop.stage(backdrop)
@@ -2216,8 +2270,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             progressOverlay = null
         }
         Dialog.closeDialogs()
-        activeGameMenu?.dismiss()
-        activeGameMenu = null
+        if (!BuildConfig.MINIMAL_EDITION) {
+            activeGameMenu?.dismiss()
+            activeGameMenu = null
+        }
 
         if (!isFinishing) {
             virtualControllerVisibleBeforeStop =
@@ -2588,6 +2644,9 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         val connection = conn
         connection?.requestStop()
         duoStreamBridge?.onStopped()
+        _streamSnapshot.update {
+            it.copy(phase = StreamPhase.STOPPED, sessionSeconds = duoSessionSeconds())
+        }
         if (::keyboardInputHandler.isInitialized) {
             keyboardInputHandler.releaseForwardedKeys()
         }
@@ -2639,6 +2698,14 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         runOnUiThread {
             if (destroying || isFinishing || !onConnectionEstablished()) return@runOnUiThread
             duoStreamBridge?.onConnected()
+            _streamSnapshot.update {
+                it.copy(
+                    phase = StreamPhase.CONNECTED,
+                    codec = getDecoderFormatLabel(),
+                    hdr = isNegotiatedHdrEnabled(),
+                    notice = null,
+                )
+            }
             remoteImeController.resetSession()
             connectionCallbackHandler.connectionStarted()
             withUsbForwarding { it.startForeground() }
@@ -2848,7 +2915,9 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         } else {
             MoonBridge.HDR_MODE_SDR
         }
-        FramegenInterceptor.configureHdrMode(framegenHdrMode, shouldUseFullRangeHdr(framegenHdrMode))
+        if (!BuildConfig.MINIMAL_EDITION) {
+            FramegenInterceptor.configureHdrMode(framegenHdrMode, shouldUseFullRangeHdr(framegenHdrMode))
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             notifySystemHdrStatus(enabled)
@@ -3010,6 +3079,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     private fun prepareFramegenSurface(outputSurface: Surface, showEnabledToast: Boolean) {
+        if (BuildConfig.MINIMAL_EDITION) return
         releaseFramegenCapture()
 
         val config = FramegenRuntimePlanner.configForStream(
@@ -3406,6 +3476,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         enrichFramegenPerformanceInfo(performanceInfo)
         // 缓存最新性能数据，供 ABR 服务使用
         latestPerfInfo = performanceInfo
+        updateEngineSnapshot(performanceInfo)
         duoStreamBridge?.onPerf(performanceInfo)
 
         runOnUiThread {
@@ -3442,6 +3513,26 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
                     display.display(perfAttrs)
                 }
             }
+        }
+    }
+
+    private fun updateEngineSnapshot(info: PerformanceInfo) {
+        val rtt = StreamMetrics.rttFrom(info.rttInfo)
+        val bitrate = StreamMetrics.parseBandwidthMbps(info.bandWidth)
+        val fps = if (info.totalFps > 0f || info.receivedFps > 0f) info.renderedFps.toDouble() else null
+        _streamSnapshot.update {
+            it.copy(
+                phase = if (streamSession.isConnected) StreamPhase.CONNECTED else it.phase,
+                codec = info.decoder?.takeIf { label -> label.isNotBlank() } ?: it.codec,
+                hdr = info.hdrFormat.isHdr,
+                actualFps = fps,
+                rttMs = rtt,
+                hostLatencyMs = info.aveHostProcessingLatency.takeIf { value -> value > 0f }?.toDouble(),
+                decodeLatencyMs = info.decodeTimeMs.takeIf { value -> value > 0f }?.toDouble(),
+                renderLatencyMs = info.renderingLatencyMs.takeIf { value -> value > 0f }?.toDouble(),
+                actualBitrateMbps = bitrate,
+                sessionSeconds = duoSessionSeconds(),
+            )
         }
     }
 
@@ -3515,6 +3606,14 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         device: GameInputDevice?,
         openedFromUsbShortcut: Boolean
     ): Boolean {
+        if (BuildConfig.MINIMAL_EDITION) {
+            if (duoConsoleHost?.isShowing == true) {
+                duoConsoleHost?.enterLocal()
+            } else {
+                duoSingleScreenHost?.open()
+            }
+            return true
+        }
         if (duoConsoleEnabled) {
             if (duoConsoleHost?.isShowing == true) {
                 duoConsoleHost?.enterLocal()
@@ -3577,6 +3676,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     override fun dispatchUsbControllerMenuKey(event: KeyEvent): Boolean {
+        if (BuildConfig.MINIMAL_EDITION) return false
         if (virtualController?.dispatchMenuKey(event) == true) return true
         crownConfigPicker?.takeIf { it.isShowing }?.let {
             it.dispatchKeyEvent(event)
@@ -3594,6 +3694,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         rightStickX: Float,
         rightStickY: Float
     ): Boolean {
+        if (BuildConfig.MINIMAL_EDITION) return false
         if (virtualController?.dispatchMenuAxes(ControllerHandler.usbGameMenuAxisSourceId(controllerId),
                 leftStickX, leftStickY, rightStickY) == true) return true
         crownConfigPicker?.takeIf { it.isShowing }?.let {
@@ -3619,6 +3720,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     override fun releaseControllerMenuAxisSource(sourceId: Int) {
+        if (BuildConfig.MINIMAL_EDITION) return
         virtualController?.releaseMenuSource(sourceId)
         crownConfigPicker?.releaseSource(sourceId)
         activeGameMenu?.releaseControllerAxisSource(sourceId)
@@ -3689,6 +3791,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     }
 
     override fun showStartHoldWheel() {
+        if (BuildConfig.MINIMAL_EDITION) return
         runOnUiThread {
             startHoldWheelVisible.value = true
             startHoldWheelView?.visibility = View.VISIBLE
@@ -3717,6 +3820,49 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
             KeyEvent.ACTION_UP -> keyboardInputHandler.handleKeyUp(keyEvent)
             KeyEvent.ACTION_MULTIPLE -> keyboardInputHandler.handleKeyMultiple(keyEvent)
             else -> false
+        }
+    }
+
+    override fun sessionSeconds(): Long = duoSessionSeconds()
+
+    override fun setConsoleMode(mode: StreamConsoleMode) {
+        setDuoConsoleMode(
+            when (mode) {
+                StreamConsoleMode.PASSTHROUGH -> DuoStreamMode.PASSTHROUGH
+                StreamConsoleMode.LOCAL -> DuoStreamMode.LOCAL
+            }
+        )
+    }
+
+    override fun exitStream() = disconnect()
+
+    override fun reconnectStream() = duoReconnect()
+
+    override fun disconnectStream() = duoDisconnect()
+
+    override fun unlockHost() = startHostUnlock()
+
+    override fun mouseButton(button: Int) {
+        // Console contract: 1 = left, 2 = middle, 3 = right.
+        val evdevButton = when (button) {
+            1 -> EvdevListener.BUTTON_LEFT
+            2 -> EvdevListener.BUTTON_MIDDLE
+            3 -> EvdevListener.BUTTON_RIGHT
+            else -> return
+        }
+        mouseButtonEvent(evdevButton, true)
+        mouseButtonEvent(evdevButton, false)
+    }
+
+    override fun releaseAllInputs() {
+        if (::keyboardInputHandler.isInitialized) {
+            keyboardInputHandler.releaseForwardedKeys()
+        }
+        if (::touchInputHandler.isInitialized) {
+            touchInputHandler.cancelNonRootTouchpad()
+        }
+        if (::controllerHandler.isInitialized) {
+            controllerHandler.onExternalGameMenuOpened()
         }
     }
 
@@ -3777,8 +3923,17 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         }
         if (errorCode == MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
             bridge.onStopped()
+            _streamSnapshot.update { it.copy(phase = StreamPhase.STOPPED, sessionSeconds = duoSessionSeconds()) }
         } else {
-            bridge.onTerminated("连接中断（$errorCode）")
+            val message = "连接中断（$errorCode）"
+            bridge.onTerminated(message)
+            _streamSnapshot.update {
+                it.copy(
+                    phase = StreamPhase.ERROR,
+                    notice = message,
+                    sessionSeconds = duoSessionSeconds(),
+                )
+            }
         }
     }
 
@@ -3815,7 +3970,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         }
     }
 
-    fun togglePerformanceOverlay() {
+    override fun togglePerformanceOverlay() {
         val nextMode = when (performanceOverlayMode) {
             PerformanceOverlayMode.HIDDEN -> PerformanceOverlayMode.FLOATING
             PerformanceOverlayMode.FLOATING -> PerformanceOverlayMode.LOCKED

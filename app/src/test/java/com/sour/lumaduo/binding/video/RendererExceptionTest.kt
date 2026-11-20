@@ -1,6 +1,5 @@
 package com.sour.lumaduo.binding.video
 
-import com.google.firebase.crashlytics.internal.stacktrace.TrimmedThrowableData
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -8,19 +7,18 @@ import org.junit.Test
 
 class RendererExceptionTest {
     @Test
-    fun crashlyticsCaptureRetainsDiagnosticMessageAndCauseStack() {
+    fun rendererExceptionRetainsDiagnosticMessageAndCauseStack() {
         val original = IllegalStateException("codec reset failed")
         original.stackTrace = arrayOf(
             StackTraceElement("android.media.MediaCodec", "reset", "MediaCodec.java", 123),
         )
         val error = RendererException(diagnostics(), original)
-        val captured = TrimmedThrowableData.makeTrimmedThrowableData(error) { it }
 
-        assertEquals(error.message, captured.localizedMessage)
-        assertTrue(captured.localizedMessage.contains("Video dimensions: 1920x1080"))
-        assertEquals(original.javaClass.name, captured.cause!!.className)
-        assertEquals("codec reset failed", captured.cause!!.localizedMessage)
-        assertArrayEquals(original.stackTrace, captured.cause!!.stacktrace)
+        assertEquals(error.message, error.localizedMessage)
+        assertTrue(error.localizedMessage.contains("Video dimensions: 1920x1080"))
+        assertEquals(original.javaClass.name, error.cause!!.javaClass.name)
+        assertEquals("codec reset failed", error.cause!!.localizedMessage)
+        assertArrayEquals(original.stackTrace, error.cause!!.stackTrace)
     }
 
     private fun diagnostics() = RendererDiagnostics(

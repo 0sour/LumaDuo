@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sour.lumaduo.BuildConfig
 import com.sour.lumaduo.R
 import com.sour.lumaduo.duo.DuoRemoteController
 import com.sour.lumaduo.duo.DuoSettingsRepository
@@ -704,7 +705,9 @@ private fun VideoTab(
         onValueChangeFinished = onChanged,
     )
     DuoSettingRow("HDR", if (state.hdr) "开" else "关", detail = "真实 HDR 需重连；工具内 HDR 只切 Windows", enabled = false)
-    DuoSettingRow("性能浮层", "隐藏", detail = "M3 接入浮层状态", enabled = false)
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow("性能浮层", "隐藏", detail = "M3 接入浮层状态", enabled = false)
+    }
 }
 
 @Composable
@@ -752,19 +755,23 @@ private fun AudioTab(
             onChanged()
         },
     )
-    DuoSettingRow(
-        "音频振动",
-        if (settingsRepository.getBoolean("checkbox_audio_vibration", false)) "开" else "关",
-        isSwitch = true,
-        switchOn = settingsRepository.getBoolean("checkbox_audio_vibration", false),
-        onActivate = {
-            val current = settingsRepository.getBoolean("checkbox_audio_vibration", false)
-            settingsRepository.putBoolean("checkbox_audio_vibration", !current)
-            onChanged()
-        },
-    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow(
+            "音频振动",
+            if (settingsRepository.getBoolean("checkbox_audio_vibration", false)) "开" else "关",
+            isSwitch = true,
+            switchOn = settingsRepository.getBoolean("checkbox_audio_vibration", false),
+            onActivate = {
+                val current = settingsRepository.getBoolean("checkbox_audio_vibration", false)
+                settingsRepository.putBoolean("checkbox_audio_vibration", !current)
+                onChanged()
+            },
+        )
+    }
     DuoSettingRow("主机音频", "跟随主机设置", enabled = false)
-    DuoSettingRow("波形触觉测试", "P2", enabled = false)
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow("波形触觉测试", "P2", enabled = false)
+    }
 }
 
 @Composable
@@ -796,14 +803,16 @@ private fun InputTab(
         settingsRepository.putBoolean("checkbox_gamepad_motion_sensors", !gyro)
         onChanged()
     })
-    val osc = settingsRepository.getBoolean("checkbox_show_onscreen_controls", false)
-    DuoSettingRow("虚拟手柄", if (osc) "开" else "关", isSwitch = true, switchOn = osc, onActivate = {
-        settingsRepository.putBoolean("checkbox_show_onscreen_controls", !osc)
-        onChanged()
-    })
-    DuoSettingRow("手柄鼠标模拟", "设置页", enabled = false)
-    DuoSettingRow("震动", "仅手柄", enabled = false)
-    DuoSettingRow("USB 设备", "连接页", enabled = false)
+    if (!BuildConfig.MINIMAL_EDITION) {
+        val osc = settingsRepository.getBoolean("checkbox_show_onscreen_controls", false)
+        DuoSettingRow("虚拟手柄", if (osc) "开" else "关", isSwitch = true, switchOn = osc, onActivate = {
+            settingsRepository.putBoolean("checkbox_show_onscreen_controls", !osc)
+            onChanged()
+        })
+        DuoSettingRow("手柄鼠标模拟", "设置页", enabled = false)
+        DuoSettingRow("震动", "仅手柄", enabled = false)
+        DuoSettingRow("USB 设备", "连接页", enabled = false)
+    }
 }
 
 @Composable
@@ -821,7 +830,9 @@ private fun ConnectionTab(
     DuoSettingRow("延迟 / RTT", "${state.latencyLabel} / ${state.rttMs?.let { "%.0f ms".format(it) } ?: "—"}", enabled = false)
     DuoSettingRow("丢包", state.packetLossPercent?.let { "%.1f%%".format(it) } ?: "—", enabled = false)
     DuoSettingRow("EasyTier", remoteRuntime.virtualIp ?: state.easyTierLabel, detail = "虚拟网络", isSubpage = true, onActivate = onOpenRemote)
-    DuoSettingRow("USB 设备", "${state.usbDeviceCount} 个", detail = "共享 / 释放 / 自动共享", enabled = false)
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow("USB 设备", "${state.usbDeviceCount} 个", detail = "共享 / 释放 / 自动共享", enabled = false)
+    }
     DuoSettingRow("网络测试", "重新测速", isSubpage = true, onActivate = onNetworkTest)
     DuoSettingRow("重新连接", "热切换失败时使用", isSubpage = true, onActivate = onReconnect)
     Spacer(Modifier.height(6.dp))
