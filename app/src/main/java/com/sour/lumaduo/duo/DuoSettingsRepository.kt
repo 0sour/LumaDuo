@@ -4,6 +4,7 @@ package com.sour.lumaduo.duo
 import android.content.Context
 import androidx.preference.PreferenceManager
 import com.sour.lumaduo.binding.input.haptics.GameRumbleMode
+import com.sour.lumaduo.nvstream.jni.MoonBridge
 import com.sour.lumaduo.preferences.PreferenceConfiguration
 
 /**
@@ -112,6 +113,10 @@ class DuoSettingsRepository(context: Context) {
             }
             Field.HDR -> {
                 config.enableHdr = !config.enableHdr
+                // hdrMode=0 (SDR) would override enableHdr at stream start.
+                if (config.enableHdr && config.hdrMode == MoonBridge.HDR_MODE_SDR) {
+                    config.hdrMode = MoonBridge.HDR_MODE_HDR10
+                }
                 config.writeScenePreferences(appContext)
             }
             Field.ADAPTIVE_BITRATE -> {

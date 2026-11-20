@@ -139,7 +139,13 @@ class EasyTierController(
         if (easyTierManager != null && easyTierManager?.latestNetworkInfoJson != null) {
             easyTierManager?.stop()
         }
-        LimeLog.info("使用的easytier配置为：\n$config")
+        // Never log the TOML: it contains network_secret. Only non-secret shape is recorded.
+        val parsedConfig = EasyTierTomlCodec.parseConfig(config)
+        LimeLog.info(
+            "$TAG: EasyTier config network=${parsedConfig.networkName} " +
+                "ipv4=${parsedConfig.ipv4} peers=${parsedConfig.peers.lineSequence().count { it.isNotBlank() }} " +
+                "secret=${if (parsedConfig.networkSecret.isEmpty()) "unset" else "set"}"
+        )
         easyTierManager = EasyTierManager(activity, instanceName, config)
         LimeLog.info("$TAG: EasyTierManager initialized with instance: $instanceName")
     }
