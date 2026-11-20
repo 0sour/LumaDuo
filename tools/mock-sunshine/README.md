@@ -36,10 +36,10 @@ From the repository root:
 ```powershell
 .\tools\mock-sunshine\Start-MockSunshine.ps1 -Background
 adb install -r -d app\build\outputs\apk\nonRoot\debug\app-nonRoot-debug.apk
-adb shell pm clear com.limelight.vplus_debug
+adb shell pm clear com.sour.lumaduo.debug
 .\tools\mock-sunshine\Seed-MockComputer.ps1
 adb logcat -c
-adb shell monkey -p com.limelight.vplus_debug -c android.intent.category.LAUNCHER 1
+adb shell monkey -p com.sour.lumaduo.debug -c android.intent.category.LAUNCHER 1
 ```
 
 Then inspect:
