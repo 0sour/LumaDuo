@@ -77,6 +77,7 @@ fun DuoSettingsPage(
     onSceneChanged: (DuoSettingsRepository.Snapshot) -> Unit,
     onOpenRemote: () -> Unit,
     onOpenLegacy: () -> Unit,
+    onOpenNotices: () -> Unit,
     onAddHost: () -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
@@ -212,6 +213,7 @@ fun DuoSettingsPage(
                         DuoSetCat.INTERFACE -> InterfaceParent(onSubpage = { subpage = it })
                         DuoSetCat.ABOUT -> AboutParent(
                             onOpenLegacy = onOpenLegacy,
+                            onOpenNotices = onOpenNotices,
                             onNotice = onNotice,
                             onOpenConsolePreview = onOpenConsolePreview,
                         )
@@ -401,7 +403,9 @@ private fun VideoParent(
         onSubpage,
         "overlay",
     )
-    SubpageEntry("实验性", "帧生成 · PyroWave · 高级", onSubpage, "experimental")
+    if (!BuildConfig.MINIMAL_EDITION) {
+        SubpageEntry("实验性", "帧生成 · PyroWave · 高级", onSubpage, "experimental")
+    }
 }
 
 @Composable
@@ -419,7 +423,9 @@ private fun InputParent(onSubpage: (String) -> Unit) {
     SubpageEntry("手柄", "死区 · 震动 · 多手柄", onSubpage, "gamepad")
     SubpageEntry("触控", "触摸模式 · 速度 · 预设", onSubpage, "touch")
     SubpageEntry("键盘与鼠标", "ESC 菜单 · IME · 鼠标修复", onSubpage, "keyboard")
-    SubpageEntry("虚拟手柄", "布局 · 透明度 · 重置", onSubpage, "osc")
+    if (!BuildConfig.MINIMAL_EDITION) {
+        SubpageEntry("虚拟手柄", "布局 · 透明度 · 重置", onSubpage, "osc")
+    }
     SubpageEntry("体感", "陀螺仪 · 回退 · 灵敏度", onSubpage, "gyro")
 }
 
@@ -541,6 +547,7 @@ private fun InterfaceParent(onSubpage: (String) -> Unit) {
 @Composable
 private fun AboutParent(
     onOpenLegacy: () -> Unit,
+    onOpenNotices: () -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
 ) {
@@ -552,15 +559,17 @@ private fun AboutParent(
         title = "开源声明",
         value = "查看",
         isSubpage = true,
-        onActivate = onOpenLegacy,
+        onActivate = onOpenNotices,
     )
-    DuoSettingRow(
-        title = "帮助 / 诊断",
-        value = "旧版",
-        detail = "旧版 V+：A 确认 · B 返回",
-        isSubpage = true,
-        onActivate = onOpenLegacy,
-    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow(
+            title = "帮助 / 诊断",
+            value = "旧版",
+            detail = "旧版 V+：A 确认 · B 返回",
+            isSubpage = true,
+            onActivate = onOpenLegacy,
+        )
+    }
     DuoSettingRow(
         title = "更新",
         value = "暂不可用",

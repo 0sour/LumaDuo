@@ -14,9 +14,11 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import com.sour.lumaduo.BuildConfig
 import com.sour.lumaduo.Game
 import com.sour.lumaduo.LimeLog
 import com.sour.lumaduo.R
+import com.sour.lumaduo.duo.DuoMainActivity
 
 class StreamNotificationService : Service() {
 
@@ -119,7 +121,8 @@ class StreamNotificationService : Service() {
     }
 
     private fun buildNotification(pcName: String?, appName: String?): Notification {
-        val intent = Intent(this, Game::class.java).apply {
+        val target = if (BuildConfig.MINIMAL_EDITION) DuoMainActivity::class.java else Game::class.java
+        val intent = Intent(this, target).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
 
@@ -129,7 +132,7 @@ class StreamNotificationService : Service() {
         }
         val contentIntent = PendingIntent.getActivity(this, 0, intent, flags)
 
-        val title = "Moonlight-V+"
+        val title = getString(R.string.app_label)
         val content = getString(
             R.string.notification_content_streaming,
             appName ?: DEFAULT_APP_NAME,

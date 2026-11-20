@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sour.lumaduo.BuildConfig
 import com.sour.lumaduo.R
 import com.sour.lumaduo.duo.DuoHostRepository
 import com.sour.lumaduo.duo.DuoRemoteController
@@ -83,6 +84,7 @@ interface DuoShellHost {
     fun copyPcConfig()
     fun pcConfig(): String
     fun openLegacy()
+    fun openNotices()
     fun openConsolePreview()
     fun notice(message: String)
 }
@@ -232,7 +234,7 @@ fun DuoShellScreen(
                 selected?.let { host.refreshApps(it) }
             })
         }
-        DuoDestination.REMOTE -> listOf(
+        DuoDestination.REMOTE -> if (BuildConfig.MINIMAL_EDITION) emptyList() else listOf(
             DuoAction(R.drawable.duo_ic_host, "打开旧版主机管理") { host.openLegacy() },
         )
         DuoDestination.SETTINGS -> emptyList()
@@ -340,6 +342,7 @@ fun DuoShellScreen(
                     onSceneChanged = onSettingsChanged,
                     onOpenRemote = { onDestinationChange(DuoDestination.REMOTE) },
                     onOpenLegacy = host::openLegacy,
+                    onOpenNotices = host::openNotices,
                     onAddHost = {
                         addAddress = "10.0.0.2"
                         addPort = "47989"

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Minimal LumaDuo edition: keep only the shell, streaming, pairing,
+         EasyTier, notifications, clipboard and the required services. -->
+
+    <application>
+        <activity android:name=".PcView" tools:node="remove" />
+        <activity android:name=".AppView" tools:node="remove" />
+        <activity android:name=".SunshineWebUiActivity" tools:node="remove" />
+        <activity android:name=".handbook.HandbookActivity" tools:node="remove" />
+        <activity android:name=".preferences.StreamSettings" tools:node="remove" />
+        <activity android:name=".preferences.CrownStoreActivity" tools:node="remove" />
+        <activity android:name=".preferences.CapabilityDiagnosticActivity" tools:node="remove" />
+        <activity android:name=".preferences.StickCalibrationActivity" tools:node="remove" />
+        <activity android:name=".preferences.ControllerMouseSettingsActivity" tools:node="remove" />
+        <activity android:name=".preferences.ControllerDiagnosticActivity" tools:node="remove" />
+        <activity android:name=".preferences.AddComputerManually" tools:node="remove" />
+        <activity android:name=".AppSelectionActivity" tools:node="remove" />
+        <activity android:name=".widget.WidgetConfigurationActivity" tools:node="remove" />
+
+        <service android:name=".widget.GameListWidgetService" tools:node="remove" />
+        <receiver android:name=".widget.GameListWidgetProvider" tools:node="remove" />
+        <receiver android:name=".utils.UpdateDownloadReceiver" tools:node="remove" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.update_fileprovider"
+            tools:node="remove" />
+    </application>
+
+    <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_PRIVATE_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:node="remove"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"
+        tools:node="remove"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" tools:node="remove" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" tools:node="remove" />
+
+    <uses-feature android:name="android.hardware.camera" tools:node="remove" />
+    <uses-feature android:name="android.hardware.camera.any" tools:node="remove" />
+    <uses-feature android:name="android.hardware.camera.front" tools:node="remove" />
+    <uses-feature android:name="android.hardware.camera.autofocus" tools:node="remove" />
+    <uses-feature android:name="android.hardware.camera.flash" tools:node="remove" />
+
+    <queries>
+        <package android:name="com.tencent.mm" tools:node="remove" />
+    </queries>
+</manifest>

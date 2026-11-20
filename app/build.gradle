@@ -79,14 +79,6 @@ android {
 
         // Generate native debug symbols to allow Google Play to symbolicate our native crashes
         ndk.debugSymbolLevel = 'FULL'
-
-        ndk {
-            def supportedAbis = ['arm64-v8a', 'armeabi-v7a']
-            if (enableX86TestAbi) {
-                supportedAbis += 'x86'
-            }
-            abiFilters(*supportedAbis)
-        }
     }
 
     flavorDimensions.add("root")
@@ -109,9 +101,18 @@ android {
                 }
             }
 
+            ndk {
+                def supportedAbis = ['arm64-v8a', 'armeabi-v7a']
+                if (enableX86TestAbi) {
+                    supportedAbis += 'x86'
+                }
+                abiFilters(*supportedAbis)
+            }
+
             applicationId "com.sour.lumaduo.root"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "true"
+            buildConfigField "boolean", "MINIMAL_EDITION", "false"
         }
 
         nonRoot {
@@ -121,9 +122,37 @@ android {
                 }
             }
 
+            ndk {
+                def supportedAbis = ['arm64-v8a', 'armeabi-v7a']
+                if (enableX86TestAbi) {
+                    supportedAbis += 'x86'
+                }
+                abiFilters(*supportedAbis)
+            }
+
             applicationId "com.sour.lumaduo"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "false"
+            buildConfigField "boolean", "MINIMAL_EDITION", "false"
+        }
+
+        // Minimal product edition: LumaDuo shell + stream console only. The full
+        // nonRoot/root editions remain available for upstream comparison and debugging.
+        duo {
+            externalNativeBuild {
+                ndkBuild {
+                    arguments "PRODUCT_FLAVOR=duo"
+                }
+            }
+
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+
+            applicationId "com.sour.lumaduo.duo"
+            dimension "root"
+            buildConfigField "boolean", "ROOT_BUILD", "false"
+            buildConfigField "boolean", "MINIMAL_EDITION", "true"
         }
     }
 
@@ -222,6 +251,7 @@ android {
             resValue "string", "app_label_root", "LumaDuo (Root)"
 
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (hasSigningConfig && signingConfigs.hasProperty('release')) {
                 signingConfig signingConfigs.release
@@ -236,8 +266,15 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().withFlavor("root", "duo")) { variant ->
+        variant.androidResources.localeFilters.addAll(["en", "zh-rCN"])
+    }
+}
+
 dependencies {
-    implementation project(':pyrowave-runtime')
+    nonRootImplementation project(':pyrowave-runtime')
+    rootImplementation project(':pyrowave-runtime')
     implementation project(':usbip-backend')
     // Desugaring 支持，用于在旧版 Android 上使用 Java 8+ API
     coreLibraryDesugaring libs.desugar.jdk.libs

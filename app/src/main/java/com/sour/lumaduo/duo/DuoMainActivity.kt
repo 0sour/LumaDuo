@@ -561,7 +561,15 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
     override fun pcConfig(): String = remoteRepository.buildPcConfig()
 
     override fun openLegacy() {
+        if (BuildConfig.MINIMAL_EDITION) {
+            notice("最小版已移除旧版主机管理")
+            return
+        }
         startActivity(Intent(this, PcView::class.java))
+    }
+
+    override fun openNotices() {
+        com.sour.lumaduo.preferences.OpenSourceNoticesActivity.open(this)
     }
 
     override fun openConsolePreview() {

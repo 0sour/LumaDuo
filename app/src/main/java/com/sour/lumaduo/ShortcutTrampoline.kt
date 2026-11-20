@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.IBinder
 
 import com.sour.lumaduo.ui.ThemedActivity
+import com.sour.lumaduo.duo.DuoMainActivity
 import com.sour.lumaduo.computers.ComputerDatabaseManager
 import com.sour.lumaduo.computers.ComputerManagerService
 import com.sour.lumaduo.computers.PairStatePreflight
@@ -179,6 +180,15 @@ class ShortcutTrampoline : ThemedActivity() {
                     finish()
                 })
             }
+        } else if (BuildConfig.MINIMAL_EDITION) {
+            // The minimal edition has no legacy PC/app browser. Open the LumaDuo shell
+            // and let the user choose the host/app there.
+            intentStack.add(Intent(this@ShortcutTrampoline, DuoMainActivity::class.java).apply {
+                action = Intent.ACTION_MAIN
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            })
+            finish()
+            startActivities(intentStack.toTypedArray())
         } else {
             var i = Intent(this@ShortcutTrampoline, PcView::class.java)
             i.action = Intent.ACTION_MAIN

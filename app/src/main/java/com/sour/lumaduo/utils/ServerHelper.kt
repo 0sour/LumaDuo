@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.widget.Toast
 import com.sour.lumaduo.AppView
+import com.sour.lumaduo.BuildConfig
 import com.sour.lumaduo.Game
 import com.sour.lumaduo.R
 import com.sour.lumaduo.ShortcutTrampoline
@@ -57,7 +58,7 @@ object ServerHelper {
         screenCombinationMode: Int = -1,
         useVdd: Boolean? = null,
         forceResumeCurrentSession: Boolean = false,
-        duoConsole: Boolean = false
+        duoConsole: Boolean = BuildConfig.MINIMAL_EDITION
     ): Intent {
         return Intent(parent, Game::class.java).apply {
             putExtra(Game.EXTRA_HOST, computer.activeAddress!!.address)
