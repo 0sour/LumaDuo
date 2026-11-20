@@ -5,7 +5,13 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import com.sour.lumaduo.binding.input.haptics.GameRumbleMode
 import com.sour.lumaduo.nvstream.jni.MoonBridge
+import com.sour.lumaduo.preferences.BackgroundStreamBehavior
+import com.sour.lumaduo.preferences.LegacySettingsModeStore
 import com.sour.lumaduo.preferences.PreferenceConfiguration
+import com.sour.lumaduo.preferences.QuitBehavior
+import com.sour.lumaduo.preferences.TouchModePreferencePolicy
+import com.sour.lumaduo.preferences.TouchModePreset
+import com.sour.lumaduo.preferences.TouchModePreferenceState
 
 /**
  * Read/write bridge between the LumaDuo bottom-screen settings page and V+'s
@@ -18,6 +24,7 @@ import com.sour.lumaduo.preferences.PreferenceConfiguration
 class DuoSettingsRepository(context: Context) {
     private val appContext = context.applicationContext
     private val prefs = PreferenceManager.getDefaultSharedPreferences(appContext)
+    private val legacyStore = LegacySettingsModeStore(prefs)
 
     data class Snapshot(
         val resolutionLabel: String,
@@ -153,6 +160,99 @@ class DuoSettingsRepository(context: Context) {
         }
         return read()
     }
+
+    // ==================== Non-scene settings ====================
+
+    fun setResolution(width: Int, height: Int, native: Boolean): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.isNativeResolution = native
+        config.isCustomResolution = false
+        if (!native) {
+            config.width = width
+            config.height = height
+        }
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setFps(fps: Int): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.fps = fps
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setBitrateMbps(mbps: Int): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.bitrate = (mbps * 1000).coerceIn(500, 800_000)
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setFormat(format: PreferenceConfiguration.FormatOption): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.videoFormat = format
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setHdr(enabled: Boolean): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.enableHdr = enabled
+        if (enabled && config.hdrMode == MoonBridge.HDR_MODE_SDR) {
+            config.hdrMode = MoonBridge.HDR_MODE_HDR10
+        }
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setAdaptive(enabled: Boolean): Snapshot {
+        val config = PreferenceConfiguration.readPreferences(appContext)
+        config.enableAdaptiveBitrate = enabled
+        config.writeScenePreferences(appContext)
+        return read()
+    }
+
+    fun setAudio(value: String): Snapshot {
+        prefs.edit().putString(PreferenceConfiguration.AUDIO_CONFIG_PREF_STRING, value).apply()
+        return read()
+    }
+
+    fun setRumble(value: String): Snapshot {
+        prefs.edit().putString(PreferenceConfiguration.GAME_RUMBLE_MODE_PREF_STRING, value).apply()
+        return read()
+    }
+
+    fun getBoolean(key: String, default: Boolean): Boolean = prefs.getBoolean(key, default)
+    fun getString(key: String, default: String): String = prefs.getString(key, default) ?: default
+    fun getInt(key: String, default: Int): Int = prefs.getInt(key, default)
+    fun putBoolean(key: String, value: Boolean) {
+        prefs.edit().putBoolean(key, value).apply()
+    }
+    fun putString(key: String, value: String) {
+        prefs.edit().putString(key, value).apply()
+    }
+    fun putInt(key: String, value: Int) {
+        prefs.edit().putInt(key, value).apply()
+    }
+
+    fun sceneConfig(): PreferenceConfiguration = PreferenceConfiguration.readPreferences(appContext)
+
+    internal fun backgroundMode(): BackgroundStreamBehavior = legacyStore.backgroundMode()
+
+    internal fun setBackgroundMode(mode: BackgroundStreamBehavior) = legacyStore.setBackgroundMode(mode)
+
+    internal fun quitMode(): QuitBehavior = legacyStore.quitMode()
+
+    internal fun setQuitMode(mode: QuitBehavior) = legacyStore.setQuitMode(mode)
+
+    internal fun touchPreset(): TouchModePreset = TouchModePreferencePolicy.presetFor(
+
+        legacyStore.touchState(hasTouchscreen = true),
+    )
+    internal fun setTouchPreset(preset: TouchModePreset): TouchModePreferenceState =
+
+        legacyStore.setTouchPreset(preset)
 
     private data class ResolutionOption(
         val width: Int,

@@ -1059,7 +1059,7 @@ class EasyTierController(
 
         private val DEFAULT_TOML_CONFIG = """
             instance_name = "Default"
-            hostname = "moonlight-V+"
+            hostname = "LumaDuo"
             ipv4 = "10.0.0.1/24"
             dhcp = false
             listeners = ["tcp://0.0.0.0:11010", "udp://0.0.0.0:11010", "wg://0.0.0.0:11011"]
@@ -1083,6 +1083,15 @@ class EasyTierController(
         fun readStoredConfig(context: Context): String {
             return context.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)
                 .getString(KEY_TOML_CONFIG, DEFAULT_TOML_CONFIG) ?: DEFAULT_TOML_CONFIG
+        }
+
+        /** Persist a TOML edited by the LumaDuo bottom-screen UI. */
+        @JvmStatic
+        fun saveStoredConfig(context: Context, toml: String) {
+            context.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_TOML_CONFIG, toml)
+                .apply()
         }
     }
 }

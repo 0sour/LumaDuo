@@ -9,7 +9,9 @@ import android.os.Bundle
 import android.view.Display
 import android.view.KeyEvent
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.result.ActivityResultRegistry
@@ -59,7 +61,13 @@ class SecondScreenPresentation(
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateController = SavedStateRegistryController.create(this)
     private val store = ViewModelStore()
-    private val backDispatcher = OnBackPressedDispatcher()
+    private val backDispatcher = OnBackPressedDispatcher().apply {
+        // Activity-level fallback: page/overlay BackHandlers inside the Compose
+        // shell are registered later and therefore run first.
+        addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = onBack()
+        })
+    }
     private val resultRegistry = object : ActivityResultRegistry() {
         override fun <I, O> onLaunch(
             requestCode: Int,
@@ -130,13 +138,22 @@ class SecondScreenPresentation(
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // While a text field owns an IME connection, B must type and Back must
+        // dismiss the keyboard first. The console's own ASCII keyboard does not
+        // open an IME connection, so it keeps B as "back".
+        val typing = (context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
+            ?.isAcceptingText == true
+        if (typing) {
+            return super.dispatchKeyEvent(event)
+        }
         if (event.action == KeyEvent.ACTION_DOWN &&
+            event.repeatCount == 0 &&
             (event.keyCode == KeyEvent.KEYCODE_BACK ||
                 event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
                 event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             LimeLog.info("LumaDuo bottom presentation received back/escape/button-b")
-            onBack()
+            backDispatcher.onBackPressed()
             return true
         }
         return super.dispatchKeyEvent(event)
