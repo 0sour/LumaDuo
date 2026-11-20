@@ -112,8 +112,9 @@ class DuoStreamPreviewActivity : ComponentActivity() {
             override fun unlockHost() = Unit
             override fun mouseMove(dx: Float, dy: Float) = Unit
             override fun mouseButton(button: Int) = Unit
-            override fun sendKey(key: String) = Unit
+            override fun sendKey(key: String, modifiers: Set<String>) = Unit
             override fun sendShortcut(label: String) = Unit
+            override fun clearNotice() = Unit
         }
         val p = SecondScreenPresentation(
             activity = this,

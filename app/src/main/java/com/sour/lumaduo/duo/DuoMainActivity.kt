@@ -13,7 +13,9 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.Display
+import android.view.KeyEvent
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -29,6 +31,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -124,6 +127,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
     private var shellNotice by mutableStateOf<String?>(null)
     private var rootBackArmed by mutableStateOf(false)
     private var lastBackAt = 0L
+    private var lastConfirmAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -156,13 +160,22 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         )
         setContent {
             LumaTheme {
-                DuoTopScreen(
-                    display = bottomDisplay,
-                    metrics = bottomMetrics,
-                    hostCount = hostRepository.hosts.collectAsState().value.size,
-                    destination = destination,
-                    context = topContext,
-                )
+                if (bottomDisplay == null) {
+                    // Single-screen fallback: the same shell lives in the Activity window.
+                    DuoShellContent(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .systemBarsPadding(),
+                    )
+                } else {
+                    DuoTopScreen(
+                        display = bottomDisplay,
+                        metrics = bottomMetrics,
+                        hostCount = hostRepository.hosts.collectAsState().value.size,
+                        destination = destination,
+                        context = topContext,
+                    )
+                }
             }
         }
     }
@@ -224,6 +237,36 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Single-screen fallback hosts the shell in this window, so it needs the same
+        // physical B-confirm / A-back contract as the bottom Presentation.
+        if (event.action == KeyEvent.ACTION_DOWN &&
+            (event.keyCode == KeyEvent.KEYCODE_BUTTON_B ||
+                event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+        ) {
+            if (event.repeatCount > 0) return true
+            val now = SystemClock.uptimeMillis()
+            val duplicate = now - lastConfirmAt < 40L
+            lastConfirmAt = now
+            if (duplicate) return true
+        }
+        val typing = (getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
+            ?.isAcceptingText == true
+        val faceKey = event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+            event.keyCode == KeyEvent.KEYCODE_BUTTON_B
+        if (typing && !faceKey) return super.dispatchKeyEvent(event)
+        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_B) return super.dispatchKeyEvent(event)
+        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 &&
+            (event.keyCode == KeyEvent.KEYCODE_BACK ||
+                event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                event.keyCode == KeyEvent.KEYCODE_BUTTON_A)
+        ) {
+            onBackPressedDispatcher.onBackPressed()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     @Suppress("DEPRECATION")
     private fun ownDisplayId(): Int = windowManager.defaultDisplay.displayId
 
@@ -259,40 +302,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             display = display,
             onBack = ::handleBottomBack,
         ) {
-            LaunchedEffect(destination) {
-                when (destination) {
-                    DuoDestination.REMOTE -> {
-                        remoteSnapshot = remoteRepository.read()
-                        remoteConfig = remoteRepository.readConfig()
-                    }
-                    DuoDestination.SETTINGS -> settingsSnapshot = settingsRepository.read()
-                    else -> Unit
-                }
-            }
-            DuoShellScreen(
-                destination = destination,
-                onDestinationChange = { next ->
-                    destination = next
-                    rootBackArmed = false
-                    shellNotice = null
-                },
-                hosts = hostRepository.hosts,
-                apps = hostRepository.apps,
-                appsLoading = hostRepository.appsLoading,
-                appsError = hostRepository.appsError,
-                settings = settingsSnapshot,
-                remote = remoteSnapshot,
-                remoteConfig = remoteConfig,
-                runtime = remoteController.state.collectAsState().value,
-                pairState = hostRepository.pairState.collectAsState().value,
-                settingsRepository = settingsRepository,
-                host = this,
-                onSettingsChanged = { settingsSnapshot = it },
-                externalNotice = shellNotice,
-                onExternalNoticeConsumed = { shellNotice = null },
-                onTopContextChanged = { topContext = it },
-                rootBackArmed = rootBackArmed,
-            )
+            DuoShellContent()
         }
         try {
             presentation.show()
@@ -307,6 +317,45 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             runCatching { presentation.dismiss() }
             scheduleDisplayRefresh()
         }
+    }
+
+    @Composable
+    private fun DuoShellContent(modifier: Modifier = Modifier) {
+        LaunchedEffect(destination) {
+            when (destination) {
+                DuoDestination.REMOTE -> {
+                    remoteSnapshot = remoteRepository.read()
+                    remoteConfig = remoteRepository.readConfig()
+                }
+                DuoDestination.SETTINGS -> settingsSnapshot = settingsRepository.read()
+                else -> Unit
+            }
+        }
+        DuoShellScreen(
+            destination = destination,
+            onDestinationChange = { next ->
+                destination = next
+                rootBackArmed = false
+                shellNotice = null
+            },
+            hosts = hostRepository.hosts,
+            apps = hostRepository.apps,
+            appsLoading = hostRepository.appsLoading,
+            appsError = hostRepository.appsError,
+            settings = settingsSnapshot,
+            remote = remoteSnapshot,
+            remoteConfig = remoteConfig,
+            runtime = remoteController.state.collectAsState().value,
+            pairState = hostRepository.pairState.collectAsState().value,
+            settingsRepository = settingsRepository,
+            host = this,
+            onSettingsChanged = { settingsSnapshot = it },
+            externalNotice = shellNotice,
+            onExternalNoticeConsumed = { shellNotice = null },
+            onTopContextChanged = { topContext = it },
+            rootBackArmed = rootBackArmed,
+            modifier = modifier,
+        )
     }
 
     private fun scheduleDisplayRefresh() {
@@ -444,6 +493,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             binder,
             lastSettings,
             forceResumeCurrentSession = forceResume,
+            duoConsole = true,
         )
         startActivity(intent)
     }

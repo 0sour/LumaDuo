@@ -6,6 +6,13 @@ enum class DuoStreamMode {
     LOCAL,
 }
 
+enum class DuoStreamPhase {
+    IDLE,
+    CONNECTING,
+    CONNECTED,
+    ERROR,
+}
+
 enum class DuoStreamTab(val label: String) {
     STATUS("状态"),
     VIDEO("画面"),
@@ -26,7 +33,9 @@ enum class DuoToolTab(val label: String) {
  */
 data class DuoStreamState(
     val connected: Boolean = false,
+    val phase: DuoStreamPhase = DuoStreamPhase.IDLE,
     val hostName: String = "未连接",
+    val appName: String = "—",
     val address: String = "—",
     val resolution: String = "—",
     val configuredFps: Int? = null,
@@ -44,15 +53,24 @@ data class DuoStreamState(
     val networkLabel: String = "—",
     val batteryPercent: Int? = null,
     val temperatureC: Int? = null,
+    val thermalLabel: String = "—",
     val easyTierLabel: String = "未启动",
     val usbDeviceCount: Int = 0,
     val sessionSeconds: Long = 0L,
+    val notice: String? = null,
     val latencyTrend: List<Float> = emptyList(),
     val bitrateTrend: List<Float> = emptyList(),
     val hostCpu: String? = null,
     val hostGpu: String? = null,
     val hostRam: String? = null,
 ) {
+    val statusLabel: String
+        get() = when (phase) {
+            DuoStreamPhase.IDLE -> "未连接"
+            DuoStreamPhase.CONNECTING -> "连接中"
+            DuoStreamPhase.CONNECTED -> "已连接"
+            DuoStreamPhase.ERROR -> "连接异常"
+        }
     val fpsLabel: String get() = actualFps?.let { "%.0f".format(it) } ?: "—"
     val latencyLabel: String get() = networkLatencyMs?.let { "%.0f ms".format(it) } ?: "—"
     val bitrateLabel: String get() = actualBitrateMbps?.let { "%.1f Mbps".format(it) } ?: "—"

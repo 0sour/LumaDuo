@@ -105,6 +105,7 @@ class ConnectionCallbackHandler(private val game: Game) {
 
             // Ungrab input
             game.setInputGrabState(false)
+            game.notifyDuoConnectionTerminated(errorCode)
 
             if (!game.displayedFailureDialog) {
                 game.displayedFailureDialog = true

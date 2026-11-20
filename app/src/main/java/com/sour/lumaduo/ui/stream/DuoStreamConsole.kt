@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +60,7 @@ import com.sour.lumaduo.ui.shell.DuoSliderRow
 import com.sour.lumaduo.ui.shell.DuoTextButton
 import com.sour.lumaduo.ui.shell.DuoSettingRow
 import com.sour.lumaduo.ui.shell.DuoSectionHeader
+import kotlinx.coroutines.delay
 
 interface DuoStreamActions {
     fun setMode(mode: DuoStreamMode)
@@ -71,8 +75,9 @@ interface DuoStreamActions {
     fun unlockHost()
     fun mouseMove(dx: Float, dy: Float)
     fun mouseButton(button: Int)
-    fun sendKey(key: String)
+    fun sendKey(key: String, modifiers: Set<String> = emptySet())
     fun sendShortcut(label: String)
+    fun clearNotice()
 }
 
 @Composable
@@ -84,6 +89,7 @@ fun DuoStreamConsole(
     scene: DuoSettingsRepository.Snapshot,
     remoteRuntime: DuoRemoteController.State,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     var tab by remember { mutableStateOf(DuoStreamTab.STATUS) }
     var pane by remember { mutableStateOf("console") }
@@ -91,12 +97,25 @@ fun DuoStreamConsole(
     var confirmDisconnect by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<String?>(null) }
     var refresh by remember { mutableStateOf(0) }
+    var sceneState by remember { mutableStateOf(scene) }
+
+    LaunchedEffect(scene) {
+        sceneState = scene
+    }
+    LaunchedEffect(state.notice) {
+        val message = state.notice ?: return@LaunchedEffect
+        notice = message
+        delay(2_200L)
+        actions.clearNotice()
+        if (notice == message) notice = null
+    }
 
     BackHandler(enabled = confirmExit || confirmDisconnect) {
         if (confirmDisconnect) confirmDisconnect = false else confirmExit = false
     }
 
     fun changed() {
+        sceneState = settingsRepository.read()
         refresh++
     }
     val refreshTick = refresh
@@ -104,6 +123,16 @@ fun DuoStreamConsole(
 
     val local = mode == DuoStreamMode.LOCAL
     val consoleAlpha = if (local) 1f else 0.60f
+    val initialFocus = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(local) {
+        if (local) {
+            delay(80L)
+            runCatching { initialFocus.requestFocus() }
+        } else {
+            focusManager.clearFocus(force = true)
+        }
+    }
 
     Column(
         modifier
@@ -139,13 +168,15 @@ fun DuoStreamConsole(
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    StreamSummary(
-                        state = state,
-                        mode = mode,
-                        onEnterLocal = { actions.setMode(DuoStreamMode.LOCAL) },
-                        onResume = { actions.setMode(DuoStreamMode.PASSTHROUGH) },
-                        modifier = Modifier.width(220.dp).fillMaxSize(),
-                    )
+                    if (!compact) {
+                        StreamSummary(
+                            state = state,
+                            mode = mode,
+                            onEnterLocal = { actions.setMode(DuoStreamMode.LOCAL) },
+                            onResume = { actions.setMode(DuoStreamMode.PASSTHROUGH) },
+                            modifier = Modifier.width(220.dp).fillMaxSize(),
+                        )
+                    }
                     Column(
                         Modifier
                             .weight(1f)
@@ -156,6 +187,7 @@ fun DuoStreamConsole(
                         StreamTabRow(
                             selected = tab,
                             onSelect = { tab = it },
+                            initialFocusRequester = initialFocus,
                         )
                         Column(
                             Modifier
@@ -167,13 +199,13 @@ fun DuoStreamConsole(
                                 DuoStreamTab.STATUS -> StatusTab(state)
                                 DuoStreamTab.VIDEO -> VideoTab(
                                     state = state,
-                                    scene = scene,
+                                    scene = sceneState,
                                     settingsRepository = settingsRepository,
                                     onChanged = { changed() },
                                 )
                                 DuoStreamTab.AUDIO -> AudioTab(
                                     settingsRepository = settingsRepository,
-                                    scene = scene,
+                                    scene = sceneState,
                                     onChanged = { changed() },
                                     onNotice = { notice = it },
                                 )
@@ -272,7 +304,7 @@ private fun StreamHeader(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                "${state.configuredLabel} · ${state.latencyLabel}",
+                "${state.statusLabel} · ${state.configuredLabel} · ${state.latencyLabel}",
                 style = LumaType.micro,
                 color = LumaColors.Tertiary,
                 maxLines = 1,
@@ -433,6 +465,7 @@ private fun SummaryLine(label: String, value: String) {
 private fun StreamTabRow(
     selected: DuoStreamTab,
     onSelect: (DuoStreamTab) -> Unit,
+    initialFocusRequester: FocusRequester? = null,
 ) {
     Row(
         Modifier
@@ -448,6 +481,7 @@ private fun StreamTabRow(
                     .weight(1f)
                     .height(30.dp),
                 cornerRadius = 6.dp,
+                focusRequester = if (tab == DuoStreamTab.STATUS) initialFocusRequester else null,
             ) { focused ->
                 Column(
                     Modifier
@@ -505,7 +539,7 @@ private fun StatusTab(state: DuoStreamState) {
         InfoCell(
             R.drawable.duo_ic_gamepad,
             "本机",
-            state.temperatureC?.let { "$it°C" } ?: "—",
+            state.temperatureC?.let { "$it°C" } ?: state.thermalLabel,
             "电量 ${state.batteryPercent?.let { "$it%" } ?: "—"}",
             Modifier.weight(1f),
         )
@@ -827,7 +861,7 @@ private fun StreamModeBar(
         )
         Spacer(Modifier.weight(1f))
         Text(
-            notice ?: if (mode == DuoStreamMode.LOCAL) "A 返回游戏 · Return 本地" else "Return / 触摸 进入本地",
+            notice ?: if (mode == DuoStreamMode.LOCAL) "A 返回直通 · B 确认" else "Return / 触摸 进入本地",
             style = LumaType.micro,
             color = LumaColors.Tertiary,
             maxLines = 1,

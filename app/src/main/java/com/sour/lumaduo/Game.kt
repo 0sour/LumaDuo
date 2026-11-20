@@ -146,6 +146,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import com.sour.lumaduo.duo.DuoSettingsRepository
+import com.sour.lumaduo.duo.stream.DuoStreamBridge
+import com.sour.lumaduo.duo.stream.DuoStreamKeySender
+import com.sour.lumaduo.duo.stream.DuoSingleScreenConsoleHost
+import com.sour.lumaduo.duo.stream.GameDuoConsoleHost
+import com.sour.lumaduo.duo.stream.GameDuoStreamActions
+import com.sour.lumaduo.ui.stream.DuoStreamMode
 
 class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
@@ -186,6 +193,14 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     var conn: NvConnection? = null
         private set
     var progressOverlay: FullscreenProgressOverlay? = null
+
+    // LumaDuo bottom-screen console. Created only for launches that opt in via
+    // EXTRA_DUO_CONSOLE; legacy PcView/shortcut launches keep the V+ UI.
+    private var duoConsoleEnabled = false
+    private var duoReconnecting = false
+    private var duoStreamBridge: DuoStreamBridge? = null
+    private var duoConsoleHost: GameDuoConsoleHost? = null
+    private var duoSingleScreenHost: DuoSingleScreenConsoleHost? = null
 
     // 智能码率
     var adaptiveBitrateService: AdaptiveBitrateService? = null
@@ -400,10 +415,16 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         window.decorView.findViewById<View>(android.R.id.content).isFocusable = true
 
         targetDisplayResolver = TargetDisplayResolver(this)
+        duoConsoleEnabled = intent.getBooleanExtra(EXTRA_DUO_CONSOLE, false)
         val initialTargetDisplay = targetDisplayResolver.resolve(
-            PreferenceConfiguration.isExternalDisplayEnabled(this)
+            !duoConsoleEnabled && PreferenceConfiguration.isExternalDisplayEnabled(this)
         )
         prefConfig = PreferenceConfiguration.readPreferences(this, initialTargetDisplay)
+        if (duoConsoleEnabled) {
+            // The bottom display belongs to the console in duo mode. Keep the user's
+            // persisted preference untouched; this only affects the current session.
+            prefConfig.useExternalDisplay = false
+        }
         val committedDisplaySettings = if (displaySettingsCommitted) DisplayReconnectSettings.capture(prefConfig) else null
         orientationManager = OrientationManager(
             this,
@@ -433,6 +454,9 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         // Launch overrides are still useful for other per-app settings. Display
         // choices saved during this session must win when its Activity reconnects.
         committedDisplaySettings?.applyTo(prefConfig)
+        if (duoConsoleEnabled) {
+            prefConfig.useExternalDisplay = false
+        }
         NativeTouchContext.INTIAL_ZONE_PIXELS = prefConfig.longPressflatRegionPixels.toFloat()
         NativeTouchContext.ENABLE_ENHANCED_TOUCH = prefConfig.enableEnhancedTouch
         NativeTouchContext.ENHANCED_TOUCH_ON_RIGHT = if (prefConfig.enhancedTouchOnWhichSide) -1 else 1
@@ -664,6 +688,30 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
         connectionCallbackHandler = ConnectionCallbackHandler(this)
         bindExternalDisplay()
+
+        if (duoConsoleEnabled) {
+            val bridge = DuoStreamBridge(this) { duoSessionSeconds() }
+            bridge.startSession(
+                hostName = pcName ?: "主机",
+                appName = appName ?: "应用",
+                address = intent.getStringExtra(EXTRA_HOST) ?: "—",
+                config = prefConfig,
+                codec = getDecoderFormatLabel(),
+                hdr = isNegotiatedHdrEnabled(),
+            )
+            val keySender = DuoStreamKeySender { conn }
+            val actions = GameDuoStreamActions(this, bridge, keySender)
+            val repository = DuoSettingsRepository(this)
+            duoStreamBridge = bridge
+            duoSingleScreenHost = DuoSingleScreenConsoleHost(this, bridge, actions, repository)
+            duoConsoleHost = GameDuoConsoleHost(
+                game = this,
+                bridge = bridge,
+                actions = actions,
+                settingsRepository = repository,
+                onShown = { duoSingleScreenHost?.setOverlayVisible(false) },
+            )
+        }
     }
 
     private fun getOrCreateKeyboardUIController(): KeyboardUIController? {
@@ -1432,6 +1480,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         prefConfig.refreshControllerMotionPreferencesFrom(latestConfig)
 
         createConnectionAndHandler()
+        duoStreamBridge?.onConnecting()
         performanceOverlayManager?.recordStreamStart()
 
         audioVibrationService?.controllerHandler = controllerHandler
@@ -1580,6 +1629,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         newConfig: Configuration
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        duoConsoleHost?.onPictureInPictureChanged(isInPictureInPictureMode)
+        duoSingleScreenHost?.onPictureInPictureChanged(isInPictureInPictureMode)
         applyPictureInPictureUiState(isInPictureInPictureMode)
     }
 
@@ -1865,6 +1916,12 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
     override fun onDestroy() {
         destroying = true
+        duoConsoleHost?.dismiss()
+        duoConsoleHost = null
+        duoSingleScreenHost?.destroy()
+        duoSingleScreenHost = null
+        duoStreamBridge?.onStopped()
+        duoStreamBridge = null
         resolutionSwitchController.cancel()
         if (conn != null) stopConnection(StreamStopReason.ACTIVITY_DESTROYED)
         // 会话真正结束(finish)时丢弃未消费的暂存画面;recreate() 重建不在此列
@@ -2122,9 +2179,17 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
     override fun onStop() {
         super.onStop()
+        duoConsoleHost?.stop()
+        duoSingleScreenHost?.stop()
         resolutionSwitchController.onStop(isChangingResolution)
         usbForeground = false
         usbForwarding?.stopForeground()
+
+        if (!isFinishing && duoReconnecting) {
+            // The console asked for a clean Activity recreation. onDestroy stops the old
+            // connection; the new instance creates a fresh one.
+            return
+        }
 
         if (!isFinishing &&
             (isChangingResolution || streamSession.shouldKeepConnectionInBackground(
@@ -2299,7 +2364,20 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         grabbedInput = grab
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (duoSingleScreenHost?.dispatchKeyEvent(event) == true) return true
+        return super.dispatchKeyEvent(event)
+    }
+
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        if (duoSingleScreenHost?.dispatchGenericMotionEvent(event) == true) return true
+        return super.dispatchGenericMotionEvent(event)
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (duoSingleScreenHost?.isOverlayVisible == true) {
+            return super.dispatchTouchEvent(event)
+        }
         if (usbForwarding?.consumes(event.device) == true) return true
         if (::prefConfig.isInitialized) screenDs5Touchpad.onScreenTouchEvent(event)
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
@@ -2508,6 +2586,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     private fun stopConnection(reason: StreamStopReason) {
         val connection = conn
         connection?.requestStop()
+        duoStreamBridge?.onStopped()
+        if (::keyboardInputHandler.isInitialized) {
+            keyboardInputHandler.releaseForwardedKeys()
+        }
 
         val wasConnected = connected
         val decision = streamSession.beginStop(
@@ -2555,6 +2637,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     override fun connectionStarted() {
         runOnUiThread {
             if (destroying || isFinishing || !onConnectionEstablished()) return@runOnUiThread
+            duoStreamBridge?.onConnected()
             remoteImeController.resetSession()
             connectionCallbackHandler.connectionStarted()
             withUsbForwarding { it.startForeground() }
@@ -2636,6 +2719,10 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
     override fun onStart() {
         super.onStart()
+        duoConsoleHost?.start()
+        if (duoConsoleHost?.isShowing == true) {
+            duoSingleScreenHost?.setOverlayVisible(false)
+        }
         if (resolutionSwitchController.onStart()) return
 
         val stoppedVirtualControllerVisibility = restoreVirtualControllerAfterStop()
@@ -3318,6 +3405,7 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         enrichFramegenPerformanceInfo(performanceInfo)
         // 缓存最新性能数据，供 ABR 服务使用
         latestPerfInfo = performanceInfo
+        duoStreamBridge?.onPerf(performanceInfo)
 
         runOnUiThread {
             if (controllerManager != null && performanceInfoDisplays.isNotEmpty()) {
@@ -3426,6 +3514,16 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         device: GameInputDevice?,
         openedFromUsbShortcut: Boolean
     ): Boolean {
+        if (duoConsoleEnabled) {
+            if (duoConsoleHost?.isShowing == true) {
+                duoConsoleHost?.enterLocal()
+                return true
+            }
+            if (duoSingleScreenHost != null) {
+                duoSingleScreenHost?.open()
+                return true
+            }
+        }
         if (isApplyingDisplaySettings) return true
         return when (crownSessionController.backKeyMenuMode) {
             BackKeyMenuMode.CROWN_MODE -> {
@@ -3626,10 +3724,94 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         finish()
     }
 
+    fun setDuoConsoleMode(mode: DuoStreamMode) {
+        val bridge = duoStreamBridge ?: return
+        val changed = bridge.mode.value != mode
+        bridge.setMode(mode)
+        if (changed) {
+            if (mode == DuoStreamMode.LOCAL) {
+                if (::controllerHandler.isInitialized) {
+                    controllerHandler.onExternalGameMenuOpened()
+                }
+                if (::keyboardInputHandler.isInitialized) {
+                    keyboardInputHandler.releaseForwardedKeys()
+                }
+                setInputGrabState(false)
+            } else {
+                if (::controllerHandler.isInitialized) {
+                    controllerHandler.onExternalGameMenuDismissed()
+                }
+                setInputGrabState(true)
+                window?.decorView?.requestFocus()
+                if (::streamView.isInitialized) {
+                    streamView.requestFocus()
+                }
+            }
+        }
+        duoConsoleHost?.applyMode(mode)
+        duoSingleScreenHost?.setOverlayVisible(
+            mode == DuoStreamMode.LOCAL && duoConsoleHost?.isShowing != true,
+        )
+    }
+
+    fun duoReconnect() {
+        if (!duoConsoleEnabled) return
+        duoReconnecting = true
+        duoConsoleHost?.dismiss()
+        recreate()
+    }
+
+    fun duoDisconnect() {
+        // Let onStop perform the terminal stop with isFinishing=true. Calling
+        // stopConnection here would race the normal teardown and could leave the
+        // background-resume keep-alive service decision in a non-terminal state.
+        duoConsoleHost?.dismiss()
+        finish()
+    }
+
+    fun notifyDuoConnectionTerminated(errorCode: Int) {
+        val bridge = duoStreamBridge ?: return
+        if (::keyboardInputHandler.isInitialized) {
+            keyboardInputHandler.releaseForwardedKeys()
+        }
+        if (errorCode == MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
+            bridge.onStopped()
+        } else {
+            bridge.onTerminated("连接中断（$errorCode）")
+        }
+    }
+
+    fun duoSessionSeconds(): Long {
+        val activeMs = if (isStreamingActive && streamStartTime > 0) {
+            (System.currentTimeMillis() - streamStartTime).coerceAtLeast(0L)
+        } else {
+            0L
+        }
+        return (accumulatedStreamTime + activeMs).coerceAtLeast(0L) / 1000L
+    }
+
+    fun duoCodecLabel(): String = getDecoderFormatLabel()
+
+    fun duoHdrEnabled(): Boolean = isNegotiatedHdrEnabled()
+
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (duoConsoleHost?.handleBack() == true) return
+        if (duoSingleScreenHost?.handleBack() == true) return
         showGameMenu(null)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val newAppId = intent.getIntExtra(EXTRA_APP_ID, -1)
+        if (duoConsoleEnabled && conn != null && newAppId != -1 && newAppId != app.appId) {
+            LimeLog.info("LumaDuo: new stream intent while Game is alive; recreating session")
+            duoReconnecting = true
+            duoConsoleHost?.dismiss()
+            recreate()
+        }
     }
 
     fun togglePerformanceOverlay() {
@@ -3795,6 +3977,8 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
         val EXTRA_DISPLAY_NAME = "DisplayName"
         val EXTRA_SCREEN_COMBINATION_MODE = "Screen combination mode"
         val EXTRA_FORCE_RESUME_CURRENT_SESSION = "ForceResumeCurrentSession"
+        /** Opt-in flag for the LumaDuo bottom-screen stream console. */
+        val EXTRA_DUO_CONSOLE = "DuoConsole"
 
         private const val KEEP_ALIVE_NOTIFICATION_ID = 1001
     }

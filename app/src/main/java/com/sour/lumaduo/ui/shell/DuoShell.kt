@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -104,27 +105,36 @@ fun LumaDuoShell(
         }
     }
 
-    Row(
+    BoxWithConstraints(
         modifier
             .fillMaxSize()
             .background(LumaColors.Bg),
     ) {
-        DuoRail(
-            destination = destination,
-            onDestinationChange = onDestinationChange,
-            requesters = requesters,
-        )
-        Column(Modifier.weight(1f).fillMaxHeight()) {
-            DuoAppBar(title = title, subtitle = subtitle, actions = actions)
-            Box(Modifier.weight(1f).fillMaxWidth()) {
-                content()
-            }
-            DuoModeBar(
-                label = modeLabel,
-                hint = modeHint,
-                tone = modeTone,
-                keyHints = keyHints,
+        val compact = maxWidth < 600.dp
+        Row(Modifier.fillMaxSize()) {
+            DuoRail(
+                destination = destination,
+                onDestinationChange = onDestinationChange,
+                requesters = requesters,
+                compact = compact,
             )
+            Column(Modifier.weight(1f).fillMaxHeight()) {
+                DuoAppBar(
+                    title = title,
+                    subtitle = subtitle,
+                    actions = actions,
+                    compact = compact,
+                )
+                Box(Modifier.weight(1f).fillMaxWidth()) {
+                    content()
+                }
+                DuoModeBar(
+                    label = modeLabel,
+                    hint = modeHint,
+                    tone = modeTone,
+                    keyHints = keyHints,
+                )
+            }
         }
     }
 }
@@ -134,11 +144,12 @@ private fun DuoRail(
     destination: DuoDestination,
     onDestinationChange: (DuoDestination) -> Unit,
     requesters: Map<DuoDestination, FocusRequester>,
+    compact: Boolean,
 ) {
     val focusManager = LocalFocusManager.current
     Column(
         Modifier
-            .width(LumaMetrics.RailWidth)
+            .width(if (compact) 52.dp else LumaMetrics.RailWidth)
             .fillMaxHeight()
             .background(LumaColors.Surface2)
             .drawBehind {
@@ -156,8 +167,8 @@ private fun DuoRail(
             painter = painterResource(R.drawable.duo_logo_full),
             contentDescription = stringResource(R.string.duo_brand_description),
             modifier = Modifier
-                .padding(top = 2.dp, bottom = 10.dp)
-                .size(38.dp)
+                .padding(top = 2.dp, bottom = if (compact) 6.dp else 10.dp)
+                .size(if (compact) 30.dp else 38.dp)
                 .clip(RoundedCornerShape(8.dp)),
         )
         DuoDestination.entries.forEach { item ->
@@ -175,7 +186,7 @@ private fun DuoRail(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(if (compact) 48.dp else 56.dp)
                     .padding(vertical = 2.dp),
                 cornerRadius = 8.dp,
                 focusRequester = requesters.getValue(item),
@@ -212,7 +223,7 @@ private fun DuoRail(
                         Icon(
                             painter = painterResource(item.iconRes),
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(if (compact) 20.dp else 22.dp),
                             tint = if (selected) LumaColors.Accent else LumaColors.Secondary,
                         )
                         Spacer(Modifier.height(3.dp))
@@ -234,11 +245,12 @@ private fun DuoAppBar(
     title: String,
     subtitle: String?,
     actions: List<DuoAction>,
+    compact: Boolean,
 ) {
     Row(
         Modifier
             .fillMaxWidth()
-            .height(LumaMetrics.AppBarHeight)
+            .height(if (compact) 40.dp else LumaMetrics.AppBarHeight)
             .background(LumaColors.Surface1)
             .drawBehind {
                 drawLine(
@@ -259,7 +271,7 @@ private fun DuoAppBar(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (subtitle != null) {
+            if (subtitle != null && !compact) {
                 Text(
                     text = subtitle,
                     style = LumaType.micro,
@@ -273,7 +285,7 @@ private fun DuoAppBar(
             actions.forEach { action ->
                 LumaFocusable(
                     onClick = action.onClick,
-                    modifier = Modifier.size(LumaMetrics.TouchTarget),
+                    modifier = Modifier.size(if (compact) 36.dp else LumaMetrics.TouchTarget),
                     cornerRadius = 8.dp,
                 ) { focused ->
                     Box(

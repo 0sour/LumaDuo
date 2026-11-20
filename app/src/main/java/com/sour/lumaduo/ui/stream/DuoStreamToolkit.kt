@@ -47,6 +47,7 @@ private data class KeyDef(
     val key: String,
     val weight: Float = 1f,
     val kind: KeyKind = KeyKind.NORMAL,
+    val shift: Boolean = false,
 )
 
 private enum class KeyKind { NORMAL, SPECIAL, MODIFIER, SPACE }
@@ -93,26 +94,32 @@ private val keyboardRows = listOf(
 private val symbolRows = listOf(
     listOf(
         KeyDef("Esc", "Escape", 1.25f, KeyKind.SPECIAL),
-        KeyDef("!", "1"), KeyDef("@", "2"), KeyDef("#", "3"), KeyDef("$", "4"),
-        KeyDef("%", "5"), KeyDef("^", "6"), KeyDef("&", "7"), KeyDef("*", "8"),
-        KeyDef("(", "9"), KeyDef(")", "0"), KeyDef("⌫", "Backspace", 1.25f, KeyKind.SPECIAL),
+        KeyDef("!", "1", shift = true), KeyDef("@", "2", shift = true),
+        KeyDef("#", "3", shift = true), KeyDef("$", "4", shift = true),
+        KeyDef("%", "5", shift = true), KeyDef("^", "6", shift = true),
+        KeyDef("&", "7", shift = true), KeyDef("*", "8", shift = true),
+        KeyDef("(", "9", shift = true), KeyDef(")", "0", shift = true),
+        KeyDef("⌫", "Backspace", 1.25f, KeyKind.SPECIAL),
     ),
     listOf(
         KeyDef("Tab", "Tab", 1.25f, KeyKind.SPECIAL),
-        KeyDef("_", "Minus"), KeyDef("+", "Equal"), KeyDef("[", "BracketLeft"),
-        KeyDef("]", "BracketRight"), KeyDef("{", "BracketLeft"), KeyDef("}", "BracketRight"),
-        KeyDef("|", "Backslash"), KeyDef("\\", "Backslash", 1.15f),
+        KeyDef("_", "Minus", shift = true), KeyDef("+", "Equal", shift = true),
+        KeyDef("[", "BracketLeft"), KeyDef("]", "BracketRight"),
+        KeyDef("{", "BracketLeft", shift = true), KeyDef("}", "BracketRight", shift = true),
+        KeyDef("|", "Backslash", shift = true), KeyDef("\\", "Backslash", 1.15f),
     ),
     listOf(
         KeyDef("Caps", "CapsLock", 1.25f, KeyKind.SPECIAL),
-        KeyDef(";", "Semicolon"), KeyDef(":", "Semicolon"), KeyDef("'", "Quote"),
-        KeyDef("\"", "Quote"), KeyDef(",", "Comma"), KeyDef(".", "Period"),
+        KeyDef(";", "Semicolon"), KeyDef(":", "Semicolon", shift = true),
+        KeyDef("'", "Quote"), KeyDef("\"", "Quote", shift = true),
+        KeyDef(",", "Comma"), KeyDef(".", "Period"),
         KeyDef("/", "Slash"), KeyDef("Enter", "Enter", 1.7f, KeyKind.SPECIAL),
     ),
     listOf(
         KeyDef("Shift", "Shift", 1.7f, KeyKind.MODIFIER),
-        KeyDef("~", "Backquote"), KeyDef("<", "Comma"), KeyDef(">", "Period"),
-        KeyDef("?", "Slash"), KeyDef("×", "Multiply"), KeyDef("÷", "Divide"),
+        KeyDef("~", "Backquote", shift = true), KeyDef("<", "Comma", shift = true),
+        KeyDef(">", "Period", shift = true), KeyDef("?", "Slash", shift = true),
+        KeyDef("×", "Multiply"), KeyDef("÷", "Divide"),
         KeyDef("Shift", "Shift", 1.7f, KeyKind.MODIFIER),
     ),
     listOf(
@@ -220,7 +227,6 @@ private fun Touchpad(actions: DuoStreamActions) {
                     detectTapGestures(
                         onTap = { offset ->
                             pointer = offset
-                            actions.mouseMove(offset.x, offset.y)
                             actions.mouseButton(1)
                         },
                         onDoubleTap = { dragLock = !dragLock },
@@ -320,7 +326,10 @@ private fun Keyboard(actions: DuoStreamActions) {
                                     "Shift", "Ctrl", "Win", "Alt" -> {
                                         mods = if (mods.contains(key.key)) mods - key.key else mods + key.key
                                     }
-                                    else -> actions.sendKey(key.key)
+                                    else -> {
+                                        val effectiveMods = if (key.shift) mods + "Shift" else mods
+                                        actions.sendKey(key.key, effectiveMods)
+                                    }
                                 }
                             },
                         )

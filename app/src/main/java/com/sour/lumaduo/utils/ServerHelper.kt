@@ -56,7 +56,8 @@ object ServerHelper {
         lastSettings: PreferenceConfiguration? = null,
         screenCombinationMode: Int = -1,
         useVdd: Boolean? = null,
-        forceResumeCurrentSession: Boolean = false
+        forceResumeCurrentSession: Boolean = false,
+        duoConsole: Boolean = false
     ): Intent {
         return Intent(parent, Game::class.java).apply {
             putExtra(Game.EXTRA_HOST, computer.activeAddress!!.address)
@@ -84,6 +85,9 @@ object ServerHelper {
             }
             if (forceResumeCurrentSession) {
                 putExtra(Game.EXTRA_FORCE_RESUME_CURRENT_SESSION, true)
+            }
+            if (duoConsole) {
+                putExtra(Game.EXTRA_DUO_CONSOLE, true)
             }
         }
     }

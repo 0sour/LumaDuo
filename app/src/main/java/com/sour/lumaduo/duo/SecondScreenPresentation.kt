@@ -8,7 +8,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.Display
+import android.view.InputDevice
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
@@ -60,6 +62,7 @@ class SecondScreenPresentation(
     OnBackPressedDispatcherOwner,
     ActivityResultRegistryOwner {
 
+    private val hostActivity = activity
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateController = SavedStateRegistryController.create(this)
     private val store = ViewModelStore()
@@ -82,6 +85,9 @@ class SecondScreenPresentation(
     override val activityResultRegistry: ActivityResultRegistry get() = resultRegistry
 
     private var lastConfirmAt = 0L
+    private var focusEnabled = true
+    private var backInterceptionEnabled = true
+    private var lastHatKeyCode = 0
 
     private val contentView = ComposeView(activity).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
@@ -117,6 +123,9 @@ class SecondScreenPresentation(
         super.onCreate(savedInstanceState)
         savedStateController.performRestore(savedInstanceState)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        if (!focusEnabled) {
+            window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        }
         val decor = window!!.decorView
         decor.setViewTreeLifecycleOwner(this)
         decor.setViewTreeViewModelStoreOwner(this)
@@ -129,7 +138,9 @@ class SecondScreenPresentation(
         super.onStart()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        window?.decorView?.post { window?.decorView?.requestFocus() }
+        if (focusEnabled) {
+            window?.decorView?.post { window?.decorView?.requestFocus() }
+        }
     }
 
     override fun onStop() {
@@ -144,6 +155,29 @@ class SecondScreenPresentation(
         }
         store.clear()
         super.dismiss()
+    }
+
+    /**
+     * Controls whether this window takes key focus. The stream console sets this to false
+     * in passthrough mode so the game window keeps receiving controller/keyboard input;
+     * touch still works and is caught by the console route to enter local mode.
+     */
+    fun setFocusEnabled(enabled: Boolean) {
+        if (focusEnabled == enabled) return
+        focusEnabled = enabled
+        val window = window ?: return
+        if (enabled) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            window.decorView.isFocusableInTouchMode = true
+            window.decorView.post { window.decorView.requestFocus() }
+        } else {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            hostActivity.window?.decorView?.requestFocus()
+        }
+    }
+
+    fun setBackInterceptionEnabled(enabled: Boolean) {
+        backInterceptionEnabled = enabled
     }
 
     /**
@@ -165,6 +199,8 @@ class SecondScreenPresentation(
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!focusEnabled) return super.dispatchKeyEvent(event)
+        if (!backInterceptionEnabled) return super.dispatchKeyEvent(event)
         if (consumeDuplicateConfirm(event)) return true
         // While a text field owns an IME connection, ordinary keys belong to it.
         // Face buttons keep local semantics: physical A closes, physical B confirms.
@@ -193,6 +229,36 @@ class SecondScreenPresentation(
             return true
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    /**
+     * Joystick HAT axes do not produce key events, but the Compose focus tree only
+     * understands D-pad keys. Translate each new hat direction into one down/up pair.
+     */
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        if (!focusEnabled) return super.dispatchGenericMotionEvent(event)
+        if (event.source and InputDevice.SOURCE_JOYSTICK != InputDevice.SOURCE_JOYSTICK) {
+            return super.dispatchGenericMotionEvent(event)
+        }
+        val hatX = event.getAxisValue(MotionEvent.AXIS_HAT_X)
+        val hatY = event.getAxisValue(MotionEvent.AXIS_HAT_Y)
+        val keyCode = when {
+            hatX > 0.5f -> KeyEvent.KEYCODE_DPAD_RIGHT
+            hatX < -0.5f -> KeyEvent.KEYCODE_DPAD_LEFT
+            hatY > 0.5f -> KeyEvent.KEYCODE_DPAD_DOWN
+            hatY < -0.5f -> KeyEvent.KEYCODE_DPAD_UP
+            else -> 0
+        }
+        if (keyCode == 0) {
+            lastHatKeyCode = 0
+            return super.dispatchGenericMotionEvent(event)
+        }
+        if (keyCode != lastHatKeyCode) {
+            lastHatKeyCode = keyCode
+            dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+            dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        }
+        return true
     }
 }
 
