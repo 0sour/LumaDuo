@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.sour.lumaduo.R
 import com.sour.lumaduo.nvstream.http.ComputerDetails
 import com.sour.lumaduo.nvstream.http.PairingManager
+import com.sour.lumaduo.ui.luma.DuoKeys
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
@@ -105,7 +106,7 @@ fun DuoHostsPage(
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "A 选择 · → 详情 · + 添加",
+                    "${DuoKeys.ConfirmLabel} 选择 · → 详情 · + 添加",
                     style = LumaType.micro,
                     color = LumaColors.Tertiary,
                 )
@@ -141,7 +142,8 @@ private fun DuoHostRow(
         onFocused = { focused -> if (focused) onFocus() },
         modifier = Modifier
             .fillMaxWidth()
-            .height(74.dp),
+            .height(82.dp)
+            .padding(vertical = 4.dp),
         cornerRadius = 10.dp,
     ) { focused ->
         Row(

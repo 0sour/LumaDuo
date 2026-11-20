@@ -557,7 +557,7 @@ private fun AboutParent(
     DuoSettingRow(
         title = "帮助 / 诊断",
         value = "旧版",
-        detail = "能力 / 手柄 / 网络诊断",
+        detail = "旧版 V+：A 确认 · B 返回",
         isSubpage = true,
         onActivate = onOpenLegacy,
     )

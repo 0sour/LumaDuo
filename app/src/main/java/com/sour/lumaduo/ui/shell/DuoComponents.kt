@@ -32,6 +32,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -44,13 +45,20 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sour.lumaduo.ui.luma.LocalDuoFocusMemory
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
@@ -197,8 +205,8 @@ fun DuoSettingRow(
         },
         modifier = modifier
             .fillMaxWidth()
-            .height(44.dp)
-            .padding(horizontal = 6.dp, vertical = 2.dp),
+            .height(52.dp)
+            .padding(horizontal = 6.dp, vertical = 4.dp),
         cornerRadius = 8.dp,
     ) { focused ->
         Row(
@@ -395,6 +403,16 @@ fun DuoOverlay(
 ) {
     val panelFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val focusMemory = LocalDuoFocusMemory.current
+    val restoreFocus = remember { focusMemory?.last }
+    val view = LocalView.current
+
+    DisposableEffect(Unit) {
+        onDispose {
+            val target = restoreFocus ?: return@onDispose
+            view.post { runCatching { target.requestFocus() } }
+        }
+    }
 
     // Enter the overlay before the user can press A again. The panel itself is a
     // focus target so focus cannot remain on the page hidden behind the scrim.
@@ -424,6 +442,28 @@ fun DuoOverlay(
                 .focusRequester(panelFocus)
                 .focusable()
                 .focusGroup()
+                .onPreviewKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                    val direction = when (event.key) {
+                        // Leave Left/Right to text fields so cursor editing still works.
+                        Key.DirectionUp -> FocusDirection.Up
+                        Key.DirectionDown -> FocusDirection.Down
+                        Key.Tab -> if (event.isShiftPressed) {
+                            FocusDirection.Previous
+                        } else {
+                            FocusDirection.Next
+                        }
+                        else -> null
+                    }
+                    if (direction == null) {
+                        false
+                    } else {
+                        // Consume even when moveFocus returns false: the overlay is a
+                        // focus boundary, so the controller cannot leak to the page.
+                        focusManager.moveFocus(direction)
+                        true
+                    }
+                }
                 .pointerInput(Unit) {
                     // Consume taps so the scrim underneath does not dismiss the panel.
                     detectTapGestures(onTap = { })

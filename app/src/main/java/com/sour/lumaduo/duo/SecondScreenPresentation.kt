@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.Display
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -16,8 +17,6 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -71,22 +70,18 @@ class SecondScreenPresentation(
             override fun handleOnBackPressed() = onBack()
         })
     }
-    private val resultRegistry = object : ActivityResultRegistry() {
-        override fun <I, O> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?,
-        ) {
-            LimeLog.warning("LumaDuo bottom presentation has no ActivityResult host for request $requestCode")
-        }
-    }
+    // The Presentation has no ActivityResult host of its own. Delegate to the
+    // Activity registry so SAF / permission / picker launchers inside the bottom
+    // Compose tree can actually launch and receive a result.
+    private val resultRegistry = activity.activityResultRegistry
 
     override val lifecycle: Lifecycle get() = lifecycleRegistry
     override val viewModelStore: ViewModelStore get() = store
     override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
     override val onBackPressedDispatcher: OnBackPressedDispatcher get() = backDispatcher
     override val activityResultRegistry: ActivityResultRegistry get() = resultRegistry
+
+    private var lastConfirmAt = 0L
 
     private val contentView = ComposeView(activity).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
@@ -151,22 +146,49 @@ class SecondScreenPresentation(
         super.dismiss()
     }
 
+    /**
+     * Some controllers report BUTTON_B and a synthesized DPAD_CENTER for one press.
+     * Consume the second event so LumaFocusable/clickable cannot fire twice.
+     */
+    private fun consumeDuplicateConfirm(event: KeyEvent): Boolean {
+        if (event.action != KeyEvent.ACTION_DOWN) return false
+        if (event.keyCode != KeyEvent.KEYCODE_BUTTON_B &&
+            event.keyCode != KeyEvent.KEYCODE_DPAD_CENTER
+        ) {
+            return false
+        }
+        if (event.repeatCount > 0) return true
+        val now = SystemClock.uptimeMillis()
+        val duplicate = now - lastConfirmAt < 40L
+        lastConfirmAt = now
+        return duplicate
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // While a text field owns an IME connection, B must type and Back must
-        // dismiss the keyboard first. The console's own ASCII keyboard does not
-        // open an IME connection, so it keeps B as "back".
+        if (consumeDuplicateConfirm(event)) return true
+        // While a text field owns an IME connection, ordinary keys belong to it.
+        // Face buttons keep local semantics: physical A closes, physical B confirms.
         val typing = (context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
             ?.isAcceptingText == true
-        if (typing) {
+        val faceKey = event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+            event.keyCode == KeyEvent.KEYCODE_BUTTON_B
+        // While the system IME is typing, ordinary keys belong to the text field.
+        // Face buttons keep their local semantics; B is passed to Compose as confirm.
+        if (typing && !faceKey) {
+            return super.dispatchKeyEvent(event)
+        }
+        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_B) {
             return super.dispatchKeyEvent(event)
         }
         if (event.action == KeyEvent.ACTION_DOWN &&
             event.repeatCount == 0 &&
             (event.keyCode == KeyEvent.KEYCODE_BACK ||
                 event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
+                // RP Duo physical A is the back/close key; B is confirm and must
+                // reach the Compose focus tree.
+                event.keyCode == KeyEvent.KEYCODE_BUTTON_A)
         ) {
-            LimeLog.info("LumaDuo bottom presentation received back/escape/button-b")
+            LimeLog.info("LumaDuo bottom presentation received back/escape/button-a")
             backDispatcher.onBackPressed()
             return true
         }

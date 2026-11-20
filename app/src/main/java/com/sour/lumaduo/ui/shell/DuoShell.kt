@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -45,6 +44,7 @@ import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaMetrics
 import com.sour.lumaduo.ui.luma.LumaShapes
+import com.sour.lumaduo.ui.luma.DuoKeys
 import com.sour.lumaduo.ui.luma.LumaType
 import kotlinx.coroutines.delay
 
@@ -88,8 +88,8 @@ fun LumaDuoShell(
     modeHint: String? = null,
     modeTone: DuoModeTone = DuoModeTone.LOCAL,
     keyHints: List<DuoKeyHint> = listOf(
-        DuoKeyHint("A", stringResource(R.string.duo_key_confirm)),
-        DuoKeyHint("B", stringResource(R.string.duo_key_back)),
+        DuoKeyHint(DuoKeys.ConfirmLabel, stringResource(R.string.duo_key_confirm)),
+        DuoKeyHint(DuoKeys.BackLabel, stringResource(R.string.duo_key_back)),
     ),
     content: @Composable () -> Unit,
 ) {
@@ -164,8 +164,9 @@ private fun DuoRail(
             val selected = item == destination
             LumaFocusable(
                 onClick = {
-                    // A on the already-active rail item moves into the page; this
-                    // avoids a dead A press and gives the page a predictable entry.
+                    // Confirm (physical B) on the already-active rail item moves
+                    // into the page; this avoids a dead press and gives a
+                    // predictable entry point.
                     if (selected) {
                         focusManager.moveFocus(FocusDirection.Right)
                     } else {
@@ -175,9 +176,9 @@ private fun DuoRail(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .padding(vertical = 2.dp)
-                    .focusRequester(requesters.getValue(item)),
+                    .padding(vertical = 2.dp),
                 cornerRadius = 8.dp,
+                focusRequester = requesters.getValue(item),
             ) { focused ->
                 Box(
                     Modifier

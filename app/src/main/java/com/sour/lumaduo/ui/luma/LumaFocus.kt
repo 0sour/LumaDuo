@@ -10,8 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +27,24 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+
+/**
+ * The single source of truth for local gamepad semantics. RP Duo's physical silk is
+ * B = confirm, A = back (bili-duo / UUYC-Duo both verified this on device).
+ */
+object DuoKeys {
+    val Confirm = Key.ButtonB
+    val Back = Key.ButtonA
+    const val ConfirmLabel = "B"
+    const val BackLabel = "A"
+}
+
+/** Remembers the last focused Luma control so an overlay can restore it on close. */
+class DuoFocusMemory {
+    var last: FocusRequester? = null
+}
+
+val LocalDuoFocusMemory = staticCompositionLocalOf<DuoFocusMemory?> { null }
 
 /**
  * Draws a high-contrast white ring with a black separator. It deliberately does not use
@@ -64,16 +85,21 @@ fun LumaFocusable(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 8.dp,
     enabled: Boolean = true,
+    focusRequester: FocusRequester? = null,
     onNavigateKey: ((Key) -> Boolean)? = null,
     onFocused: ((Boolean) -> Unit)? = null,
     content: @Composable BoxScope.(focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+    val selfFocus = focusRequester ?: remember { FocusRequester() }
+    val memory = LocalDuoFocusMemory.current
     Box(
         modifier = modifier
+            .focusRequester(selfFocus)
             .onFocusChanged {
                 focused = it.isFocused
+                if (it.isFocused) memory?.last = selfFocus
                 onFocused?.invoke(it.isFocused)
             }
             .clickable(
@@ -85,7 +111,7 @@ fun LumaFocusable(
             .onKeyEvent { event ->
                 if (enabled && event.type == KeyEventType.KeyDown) {
                     when {
-                        event.key == Key.ButtonA -> {
+                        event.key == DuoKeys.Confirm -> {
                             onClick()
                             true
                         }

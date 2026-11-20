@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,8 +42,11 @@ import com.sour.lumaduo.duo.DuoSettingsRepository
 import com.sour.lumaduo.nvstream.http.ComputerDetails
 import com.sour.lumaduo.nvstream.http.NvApp
 import com.sour.lumaduo.nvstream.http.PairingManager
+import com.sour.lumaduo.ui.luma.DuoFocusMemory
+import com.sour.lumaduo.ui.luma.DuoKeys
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaShapes
+import com.sour.lumaduo.ui.luma.LocalDuoFocusMemory
 import com.sour.lumaduo.ui.luma.LumaType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -121,6 +125,7 @@ fun DuoShellScreen(
     var notice by remember { mutableStateOf<String?>(null) }
     var showHidden by rememberSaveable { mutableStateOf(false) }
     var appSelection by remember { mutableStateOf<NvApp?>(null) }
+    val focusMemory = remember { DuoFocusMemory() }
 
     val hostList by hosts.collectAsState()
     val appList by apps.collectAsState()
@@ -200,7 +205,7 @@ fun DuoShellScreen(
         DuoDestination.HOSTS -> "ComputerManagerService · 实时"
         DuoDestination.APPS -> "真实应用列表 · ${appList.size} 个"
         DuoDestination.REMOTE -> "EasyTier 配置 · 密钥遮罩"
-        DuoDestination.SETTINGS -> "7 类 · A 调整 · B 返回"
+        DuoDestination.SETTINGS -> "7 类 · B 调整 · A 返回"
     }
     val actions = when (destination) {
         DuoDestination.HOSTS -> buildList {
@@ -233,229 +238,231 @@ fun DuoShellScreen(
         DuoDestination.SETTINGS -> emptyList()
     }
 
-    LumaDuoShell(
-        destination = destination,
-        onDestinationChange = { next ->
-            onDestinationChange(next)
-            notice = null
-        },
-        title = title,
-        subtitle = subtitle,
-        actions = actions,
-        modeLabel = "手柄：下屏",
-        modeHint = notice ?: when {
-            rootBackArmed -> "再按 B 退出 LumaDuo"
-            destination == DuoDestination.HOSTS -> "选择主机 · ▶ 应用 · + 添加"
-            destination == DuoDestination.APPS -> "A 启动 · 操作键打开应用操作"
-            destination == DuoDestination.REMOTE -> "启动/停止 · 配置 · PC 配置"
-            else -> "分类 → 子页 → 调整"
-        },
-        keyHints = listOf(
-            DuoKeyHint("A", if (destination == DuoDestination.SETTINGS) "打开/调整" else "选择"),
-            DuoKeyHint("B", if (destination == DuoDestination.HOSTS) "退出" else "返回"),
-        ),
-        modifier = modifier,
-    ) {
-        when (destination) {
-            DuoDestination.HOSTS -> DuoHostsPage(
-                hosts = hostList,
-                selectedUuid = selected?.uuid,
-                onSelect = { selectedUuid = it.uuid.orEmpty() },
-                onAction = { target, action ->
-                    when (action) {
-                        DuoHostAction.CONNECT -> host.connect(target)
-                        DuoHostAction.APPS -> {
-                            host.openApps(target)
-                            onDestinationChange(DuoDestination.APPS)
-                        }
-                        DuoHostAction.PAIR -> {
-                            if (target.state != ComputerDetails.State.ONLINE) {
-                                host.notice("主机离线，先唤醒或检查网络")
-                            } else {
-                                pairHost = target
-                                host.pair(target)
+    CompositionLocalProvider(LocalDuoFocusMemory provides focusMemory) {
+        LumaDuoShell(
+            destination = destination,
+            onDestinationChange = { next ->
+                onDestinationChange(next)
+                notice = null
+            },
+            title = title,
+            subtitle = subtitle,
+            actions = actions,
+            modeLabel = "手柄：下屏",
+            modeHint = notice ?: when {
+                rootBackArmed -> "再按 A 退出 LumaDuo"
+                destination == DuoDestination.HOSTS -> "选择主机 · ▶ 应用 · + 添加"
+                destination == DuoDestination.APPS -> "B 启动 · 操作键打开应用操作"
+                destination == DuoDestination.REMOTE -> "启动/停止 · 配置 · PC 配置"
+                else -> "分类 → 子页 → 调整"
+            },
+            keyHints = listOf(
+                DuoKeyHint(DuoKeys.ConfirmLabel, if (destination == DuoDestination.SETTINGS) "打开/调整" else "选择"),
+                DuoKeyHint(DuoKeys.BackLabel, if (destination == DuoDestination.HOSTS) "退出" else "返回"),
+            ),
+            modifier = modifier,
+        ) {
+            when (destination) {
+                DuoDestination.HOSTS -> DuoHostsPage(
+                    hosts = hostList,
+                    selectedUuid = selected?.uuid,
+                    onSelect = { selectedUuid = it.uuid.orEmpty() },
+                    onAction = { target, action ->
+                        when (action) {
+                            DuoHostAction.CONNECT -> host.connect(target)
+                            DuoHostAction.APPS -> {
+                                host.openApps(target)
+                                onDestinationChange(DuoDestination.APPS)
                             }
+                            DuoHostAction.PAIR -> {
+                                if (target.state != ComputerDetails.State.ONLINE) {
+                                    host.notice("主机离线，先唤醒或检查网络")
+                                } else {
+                                    pairHost = target
+                                    host.pair(target)
+                                }
+                            }
+                            DuoHostAction.WAKE -> host.wake(target)
+                            DuoHostAction.DELETE -> confirm = ConfirmRequest(
+                                title = "删除主机？",
+                                body = "将从列表移除 ${target.name ?: "这台主机"}，不会卸载 PC 端 Sunshine。",
+                                confirmLabel = "删除",
+                                onConfirm = { host.delete(target) },
+                            )
+                            DuoHostAction.MORE, DuoHostAction.DETAILS -> hostMore = target
+                            else -> host.hostMore(target, action)
                         }
-                        DuoHostAction.WAKE -> host.wake(target)
-                        DuoHostAction.DELETE -> confirm = ConfirmRequest(
+                    },
+                    onAdd = {
+                        addAddress = ""
+                        addPort = "47989"
+                        addError = null
+                        addOpen = true
+                    },
+                    onRefresh = { host.refreshHosts() },
+                )
+                DuoDestination.APPS -> DuoAppsPage(
+                    host = selected,
+                    apps = if (showHidden) appList else appList.filterNot {
+                        selected?.let { s -> host.appHidden(s, it) } == true
+                    },
+                    loading = appLoading,
+                    error = appError,
+                    onOpenApp = { app -> selected?.let { host.openApp(it, app, false) } },
+                    onAppAction = { app, action ->
+                        when (action) {
+                            DuoAppAction.INFO -> appSheet = app
+                            else -> handleAppAction(selected, app, action, host)
+                        }
+                    },
+                    onSelectionChanged = { appSelection = it },
+                )
+                DuoDestination.REMOTE -> DuoRemotePage(
+                    snapshot = remote,
+                    runtime = runtime,
+                    onStartStop = host::startStopEasyTier,
+                    onEditConfig = { remoteEdit = true },
+                    onAdvanced = { remoteAdvanced = true },
+                    onCopyPcConfig = host::copyPcConfig,
+                    onShowQr = { qrContent = host.pcConfig() },
+                    onAddManualHost = {
+                        addAddress = "10.0.0.2"
+                        addPort = "47989"
+                        addError = null
+                        addOpen = true
+                    },
+                )
+                DuoDestination.SETTINGS -> DuoSettingsPage(
+                    repository = settingsRepository,
+                    scene = settings,
+                    remote = remote,
+                    runtime = runtime,
+                    onSceneChanged = onSettingsChanged,
+                    onOpenRemote = { onDestinationChange(DuoDestination.REMOTE) },
+                    onOpenLegacy = host::openLegacy,
+                    onAddHost = {
+                        addAddress = "10.0.0.2"
+                        addPort = "47989"
+                        addError = null
+                        addOpen = true
+                    },
+                    onNotice = { notice = it },
+                    onOpenConsolePreview = host::openConsolePreview,
+                    backBlocked = hasShellOverlay,
+                )
+            }
+        }
+
+        // ==================== Overlays ====================
+        if (addOpen) {
+            AddHostOverlay(
+                address = addAddress,
+                port = addPort,
+                error = addError,
+                busy = addBusy,
+                onAddress = { addAddress = it },
+                onPort = { addPort = it },
+                onDismiss = { if (!addBusy) addOpen = false },
+                onSubmit = {
+                    addBusy = true
+                    addError = null
+                    host.addHost(addAddress, addPort.toIntOrNull() ?: 47989) { error ->
+                        addBusy = false
+                        if (error == null) {
+                            addOpen = false
+                        } else {
+                            addError = error
+                        }
+                    }
+                },
+            )
+        }
+
+        if (pair != null && (pairState.pin != null || pairState.error != null)) {
+            PairOverlay(
+                host = pair,
+                state = pairState,
+                onRetry = { pair?.let(host::pair) },
+                onCancel = {
+                    pairHost = null
+                    host.clearPair()
+                },
+            )
+        }
+
+        hostMore?.let { target ->
+            HostMoreOverlay(
+                host = target,
+                onDismiss = { hostMore = null },
+                onAction = { action ->
+                    hostMore = null
+                    if (action == DuoHostAction.DELETE) {
+                        confirm = ConfirmRequest(
                             title = "删除主机？",
-                            body = "将从列表移除 ${target.name ?: "这台主机"}，不会卸载 PC 端 Sunshine。",
+                            body = "将从列表移除 ${target.name ?: "这台主机"}。",
                             confirmLabel = "删除",
                             onConfirm = { host.delete(target) },
                         )
-                        DuoHostAction.MORE, DuoHostAction.DETAILS -> hostMore = target
-                        else -> host.hostMore(target, action)
-                    }
-                },
-                onAdd = {
-                    addAddress = ""
-                    addPort = "47989"
-                    addError = null
-                    addOpen = true
-                },
-                onRefresh = { host.refreshHosts() },
-            )
-            DuoDestination.APPS -> DuoAppsPage(
-                host = selected,
-                apps = if (showHidden) appList else appList.filterNot {
-                    selected?.let { s -> host.appHidden(s, it) } == true
-                },
-                loading = appLoading,
-                error = appError,
-                onOpenApp = { app -> selected?.let { host.openApp(it, app, false) } },
-                onAppAction = { app, action ->
-                    when (action) {
-                        DuoAppAction.INFO -> appSheet = app
-                        else -> handleAppAction(selected, app, action, host)
-                    }
-                },
-                onSelectionChanged = { appSelection = it },
-            )
-            DuoDestination.REMOTE -> DuoRemotePage(
-                snapshot = remote,
-                runtime = runtime,
-                onStartStop = host::startStopEasyTier,
-                onEditConfig = { remoteEdit = true },
-                onAdvanced = { remoteAdvanced = true },
-                onCopyPcConfig = host::copyPcConfig,
-                onShowQr = { qrContent = host.pcConfig() },
-                onAddManualHost = {
-                    addAddress = "10.0.0.2"
-                    addPort = "47989"
-                    addError = null
-                    addOpen = true
-                },
-            )
-            DuoDestination.SETTINGS -> DuoSettingsPage(
-                repository = settingsRepository,
-                scene = settings,
-                remote = remote,
-                runtime = runtime,
-                onSceneChanged = onSettingsChanged,
-                onOpenRemote = { onDestinationChange(DuoDestination.REMOTE) },
-                onOpenLegacy = host::openLegacy,
-                onAddHost = {
-                    addAddress = "10.0.0.2"
-                    addPort = "47989"
-                    addError = null
-                    addOpen = true
-                },
-                onNotice = { notice = it },
-                onOpenConsolePreview = host::openConsolePreview,
-                backBlocked = hasShellOverlay,
-            )
-        }
-    }
-
-    // ==================== Overlays ====================
-    if (addOpen) {
-        AddHostOverlay(
-            address = addAddress,
-            port = addPort,
-            error = addError,
-            busy = addBusy,
-            onAddress = { addAddress = it },
-            onPort = { addPort = it },
-            onDismiss = { if (!addBusy) addOpen = false },
-            onSubmit = {
-                addBusy = true
-                addError = null
-                host.addHost(addAddress, addPort.toIntOrNull() ?: 47989) { error ->
-                    addBusy = false
-                    if (error == null) {
-                        addOpen = false
                     } else {
-                        addError = error
+                        host.hostMore(target, action)
                     }
-                }
-            },
-        )
-    }
-
-    if (pair != null && (pairState.pin != null || pairState.error != null)) {
-        PairOverlay(
-            host = pair,
-            state = pairState,
-            onRetry = { pair?.let(host::pair) },
-            onCancel = {
-                pairHost = null
-                host.clearPair()
-            },
-        )
-    }
-
-    hostMore?.let { target ->
-        HostMoreOverlay(
-            host = target,
-            onDismiss = { hostMore = null },
-            onAction = { action ->
-                hostMore = null
-                if (action == DuoHostAction.DELETE) {
-                    confirm = ConfirmRequest(
-                        title = "删除主机？",
-                        body = "将从列表移除 ${target.name ?: "这台主机"}。",
-                        confirmLabel = "删除",
-                        onConfirm = { host.delete(target) },
-                    )
-                } else {
-                    host.hostMore(target, action)
-                }
-            },
-        )
-    }
-
-    appSheet?.let { app ->
-        val target = selected
-        AppActionsOverlay(
-            app = app,
-            hidden = target?.let { host.appHidden(it, app) } == true,
-            onDismiss = { appSheet = null },
-            onAction = { action ->
-                appSheet = null
-                target?.let { handleAppAction(it, app, action, host) }
-            },
-        )
-    }
-
-    confirm?.let { request ->
-        DuoOverlay(onDismiss = { confirm = null }) {
-            DuoConfirmPanel(
-                title = request.title,
-                body = request.body,
-                confirmLabel = request.confirmLabel,
-                onCancel = { confirm = null },
-                onConfirm = {
-                    request.onConfirm()
-                    confirm = null
                 },
             )
         }
-    }
 
-    if (remoteEdit) {
-        DuoRemoteConfigEditor(
-            config = remoteConfig,
-            onSave = {
-                host.saveRemoteConfig(it)
-                remoteEdit = false
-            },
-            onDismiss = { remoteEdit = false },
-        )
-    }
+        appSheet?.let { app ->
+            val target = selected
+            AppActionsOverlay(
+                app = app,
+                hidden = target?.let { host.appHidden(it, app) } == true,
+                onDismiss = { appSheet = null },
+                onAction = { action ->
+                    appSheet = null
+                    target?.let { handleAppAction(it, app, action, host) }
+                },
+            )
+        }
 
-    if (remoteAdvanced) {
-        DuoRemoteAdvanced(
-            config = remoteConfig,
-            onSave = {
-                host.saveRemoteAdvanced(it)
-                remoteAdvanced = false
-            },
-            onDismiss = { remoteAdvanced = false },
-        )
-    }
+        confirm?.let { request ->
+            DuoOverlay(onDismiss = { confirm = null }) {
+                DuoConfirmPanel(
+                    title = request.title,
+                    body = request.body,
+                    confirmLabel = request.confirmLabel,
+                    onCancel = { confirm = null },
+                    onConfirm = {
+                        request.onConfirm()
+                        confirm = null
+                    },
+                )
+            }
+        }
 
-    qrContent?.let { content ->
-        DuoQrOverlay(content = content, onDismiss = { qrContent = null })
+        if (remoteEdit) {
+            DuoRemoteConfigEditor(
+                config = remoteConfig,
+                onSave = {
+                    host.saveRemoteConfig(it)
+                    remoteEdit = false
+                },
+                onDismiss = { remoteEdit = false },
+            )
+        }
+
+        if (remoteAdvanced) {
+            DuoRemoteAdvanced(
+                config = remoteConfig,
+                onSave = {
+                    host.saveRemoteAdvanced(it)
+                    remoteAdvanced = false
+                },
+                onDismiss = { remoteAdvanced = false },
+            )
+        }
+
+        qrContent?.let { content ->
+            DuoQrOverlay(content = content, onDismiss = { qrContent = null })
+        }
     }
 }
 

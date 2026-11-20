@@ -142,7 +142,8 @@ private fun DuoAppCard(
         onFocused = { focused -> if (focused) onFocus() },
         modifier = Modifier
             .fillMaxWidth()
-            .height(96.dp),
+            .height(104.dp)
+            .padding(4.dp),
         cornerRadius = 10.dp,
     ) { focused ->
         Column(
