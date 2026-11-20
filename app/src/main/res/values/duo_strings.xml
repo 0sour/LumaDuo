@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duo_rail_hosts">主机</string>
+    <string name="duo_rail_apps">应用</string>
+    <string name="duo_rail_remote">远程</string>
+    <string name="duo_rail_settings">设置</string>
+
+    <string name="duo_brand_description">LumaDuo</string>
+    <string name="duo_mode_local">手柄：下屏</string>
+    <string name="duo_mode_passthrough">手柄：直通电脑</string>
+    <string name="duo_mode_menu">手柄：本地菜单</string>
+    <string name="duo_key_confirm">确认</string>
+    <string name="duo_key_back">返回</string>
+    <string name="duo_key_switch">切换</string>
+</resources>
