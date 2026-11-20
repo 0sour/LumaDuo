@@ -2,10 +2,14 @@
 package com.sour.lumaduo.ui.shell
 
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.view.Display
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,16 +33,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.sour.lumaduo.LimeLog
 import com.sour.lumaduo.R
+import com.sour.lumaduo.duo.SecondScreenPresentation
+import com.sour.lumaduo.duo.findPresentationDisplay
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
@@ -53,6 +62,9 @@ import com.sour.lumaduo.ui.luma.LumaType
  * adb shell am start --display 2 -n com.sour.lumaduo.debug/com.sour.lumaduo.ui.shell.DuoShellProbeActivity
  */
 class DuoShellProbeActivity : ComponentActivity() {
+    private var bottomPresentation: SecondScreenPresentation? = null
+    private var bottomDisplay: Display? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -61,10 +73,117 @@ class DuoShellProbeActivity : ComponentActivity() {
             systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        bottomDisplay = findPresentationDisplay(this, windowManager.defaultDisplay.displayId)
+        val metrics = bottomDisplay?.let { display ->
+            DisplayMetrics().also { display.getRealMetrics(it) }
+        }
+        LimeLog.info(
+            "LumaDuo probe: bottom display=" +
+                "${bottomDisplay?.displayId} ${metrics?.widthPixels}x${metrics?.heightPixels} " +
+                "@${metrics?.densityDpi}dpi"
+        )
         setContent {
             LumaTheme {
-                DuoShellProbe()
+                ProbeTopScreen(bottomDisplay, metrics)
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        showBottomPresentation()
+    }
+
+    override fun onStop() {
+        // Keep the Presentation instance (and Compose state) across a temporary stop;
+        // dismiss only when the Activity is going away.
+        bottomPresentation?.hide()
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        bottomPresentation?.dismiss()
+        bottomPresentation = null
+        super.onDestroy()
+    }
+
+    private fun showBottomPresentation() {
+        if (bottomPresentation != null) {
+            bottomPresentation?.show()
+            return
+        }
+        val display = bottomDisplay ?: run {
+            LimeLog.warning("LumaDuo probe: no presentation display; staying single-screen")
+            return
+        }
+        val presentation = SecondScreenPresentation(
+            activity = this,
+            display = display,
+            onBack = {
+                LimeLog.info("LumaDuo probe: bottom back/escape received")
+                Toast.makeText(this, "下屏收到 Return/Back", Toast.LENGTH_SHORT).show()
+            },
+        ) {
+            DuoShellProbe()
+        }
+        bottomPresentation = presentation
+        presentation.show()
+        LimeLog.info("LumaDuo probe: presentation shown on display ${display.displayId}")
+    }
+}
+
+@Composable
+private fun ProbeTopScreen(display: Display?, metrics: DisplayMetrics?) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(LumaColors.StageBg),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.duo_logo_full),
+                contentDescription = "LumaDuo",
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(LumaShapes.panel),
+            )
+            Spacer(Modifier.height(18.dp))
+            Text(
+                text = "LumaDuo",
+                style = LumaType.display,
+                color = LumaColors.Text,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "上屏只读 · 双屏壳层探针",
+                style = LumaType.titleM,
+                color = LumaColors.Secondary,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(10.dp))
+            val info = if (display != null && metrics != null) {
+                "下屏 display ${display.displayId} · ${metrics.widthPixels}×${metrics.heightPixels} " +
+                    "@${metrics.densityDpi}dpi"
+            } else {
+                "未找到 FLAG_PRESENTATION 下屏 · 单屏回退"
+            }
+            Text(
+                text = info,
+                style = LumaType.caption,
+                color = if (display != null) LumaColors.Accent else LumaColors.Warning,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "下屏可触摸/手柄操作；Return 由 Presentation 自己接收",
+                style = LumaType.caption,
+                color = LumaColors.Tertiary,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -187,10 +306,28 @@ private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
                         .clip(LumaShapes.card)
                         .background(
                             when {
-                                index == selected -> LumaColors.AccentSoft
-                                focused -> LumaColors.Surface3
-                                else -> LumaColors.Surface1
+                                index == selected -> Brush.horizontalGradient(
+                                    colors = listOf(
+                                        LumaColors.Accent.copy(alpha = 0.13f),
+                                        LumaColors.Surface1,
+                                    ),
+                                )
+                                focused -> Brush.horizontalGradient(
+                                    listOf(LumaColors.Surface3, LumaColors.Surface3),
+                                )
+                                else -> Brush.horizontalGradient(
+                                    listOf(LumaColors.Surface1, LumaColors.Surface1),
+                                )
                             },
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = if (index == selected) {
+                                LumaColors.Accent.copy(alpha = 0.38f)
+                            } else {
+                                Color.Transparent
+                            },
+                            shape = LumaShapes.card,
                         )
                         .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,

@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +44,7 @@ import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaMetrics
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaType
+import kotlinx.coroutines.delay
 
 enum class DuoDestination(
     @StringRes val labelRes: Int,
@@ -92,8 +94,12 @@ fun LumaDuoShell(
     val requesters = remember {
         DuoDestination.entries.associateWith { FocusRequester() }
     }
-    LaunchedEffect(Unit) {
-        requesters[destination]?.requestFocus()
+    val windowFocused = LocalWindowInfo.current.isWindowFocused
+    LaunchedEffect(windowFocused, destination) {
+        if (windowFocused) {
+            delay(120)
+            requesters[destination]?.requestFocus()
+        }
     }
 
     Row(
@@ -162,7 +168,7 @@ private fun DuoRail(
                     .focusRequester(requesters.getValue(item)),
                 cornerRadius = 8.dp,
             ) { focused ->
-                Column(
+                Box(
                     Modifier
                         .fillMaxSize()
                         .clip(LumaShapes.control)
@@ -172,24 +178,39 @@ private fun DuoRail(
                                 focused -> LumaColors.Surface3
                                 else -> Color.Transparent
                             },
-                        )
-                        .padding(vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                        ),
                 ) {
-                    Icon(
-                        painter = painterResource(item.iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        tint = if (selected) LumaColors.Accent else LumaColors.Secondary,
-                    )
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        text = stringResource(item.labelRes),
-                        style = LumaType.micro,
-                        color = if (selected) LumaColors.Accent else LumaColors.Secondary,
-                        maxLines = 1,
-                    )
+                    if (selected) {
+                        Box(
+                            Modifier
+                                .align(Alignment.CenterStart)
+                                .width(3.dp)
+                                .height(20.dp)
+                                .clip(RoundedCornerShape(topEnd = 3.dp, bottomEnd = 3.dp))
+                                .background(LumaColors.Accent),
+                        )
+                    }
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 6.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(item.iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (selected) LumaColors.Accent else LumaColors.Secondary,
+                        )
+                        Spacer(Modifier.height(3.dp))
+                        Text(
+                            text = stringResource(item.labelRes),
+                            style = LumaType.micro,
+                            color = if (selected) LumaColors.Accent else LumaColors.Secondary,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
         }
