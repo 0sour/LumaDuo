@@ -1138,7 +1138,9 @@ class PcView : ThemedActivity(), AdapterFragmentCallbacks, ShakeDetector.Listene
     }
 
     private fun scheduleStartupUpdateCheck(delayMs: Long = STARTUP_UPDATE_CHECK_DELAY) {
-        refreshHandler.postDelayed({ runStartupUpdateCheckWhenIdle() }, delayMs)
+        // LumaDuo has its own version line (0.1.0). V+ would see upstream 12.15.17
+        // as an update and prompt the user to install a different app; startup
+        // update checks are disabled until LumaDuo has its own release feed.
     }
 
     private fun runStartupUpdateCheckWhenIdle() {

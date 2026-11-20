@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.ui.shell
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Display
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,15 +46,21 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.sour.lumaduo.AppView
 import com.sour.lumaduo.LimeLog
+import com.sour.lumaduo.PcView
 import com.sour.lumaduo.R
+import com.sour.lumaduo.duo.DuoHostRepository
 import com.sour.lumaduo.duo.SecondScreenPresentation
 import com.sour.lumaduo.duo.findPresentationDisplay
+import com.sour.lumaduo.nvstream.http.ComputerDetails
+import com.sour.lumaduo.nvstream.http.PairingManager
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaTheme
 import com.sour.lumaduo.ui.luma.LumaType
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Debug-only 640x480 shell probe. Launch it on either physical display to check rail,
@@ -64,6 +72,7 @@ import com.sour.lumaduo.ui.luma.LumaType
 class DuoShellProbeActivity : ComponentActivity() {
     private var bottomPresentation: SecondScreenPresentation? = null
     private var bottomDisplay: Display? = null
+    private val hostRepository by lazy { DuoHostRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +100,7 @@ class DuoShellProbeActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        hostRepository.start()
         showBottomPresentation()
     }
 
@@ -102,6 +112,7 @@ class DuoShellProbeActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        hostRepository.stop()
         bottomPresentation?.dismiss()
         bottomPresentation = null
         super.onDestroy()
@@ -124,11 +135,34 @@ class DuoShellProbeActivity : ComponentActivity() {
                 Toast.makeText(this, "下屏收到 Return/Back", Toast.LENGTH_SHORT).show()
             },
         ) {
-            DuoShellProbe()
+            DuoShellProbe(
+                hosts = hostRepository.hosts,
+                onOpenHost = ::openHost,
+                onOpenLegacy = { startActivity(Intent(this, PcView::class.java)) },
+                onRefresh = { hostRepository.refresh() },
+            )
         }
         bottomPresentation = presentation
         presentation.show()
         LimeLog.info("LumaDuo probe: presentation shown on display ${display.displayId}")
+    }
+
+    private fun openHost(host: ComputerDetails) {
+        if (host.state == ComputerDetails.State.OFFLINE) {
+            Toast.makeText(this, "主机离线", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (host.pairState != PairingManager.PairState.PAIRED) {
+            Toast.makeText(this, "未配对：打开旧版主机管理", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, PcView::class.java))
+            return
+        }
+        startActivity(
+            Intent(this, AppView::class.java).apply {
+                putExtra(AppView.NAME_EXTRA, host.name)
+                putExtra(AppView.UUID_EXTRA, host.uuid)
+            },
+        )
     }
 }
 
@@ -188,7 +222,8 @@ private fun ProbeTopScreen(display: Display?, metrics: DisplayMetrics?) {
     }
 }
 
-private data class DemoHost(
+private data class ProbeHost(
+    val uuid: String,
     val name: String,
     val address: String,
     val tag: String,
@@ -202,12 +237,6 @@ private data class DemoApp(
     val color: Color,
 )
 
-private val demoHosts = listOf(
-    DemoHost("书房台式机", "192.168.1.20", "LAN", true, true),
-    DemoHost("客厅小主机", "10.0.0.2", "EasyTier", true, false),
-    DemoHost("卧室 PC", "192.168.1.33", "LAN", false, true),
-)
-
 private val demoApps = listOf(
     DemoApp("Steam 大屏", "S", Color(0xFF7BA7C7)),
     DemoApp("桌面", "D", Color(0xFF9B9BA8)),
@@ -218,37 +247,45 @@ private val demoApps = listOf(
 )
 
 @Composable
-private fun DuoShellProbe() {
+private fun DuoShellProbe(
+    hosts: StateFlow<List<ComputerDetails>>,
+    onOpenHost: (ComputerDetails) -> Unit,
+    onOpenLegacy: () -> Unit,
+    onRefresh: () -> Unit,
+) {
     var destinationName by rememberSaveable { mutableStateOf(DuoDestination.HOSTS.name) }
-    var selectedHost by rememberSaveable { mutableIntStateOf(0) }
+    var selectedUuid by rememberSaveable { mutableStateOf("") }
     var selectedSettings by rememberSaveable { mutableIntStateOf(0) }
+    val hostList by hosts.collectAsState()
     val destination = DuoDestination.valueOf(destinationName)
     val context = LocalContext.current
+    val effectiveSelectedUuid = selectedUuid.ifEmpty { hostList.firstOrNull()?.uuid.orEmpty() }
+    val selectedHost = hostList.firstOrNull { it.uuid == effectiveSelectedUuid }
 
     val title = when (destination) {
         DuoDestination.HOSTS -> "主机"
-        DuoDestination.APPS -> "书房台式机 · 应用"
+        DuoDestination.APPS -> selectedHost?.name?.let { "$it · 应用" } ?: "应用"
         DuoDestination.REMOTE -> "远程"
         DuoDestination.SETTINGS -> "设置"
     }
     val subtitle = when (destination) {
-        DuoDestination.HOSTS -> "DEMO · 界面自检，不含真实主机数据"
-        DuoDestination.APPS -> "DEMO · 3 列网格"
+        DuoDestination.HOSTS -> "真实数据 · ComputerManagerService"
+        DuoDestination.APPS -> "DEMO · 应用网格待接入"
         DuoDestination.REMOTE -> "DEMO · EasyTier 状态占位"
         DuoDestination.SETTINGS -> "DEMO · 分类与行布局"
     }
     val actions = when (destination) {
         DuoDestination.HOSTS -> listOf(
             DuoAction(R.drawable.duo_ic_plus, "添加主机") {
-                Toast.makeText(context, "添加主机（骨架）", Toast.LENGTH_SHORT).show()
+                onOpenLegacy()
             },
             DuoAction(R.drawable.duo_ic_refresh, "刷新主机") {
-                Toast.makeText(context, "刷新（骨架）", Toast.LENGTH_SHORT).show()
+                onRefresh()
             },
         )
         DuoDestination.APPS -> listOf(
             DuoAction(R.drawable.duo_ic_refresh, "刷新应用") {
-                Toast.makeText(context, "刷新应用（骨架）", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "应用网格待接入", Toast.LENGTH_SHORT).show()
             },
         )
         else -> emptyList()
@@ -261,16 +298,20 @@ private fun DuoShellProbe() {
         subtitle = subtitle,
         actions = actions,
         modeLabel = "手柄：下屏",
-        modeHint = "演示布局 · 无真实串流",
+        modeHint = "真实主机 · 点击连接",
         keyHints = listOf(
-            DuoKeyHint("A", "确认"),
+            DuoKeyHint("A", "连接"),
             DuoKeyHint("B", "返回"),
         ),
     ) {
         when (destination) {
-            DuoDestination.HOSTS -> DemoHosts(
-                selected = selectedHost,
-                onSelect = { selectedHost = it },
+            DuoDestination.HOSTS -> ProbeHosts(
+                hosts = hostList,
+                selectedUuid = effectiveSelectedUuid,
+                onOpenHost = { host ->
+                    selectedUuid = host.uuid.orEmpty()
+                    onOpenHost(host)
+                },
             )
             DuoDestination.APPS -> DemoApps()
             DuoDestination.REMOTE -> DemoRemote()
@@ -282,21 +323,66 @@ private fun DuoShellProbe() {
     }
 }
 
+private fun ComputerDetails.toProbeHost(): ProbeHost {
+    val address = (activeAddress ?: localAddress ?: remoteAddress ?: ipv6Address)?.address ?: "—"
+    val tag = when {
+        activeAddress != null && activeAddress == localAddress -> "LAN"
+        manualAddress != null -> "手动"
+        else -> "远程"
+    }
+    return ProbeHost(
+        uuid = uuid.orEmpty(),
+        name = name ?: "未命名主机",
+        address = address,
+        tag = tag,
+        online = state == ComputerDetails.State.ONLINE,
+        paired = pairState == PairingManager.PairState.PAIRED,
+    )
+}
+
 @Composable
-private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
+private fun ProbeHosts(
+    hosts: List<ComputerDetails>,
+    selectedUuid: String?,
+    onOpenHost: (ComputerDetails) -> Unit,
+) {
     Column(
         Modifier
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        DemoSectionHeader("最近主机", "3 台 · DEMO")
+        DemoSectionHeader("最近主机", "${hosts.size} 台 · 实时")
         Spacer(Modifier.height(8.dp))
-        demoHosts.forEachIndexed { index, host ->
+        if (hosts.isEmpty()) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "还没有主机",
+                    style = LumaType.titleM,
+                    color = LumaColors.Text,
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "用右上角 + 打开旧版主机管理添加/配对",
+                    style = LumaType.caption,
+                    color = LumaColors.Tertiary,
+                )
+            }
+            return@Column
+        }
+        hosts.forEach { computer ->
+            val host = computer.toProbeHost()
+            val selected = host.uuid == selectedUuid
             LumaFocusable(
-                onClick = { onSelect(index) },
+                onClick = { onOpenHost(computer) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(76.dp)
+                    .height(82.dp)
                     .padding(vertical = 4.dp),
                 cornerRadius = 10.dp,
             ) { focused ->
@@ -306,7 +392,7 @@ private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
                         .clip(LumaShapes.card)
                         .background(
                             when {
-                                index == selected -> Brush.horizontalGradient(
+                                selected -> Brush.horizontalGradient(
                                     colors = listOf(
                                         LumaColors.Accent.copy(alpha = 0.13f),
                                         LumaColors.Surface1,
@@ -322,7 +408,7 @@ private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
                         )
                         .border(
                             width = 1.dp,
-                            color = if (index == selected) {
+                            color = if (selected) {
                                 LumaColors.Accent.copy(alpha = 0.38f)
                             } else {
                                 Color.Transparent
@@ -367,7 +453,7 @@ private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
                     Text(
                         text = host.tag,
                         style = LumaType.micro.copy(fontWeight = FontWeight.Medium),
-                        color = if (host.tag == "EasyTier") LumaColors.Signal else LumaColors.Tertiary,
+                        color = if (host.tag == "LAN") LumaColors.Tertiary else LumaColors.Signal,
                         modifier = Modifier
                             .clip(LumaShapes.chip)
                             .background(LumaColors.Surface3)
@@ -378,7 +464,7 @@ private fun DemoHosts(selected: Int, onSelect: (Int) -> Unit) {
         }
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "右侧详情在真实页面中显示；本探针只验证壳层尺寸和焦点路径。",
+            text = "已配对接现有 AppView；未配对接旧版主机管理。应用页仍为 DEMO。",
             style = LumaType.caption,
             color = LumaColors.Tertiary,
         )

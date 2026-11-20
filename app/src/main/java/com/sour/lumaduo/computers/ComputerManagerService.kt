@@ -359,6 +359,18 @@ class ComputerManagerService : Service() {
             return null
         }
 
+        /**
+         * Snapshot of all known hosts for the Compose shell. Returns copies so callers
+         * cannot mutate the polling tuples while a poll is in flight.
+         */
+        fun getComputers(): List<ComputerDetails> {
+            synchronized(pollingTuples) {
+                return pollingTuples
+                    .mapNotNull { tuple -> tuple.computer.uuid?.let { ComputerDetails(tuple.computer) } }
+                    .distinctBy { it.uuid }
+            }
+        }
+
         fun invalidateStateForComputer(uuid: String) {
             // Lookup and mutation use separate acquisitions: poll threads hold a tuple's
             // networkLock for the whole runPoll() and take pollingTuples inside it, so
