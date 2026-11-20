@@ -3,7 +3,7 @@ package com.sour.lumaduo.utils
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import com.sour.lumaduo.PcView
+import com.sour.lumaduo.duo.DuoMainActivity
 
 /**
  * 桌面图标变体在 activity-alias 上的启停。manifest 中 LAUNCHER intent-filter 挂在
@@ -18,7 +18,7 @@ object LauncherIcon {
      * alias 的类名按 manifest namespace（com.sour.lumaduo）展开，与 applicationId 无关；
      * root flavor 的 applicationId（com.sour.lumaduo.root）只是包名前缀，两者不能混用。
      */
-    private val aliasClassPrefix = PcView::class.java.name.removeSuffix(".PcView")
+    private val aliasClassPrefix = DuoMainActivity::class.java.name.removeSuffix(".DuoMainActivity")
 
     private fun aliasComponent(context: Context, variant: String): ComponentName {
         val alias = if (variant == VARIANT_SABA_DARK) ".LauncherSabaDark" else ".LauncherSaba"
