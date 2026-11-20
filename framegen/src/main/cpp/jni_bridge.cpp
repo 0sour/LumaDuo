@@ -85,14 +85,14 @@ std::string probeLosslessDll(const std::string& dllPath) {
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSelfTest(JNIEnv *env, jobject /* thiz */) {
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSelfTest(JNIEnv *env, jobject /* thiz */) {
     const std::string msg = "framegen-native-ok";
     LOGI("nativeSelfTest -> %s", msg.c_str());
     return env->NewStringUTF(msg.c_str());
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeOnFrameAvailable(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeOnFrameAvailable(
         JNIEnv *env, jclass /* clazz */,
         jobject jHwBuffer, jint width, jint height, jint format,
         jlong timestampNs, jfloat observedInputFps) {
@@ -133,7 +133,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeOnFrameAvailable(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeResetFrameCounter(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeResetFrameCounter(
         JNIEnv * /* env */, jclass /* clazz */) {
     const uint64_t prev = g_frameCount.exchange(0, std::memory_order_relaxed);
     FramegenPipeline::reset();
@@ -141,7 +141,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeResetFrameCounter(
 }
 
 extern "C" JNIEXPORT jlongArray JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeGetStats(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeGetStats(
         JNIEnv *env, jclass /* clazz */) {
     const FramegenPipeline::StatsSnapshot stats = FramegenPipeline::getStatsSnapshot();
     jlong values[] = {
@@ -168,7 +168,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeGetStats(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePrewarmContext(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePrewarmContext(
         JNIEnv * /* env */, jclass /* clazz */, jint width, jint height) {
     return FramegenPipeline::prewarmContext(
         static_cast<int32_t>(width),
@@ -176,7 +176,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePrewarmContext(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSetLosslessDllPath(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSetLosslessDllPath(
         JNIEnv *env, jclass /* clazz */, jstring jDllPath) {
     if (jDllPath == nullptr) {
         LOGW("nativeSetLosslessDllPath: null path");
@@ -195,7 +195,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeSetLosslessDllPath(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSetHdrMode(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSetHdrMode(
         JNIEnv * /*env*/, jclass /* clazz */, jint mode, jboolean fullRange) {
     FramegenPipeline::setHdrMode(
         static_cast<int32_t>(mode),
@@ -203,13 +203,13 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeSetHdrMode(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSetOutputFrameRate(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSetOutputFrameRate(
         JNIEnv * /*env*/, jclass /* clazz */, jint fps) {
     FramegenPipeline::setOutputFrameRate(static_cast<int32_t>(fps));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSetTuningConfig(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSetTuningConfig(
         JNIEnv * /*env*/, jclass /* clazz */,
         jint internalWidth, jint presentMode, jint slowLsfgThresholdMs, jint presentQueueMax,
         jboolean allowHighInputBypass) {
@@ -222,7 +222,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeSetTuningConfig(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeSetOutputSurface(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeSetOutputSurface(
         JNIEnv *env, jclass /* clazz */, jobject jSurface) {
     ANativeWindow* win = nullptr;
     if (jSurface != nullptr) {
@@ -237,7 +237,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeSetOutputSurface(
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativeProbeLosslessDll(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativeProbeLosslessDll(
         JNIEnv *env, jobject /* thiz */, jstring jDllPath) {
     if (jDllPath == nullptr) {
         const std::string msg = "dll-path-null";
@@ -267,7 +267,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativeProbeLosslessDll(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveIsAvailableFor(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveIsAvailableFor(
         JNIEnv *, jclass, jint width, jint height, jint hdrMode) {
     return FramegenPipeline::PyrowaveVulkanDecoder::available(
                static_cast<int>(width), static_cast<int>(height), static_cast<int>(hdrMode))
@@ -275,7 +275,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveIsAvailableFor(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveCreate(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveCreate(
         JNIEnv *, jclass, jint width, jint height, jint hdrMode, jboolean fullRange, jint dynamicHdrFormat) {
     std::lock_guard<std::mutex> lock(g_pyrowaveMutex);
     try {
@@ -295,7 +295,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveCreate(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetSurface(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveSetSurface(
         JNIEnv *env, jclass, jlong handle, jobject surface) {
     auto *decoder = reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);
     if (decoder == nullptr) return JNI_FALSE;
@@ -314,7 +314,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetSurface(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetHdrMetadata(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveSetHdrMetadata(
         JNIEnv *env, jclass, jlong handle, jboolean enabled, jbyteArray metadata) {
     auto *decoder = reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);
     if (decoder == nullptr) return JNI_FALSE;
@@ -343,7 +343,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetHdrMetadata(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSubmit(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveSubmit(
         JNIEnv *env, jclass, jlong handle, jbyteArray data, jint length, jbyteArray metadata) {
     auto *decoder = reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);
     if (decoder == nullptr || data == nullptr || length <= 0 || env->GetArrayLength(data) < length) return -1;
@@ -376,7 +376,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSubmit(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetDynamicHdr(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveSetDynamicHdr(
         JNIEnv *, jclass, jlong handle, jint format, jfloat targetPeakNits) {
     auto *decoder = reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);
     if (decoder == nullptr) return JNI_FALSE;
@@ -389,7 +389,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveSetDynamicHdr(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveGetLastTimings(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveGetLastTimings(
         JNIEnv *, jclass, jlong handle) {
     auto *decoder = reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);
     if (decoder == nullptr) return 0;
@@ -401,7 +401,7 @@ Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveGetLastTimings(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_framegen_FramegenInterceptor_nativePyrowaveDestroy(
+Java_com_sour_lumaduo_framegen_FramegenInterceptor_nativePyrowaveDestroy(
         JNIEnv *, jclass, jlong handle) {
     try {
         delete reinterpret_cast<FramegenPipeline::PyrowaveVulkanDecoder *>(handle);

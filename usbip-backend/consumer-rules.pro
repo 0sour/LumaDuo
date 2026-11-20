@@ -1,1 +1,1 @@
--keep class com.limelight.usbip.NativeUsbIp { *; }
+-keep class com.sour.lumaduo.usbip.NativeUsbIp { *; }

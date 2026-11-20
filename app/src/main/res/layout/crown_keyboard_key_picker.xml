@@ -16,7 +16,7 @@
         android:fillViewport="true"
         android:scrollbarStyle="insideOverlay">
 
-        <com.limelight.binding.input.advance_setting.DeviceKeyboardPagesLayout
+        <com.sour.lumaduo.binding.input.advance_setting.DeviceKeyboardPagesLayout
             android:id="@+id/device_keyboard_pages"
             android:layout_width="600dp"
             android:layout_height="match_parent">
@@ -24,6 +24,6 @@
             <include android:id="@+id/keyboard_picker_main" layout="@layout/layout_keyboard_main" />
             <include android:id="@+id/keyboard_picker_nav" layout="@layout/layout_keyboard_nav" android:visibility="gone" />
             <include android:id="@+id/keyboard_picker_num" layout="@layout/layout_keyboard_numpad" android:visibility="gone" />
-        </com.limelight.binding.input.advance_setting.DeviceKeyboardPagesLayout>
+        </com.sour.lumaduo.binding.input.advance_setting.DeviceKeyboardPagesLayout>
     </HorizontalScrollView>
 </LinearLayout>

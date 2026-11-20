@@ -104,7 +104,7 @@
     </LinearLayout>
 
     <!-- SeekBar -->
-    <com.limelight.utils.AppSliderView
+    <com.sour.lumaduo.utils.AppSliderView
         android:id="@+id/pref_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

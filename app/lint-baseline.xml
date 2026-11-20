@@ -18,7 +18,7 @@
         errorLine1="                    .commit()"
         errorLine2="                     ~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppSettingsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppSettingsManager.kt"
             line="37"
             column="22"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="                editor.commit()"
         errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="297"
             column="24"/>
     </issue>
@@ -40,11 +40,11 @@
         errorLine1="            this.keyboardLayout = parentContainer.findViewById&lt;FrameLayout>(R.id.layer_6_keyboard)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="65"
             column="35"/>
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="59"
             column="20"
             message="First usage here"/>
@@ -56,7 +56,7 @@
         errorLine1="            String.format(&quot;总键数: %d, 应用缓存键数: %d&quot;, totalKeys, appCacheKeys)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppCacheManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppCacheManager.kt"
             line="123"
             column="13"/>
     </issue>
@@ -67,7 +67,7 @@
         errorLine1="            String.format("
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/binding/audio/AudioDiagnostics.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/AudioDiagnostics.kt"
             line="102"
             column="13"/>
     </issue>
@@ -78,7 +78,7 @@
         errorLine1="        return String.format("
         errorLine2="               ^">
         <location
-            file="src/main/java/com/limelight/binding/audio/AudioDiagnostics.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/AudioDiagnostics.kt"
             line="149"
             column="16"/>
     </issue>
@@ -89,7 +89,7 @@
         errorLine1="            card.keyValue(tr(R.string.diag_refresh_rate), String.format(&quot;%.1f Hz&quot;, rr))"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="183"
             column="59"/>
     </issue>
@@ -100,7 +100,7 @@
         errorLine1="                    .append(String.format(&quot;%.1f Hz&quot;, rr)).append(&quot;\n&quot;)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="185"
             column="29"/>
     </issue>
@@ -111,7 +111,7 @@
         errorLine1="                        &quot;${it.physicalWidth}×${it.physicalHeight} ${String.format(&quot;%.0fHz&quot;, it.refreshRate)}&quot;"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="193"
             column="69"/>
     </issue>
@@ -122,7 +122,7 @@
         errorLine1="        var maxDesc = String.format(&quot;%.0f nits&quot;, brightness.maxLuminance)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="264"
             column="23"/>
     </issue>
@@ -133,7 +133,7 @@
         errorLine1="        card.keyValue(tr(R.string.diag_min_brightness), String.format(&quot;%.4f nits&quot;, brightness.minLuminance))"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="268"
             column="57"/>
     </issue>
@@ -144,7 +144,7 @@
         errorLine1="        card.keyValue(tr(R.string.diag_avg_brightness), String.format(&quot;%.0f nits&quot;, brightness.maxAvgLuminance))"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="269"
             column="57"/>
     </issue>
@@ -155,7 +155,7 @@
         errorLine1="                .append(String.format(&quot;%.4f&quot;, brightness.minLuminance)).append(&quot;\n&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="273"
             column="25"/>
     </issue>
@@ -166,7 +166,7 @@
         errorLine1="                .append(String.format(&quot;%.0f&quot;, brightness.maxAvgLuminance)).append(&quot;\n&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="275"
             column="25"/>
     </issue>
@@ -177,7 +177,7 @@
         errorLine1="            card.keyValue(tr(R.string.diag_current_ratio), String.format(&quot;%.2f×&quot;, brightness.hdrSdrRatio))"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="294"
             column="60"/>
     </issue>
@@ -188,7 +188,7 @@
         errorLine1="                    String.format(&quot;%.2f×&quot;, brightness.highestHdrSdrRatio) +"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="297"
             column="21"/>
     </issue>
@@ -199,7 +199,7 @@
         errorLine1="                    .append(String.format(&quot;%.2f&quot;, brightness.hdrSdrRatio)).append(&quot;\n&quot;)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="301"
             column="29"/>
     </issue>
@@ -210,7 +210,7 @@
         errorLine1="                    .append(String.format(&quot;%.2f&quot;, brightness.highestHdrSdrRatio)).append(&quot;\n&quot;)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="303"
             column="29"/>
     </issue>
@@ -221,7 +221,7 @@
         errorLine1="                card.keyValue(tr(R.string.diag_ratio_peak), String.format(&quot;%.0f nits&quot;, brightness.computedPeakBrightness))"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="306"
             column="61"/>
     </issue>
@@ -232,7 +232,7 @@
         errorLine1="                        String.format(&quot;%.0f&quot;, brightness.computedPeakBrightness)).append(&quot;\n&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="308"
             column="25"/>
     </issue>
@@ -243,7 +243,7 @@
         errorLine1="            card.keyValue(tr(R.string.diag_current_brightness), &quot;$sysBr/255 (${String.format(&quot;%.0f%%&quot;, sysBr / 255f * 100)})&quot;)"
         errorLine2="                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="328"
             column="80"/>
     </issue>
@@ -254,7 +254,7 @@
         errorLine1="            return String.format(&quot;TimeoutConfig{connect=%dms, read=%dms, stun=%dms}&quot;,"
         errorLine2="                   ^">
         <location
-            file="src/main/java/com/limelight/computers/DynamicTimeoutManager.kt"
+            file="src/main/java/com/sour/lumaduo/computers/DynamicTimeoutManager.kt"
             line="21"
             column="20"/>
     </issue>
@@ -265,7 +265,7 @@
         errorLine1="            return String.format(&quot;Stats{success=%d, failure=%d, rate=%.1f%%, consecutive_failures=%d, avg_response=%dms}&quot;,"
         errorLine2="                   ^">
         <location
-            file="src/main/java/com/limelight/computers/DynamicTimeoutManager.kt"
+            file="src/main/java/com/sour/lumaduo/computers/DynamicTimeoutManager.kt"
             line="77"
             column="20"/>
     </issue>
@@ -276,7 +276,7 @@
         errorLine1="                    batteryTextView.text = String.format(&quot;🔋 %d%%&quot;, UiHelper.getBatteryLevel(activity))"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="226"
             column="44"/>
     </issue>
@@ -287,7 +287,7 @@
         errorLine1="                    batteryTextView.text = String.format(&quot;🔋 %d%%&quot;, UiHelper.getBatteryLevel(activity))"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="226"
             column="44"/>
     </issue>
@@ -298,7 +298,7 @@
         errorLine1="                String.format("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/limelight/binding/video/FramePacingController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/FramePacingController.kt"
             line="477"
             column="17"/>
     </issue>
@@ -309,7 +309,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_fps)] = String.format(&quot;%.0f&quot;, performanceInfo.totalFps)"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2122"
             column="59"/>
     </issue>
@@ -320,7 +320,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_rx_fps)] = String.format(&quot;%.0f&quot;, performanceInfo.receivedFps)"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2123"
             column="62"/>
     </issue>
@@ -331,7 +331,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_rd_fps)] = String.format(&quot;%.0f&quot;, performanceInfo.renderedFps)"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2124"
             column="62"/>
     </issue>
@@ -342,7 +342,7 @@
         errorLine1="                    String.format(&quot;%.0f&quot;, performanceInfo.framegenFps)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2126"
             column="21"/>
     </issue>
@@ -353,7 +353,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_frame_loss)] = String.format(&quot;%.1f&quot;, performanceInfo.lostFrameRate)"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2130"
             column="66"/>
     </issue>
@@ -364,7 +364,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_network_rtt)] = String.format(&quot;%d&quot;, (performanceInfo.rttInfo shr 32).toInt())"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2131"
             column="67"/>
     </issue>
@@ -375,7 +375,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_host_latency)] = String.format(&quot;%.2f&quot;, performanceInfo.aveHostProcessingLatency)"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2132"
             column="68"/>
     </issue>
@@ -386,7 +386,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_decode_time)] = String.format(&quot;%.2f&quot;, performanceInfo.decodeTimeMs)"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2133"
             column="67"/>
     </issue>
@@ -397,7 +397,7 @@
         errorLine1="                perfAttrs[getString(R.string.perf_render_latency)] = String.format(&quot;%.2f&quot;, performanceInfo.renderingLatencyMs)"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2135"
             column="70"/>
     </issue>
@@ -408,7 +408,7 @@
         errorLine1="                String.format("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/limelight/binding/video/HostCadenceClock.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/HostCadenceClock.kt"
             line="140"
             column="17"/>
     </issue>
@@ -419,7 +419,7 @@
         errorLine1="                durationValueTextView.text = String.format(&quot;%ds&quot;, maxOf(1, progress))"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/Iperf3Tester.kt"
+            file="src/main/java/com/sour/lumaduo/utils/Iperf3Tester.kt"
             line="100"
             column="46"/>
     </issue>
@@ -430,7 +430,7 @@
         errorLine1="                durationValueTextView.text = String.format(&quot;%ds&quot;, maxOf(1, progress))"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/Iperf3Tester.kt"
+            file="src/main/java/com/sour/lumaduo/utils/Iperf3Tester.kt"
             line="100"
             column="46"/>
     </issue>
@@ -441,7 +441,7 @@
         errorLine1="        durationValueTextView.text = String.format(&quot;%ds&quot;, durationSeekBar.progress)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/Iperf3Tester.kt"
+            file="src/main/java/com/sour/lumaduo/utils/Iperf3Tester.kt"
             line="105"
             column="38"/>
     </issue>
@@ -452,7 +452,7 @@
         errorLine1="        durationValueTextView.text = String.format(&quot;%ds&quot;, durationSeekBar.progress)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/Iperf3Tester.kt"
+            file="src/main/java/com/sour/lumaduo/utils/Iperf3Tester.kt"
             line="105"
             column="38"/>
     </issue>
@@ -463,7 +463,7 @@
         errorLine1="        canvas.drawText(String.format(&quot;卡顿 %.1f%%&quot;, judderPct), padX, y, metricPaint)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/JitterMonitorView.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/JitterMonitorView.kt"
             line="124"
             column="25"/>
     </issue>
@@ -474,7 +474,7 @@
         errorLine1="        val fpsText = String.format(&quot;%.0f 帧/秒&quot;, fps)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/JitterMonitorView.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/JitterMonitorView.kt"
             line="126"
             column="23"/>
     </issue>
@@ -485,7 +485,7 @@
         errorLine1="            String.format("
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/binding/video/JitterMonitorView.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/JitterMonitorView.kt"
             line="132"
             column="13"/>
     </issue>
@@ -496,7 +496,7 @@
         errorLine1="                    canvas.drawText(String.format(&quot;%.0f&quot;, pct), cx, histBottom - barH - dp(2f), countPaint)"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/JitterMonitorView.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/JitterMonitorView.kt"
             line="195"
             column="37"/>
     </issue>
@@ -507,7 +507,7 @@
         errorLine1="                        String.format("
         errorLine2="                        ^">
         <location
-            file="src/main/java/com/limelight/binding/audio/MicrophoneStream.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/MicrophoneStream.kt"
             line="272"
             column="25"/>
     </issue>
@@ -518,7 +518,7 @@
         errorLine1="        resolutionInfo.append(&quot;Scale Factor: &quot;).append(String.format(&quot;%.2f&quot;, scaleFactor))"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PerformanceOverlayManager.kt"
+            file="src/main/java/com/sour/lumaduo/PerformanceOverlayManager.kt"
             line="1055"
             column="56"/>
     </issue>
@@ -529,7 +529,7 @@
         errorLine1="        resolutionInfo.append(&quot;Current FPS: &quot;).append(String.format(&quot;%.0f&quot;, perfInfo.totalFps)).append(&quot; FPS\n&quot;)"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PerformanceOverlayManager.kt"
+            file="src/main/java/com/sour/lumaduo/PerformanceOverlayManager.kt"
             line="1060"
             column="55"/>
     </issue>
@@ -540,7 +540,7 @@
         errorLine1="        resolutionInfo.append(&quot;Device Refresh Rate: &quot;).append(String.format(&quot;%.0f&quot;, deviceRefreshRate)).append(&quot; Hz\n&quot;)"
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PerformanceOverlayManager.kt"
+            file="src/main/java/com/sour/lumaduo/PerformanceOverlayManager.kt"
             line="1061"
             column="63"/>
     </issue>
@@ -551,7 +551,7 @@
         errorLine1="            resolutionInfo.append(&quot;Actual Display Refresh Rate: &quot;).append(String.format(&quot;%.2f&quot;, actualDisplayRefreshRate)).append(&quot; Hz\n&quot;)"
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PerformanceOverlayManager.kt"
+            file="src/main/java/com/sour/lumaduo/PerformanceOverlayManager.kt"
             line="1064"
             column="75"/>
     </issue>
@@ -562,7 +562,7 @@
         errorLine1="                                    val downloadedMB = String.format(&quot;%.1f&quot;, bytesDownloaded / 1048576.0)"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/UpdateManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/UpdateManager.kt"
             line="626"
             column="56"/>
     </issue>
@@ -573,7 +573,7 @@
         errorLine1="                                    val totalMB = String.format(&quot;%.1f&quot;, bytesTotal / 1048576.0)"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/UpdateManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/UpdateManager.kt"
             line="627"
             column="51"/>
     </issue>
@@ -584,7 +584,7 @@
         errorLine1="                                    val downloadedMB = String.format(&quot;%.1f&quot;, bytesDownloaded / 1048576.0)"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/UpdateManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/UpdateManager.kt"
             line="631"
             column="56"/>
     </issue>
@@ -655,7 +655,7 @@
         errorLine1="                attributesBuilder.setFlags(AudioAttributes.FLAG_LOW_LATENCY)"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/AndroidAudioRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/AndroidAudioRenderer.kt"
             line="58"
             column="44"/>
     </issue>
@@ -666,7 +666,7 @@
         errorLine1="                    ctx.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK_ONLY)"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="160"
             column="57"/>
     </issue>
@@ -677,7 +677,7 @@
         errorLine1="                    profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10 ||"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="556"
             column="32"/>
     </issue>
@@ -688,7 +688,7 @@
         errorLine1="            KeyEvent.KEYCODE_DPAD_UP_LEFT to (ControllerPacket.UP_FLAG or ControllerPacket.LEFT_FLAG),"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="72"
             column="13"/>
     </issue>
@@ -699,7 +699,7 @@
         errorLine1="            KeyEvent.KEYCODE_DPAD_UP_RIGHT to (ControllerPacket.UP_FLAG or ControllerPacket.RIGHT_FLAG),"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="73"
             column="13"/>
     </issue>
@@ -710,7 +710,7 @@
         errorLine1="            KeyEvent.KEYCODE_DPAD_DOWN_LEFT to (ControllerPacket.DOWN_FLAG or ControllerPacket.LEFT_FLAG),"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="74"
             column="13"/>
     </issue>
@@ -721,7 +721,7 @@
         errorLine1="            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT to (ControllerPacket.DOWN_FLAG or ControllerPacket.RIGHT_FLAG),"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="75"
             column="13"/>
     </issue>
@@ -732,7 +732,7 @@
         errorLine1="        val totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="107"
             column="46"/>
     </issue>
@@ -743,7 +743,7 @@
         errorLine1="            layoutMeasureNs += frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION)"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="121"
             column="55"/>
     </issue>
@@ -754,7 +754,7 @@
         errorLine1="            drawNs += frameMetrics.getMetric(FrameMetrics.DRAW_DURATION)"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="122"
             column="46"/>
     </issue>
@@ -765,7 +765,7 @@
         errorLine1="            syncNs += frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="123"
             column="46"/>
     </issue>
@@ -776,7 +776,7 @@
         errorLine1="            commandIssueNs += frameMetrics.getMetric(FrameMetrics.COMMAND_ISSUE_DURATION)"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="124"
             column="54"/>
     </issue>
@@ -787,7 +787,7 @@
         errorLine1="                videoFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, Short.MAX_VALUE.toInt())"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/MediaCodecHelper.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/MediaCodecHelper.kt"
             line="424"
             column="40"/>
     </issue>
@@ -798,7 +798,7 @@
         errorLine1="                packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK_ONLY)"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/UiHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/UiHelper.kt"
             line="222"
             column="49"/>
     </issue>
@@ -809,7 +809,7 @@
         errorLine1="            val builder = AudioTrack.Builder()"
         errorLine2="                                     ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="131"
             column="38"/>
     </issue>
@@ -820,7 +820,7 @@
         errorLine1="                .setAudioFormat(format)"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="132"
             column="18"/>
     </issue>
@@ -831,7 +831,7 @@
         errorLine1="                .setAudioAttributes(attributes)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="133"
             column="18"/>
     </issue>
@@ -842,7 +842,7 @@
         errorLine1="                .setTransferMode(AudioTrack.MODE_STREAM)"
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="134"
             column="18"/>
     </issue>
@@ -853,7 +853,7 @@
         errorLine1="                .setBufferSizeInBytes(bufferSize)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="135"
             column="18"/>
     </issue>
@@ -864,7 +864,7 @@
         errorLine1="            track = builder.build()"
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="142"
             column="29"/>
     </issue>
@@ -875,7 +875,7 @@
         errorLine1="                val written = t.write(audioData, offset, length - offset, AudioTrack.WRITE_BLOCKING)"
         errorLine2="                                ~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/Ac3PassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/Ac3PassthroughRenderer.kt"
             line="196"
             column="33"/>
     </issue>
@@ -886,7 +886,7 @@
         errorLine1="            val contentLength = connection.contentLengthLong"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CrownStoreActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CrownStoreActivity.kt"
             line="1926"
             column="44"/>
     </issue>
@@ -897,7 +897,7 @@
         errorLine1="                    thumbTintList = switchThumbTint()"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/EasyTierController.kt"
+            file="src/main/java/com/sour/lumaduo/utils/EasyTierController.kt"
             line="561"
             column="21"/>
     </issue>
@@ -908,7 +908,7 @@
         errorLine1="                    thumbTintList = switchThumbTint()"
         errorLine2="                                  ~">
         <location
-            file="src/main/java/com/limelight/utils/EasyTierController.kt"
+            file="src/main/java/com/sour/lumaduo/utils/EasyTierController.kt"
             line="561"
             column="35"/>
     </issue>
@@ -919,7 +919,7 @@
         errorLine1="                    trackTintList = switchTrackTint()"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/EasyTierController.kt"
+            file="src/main/java/com/sour/lumaduo/utils/EasyTierController.kt"
             line="562"
             column="21"/>
     </issue>
@@ -930,7 +930,7 @@
         errorLine1="                    trackTintList = switchTrackTint()"
         errorLine2="                                  ~">
         <location
-            file="src/main/java/com/limelight/utils/EasyTierController.kt"
+            file="src/main/java/com/sour/lumaduo/utils/EasyTierController.kt"
             line="562"
             column="35"/>
     </issue>
@@ -941,7 +941,7 @@
         errorLine1="                switchView.setThumbTintList(getColorStateList(R.color.crown_switch_thumb));"
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1011"
             column="28"/>
     </issue>
@@ -952,7 +952,7 @@
         errorLine1="                switchView.setTrackTintList(getColorStateList(R.color.crown_switch_track));"
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1012"
             column="28"/>
     </issue>
@@ -963,7 +963,7 @@
         errorLine1="        listener?.let { activity.window.removeOnFrameMetricsAvailableListener(it) }"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="80"
             column="41"/>
     </issue>
@@ -974,7 +974,7 @@
         errorLine1="        val totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="107"
             column="36"/>
     </issue>
@@ -985,7 +985,7 @@
         errorLine1="            layoutMeasureNs += frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION)"
         errorLine2="                                            ~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="121"
             column="45"/>
     </issue>
@@ -996,7 +996,7 @@
         errorLine1="            drawNs += frameMetrics.getMetric(FrameMetrics.DRAW_DURATION)"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="122"
             column="36"/>
     </issue>
@@ -1007,7 +1007,7 @@
         errorLine1="            syncNs += frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="123"
             column="36"/>
     </issue>
@@ -1018,7 +1018,7 @@
         errorLine1="            commandIssueNs += frameMetrics.getMetric(FrameMetrics.COMMAND_ISSUE_DURATION)"
         errorLine2="                                           ~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/FrameMetricsLogger.kt"
+            file="src/main/java/com/sour/lumaduo/utils/FrameMetricsLogger.kt"
             line="124"
             column="44"/>
     </issue>
@@ -1029,7 +1029,7 @@
         errorLine1="        return touchInputHandler.handleMotionEvent(getMotionEventTargetView(), event) || super.onGenericMotionEvent(event)"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="1458"
             column="34"/>
     </issue>
@@ -1040,7 +1040,7 @@
         errorLine1="        return touchInputHandler.handleMotionEvent(view, event)"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="1462"
             column="34"/>
     </issue>
@@ -1051,7 +1051,7 @@
         errorLine1="        return touchInputHandler.handleMotionEvent(view, event)"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="1472"
             column="34"/>
     </issue>
@@ -1062,7 +1062,7 @@
         errorLine1="        return touchInputHandler.handleMotionEvent(streamView, event)"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/Game.kt"
+            file="src/main/java/com/sour/lumaduo/Game.kt"
             line="2304"
             column="34"/>
     </issue>
@@ -1073,7 +1073,7 @@
         errorLine1="                decoder.setOutputSurface(targetSurface)"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/MediaCodecDecoderRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/MediaCodecDecoderRenderer.kt"
             line="400"
             column="25"/>
     </issue>
@@ -1084,7 +1084,7 @@
         errorLine1="        videoDecoder!!.setCallback(object : MediaCodec.Callback() {"
         errorLine2="                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/MediaCodecDecoderRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/MediaCodecDecoderRenderer.kt"
             line="1371"
             column="24"/>
     </issue>
@@ -1095,7 +1095,7 @@
         errorLine1="                numberSeekbarSeekbar.min = minValue"
         errorLine2="                                     ~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="60"
             column="38"/>
     </issue>
@@ -1106,7 +1106,7 @@
         errorLine1="                numberSeekbarSeekbar.min = minValue"
         errorLine2="                                         ~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="60"
             column="42"/>
     </issue>
@@ -1117,7 +1117,7 @@
         errorLine1="            if (progress > numberSeekbarSeekbar.min) {"
         errorLine2="                                                ~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="88"
             column="49"/>
     </issue>
@@ -1128,7 +1128,7 @@
         errorLine1="        numberSeekbarSeekbar.min = min"
         errorLine2="                             ~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="126"
             column="30"/>
     </issue>
@@ -1139,7 +1139,7 @@
         errorLine1="        numberSeekbarSeekbar.min = min"
         errorLine2="                                 ~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="126"
             column="34"/>
     </issue>
@@ -1150,7 +1150,7 @@
         errorLine1="            val builder = AudioTrack.Builder()"
         errorLine2="                                     ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="67"
             column="38"/>
     </issue>
@@ -1161,7 +1161,7 @@
         errorLine1="                .setAudioFormat(format)"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="68"
             column="18"/>
     </issue>
@@ -1172,7 +1172,7 @@
         errorLine1="                .setAudioAttributes(attributes)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="69"
             column="18"/>
     </issue>
@@ -1183,7 +1183,7 @@
         errorLine1="                .setTransferMode(AudioTrack.MODE_STREAM)"
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="70"
             column="18"/>
     </issue>
@@ -1194,7 +1194,7 @@
         errorLine1="                .setBufferSizeInBytes(bufferSize)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="71"
             column="18"/>
     </issue>
@@ -1205,7 +1205,7 @@
         errorLine1="            track = builder.build()"
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="82"
             column="29"/>
     </issue>
@@ -1216,7 +1216,7 @@
         errorLine1="                val written = t.write(audioData, offset, length - offset, AudioTrack.WRITE_BLOCKING)"
         errorLine2="                                ~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/PcmPassthroughRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/PcmPassthroughRenderer.kt"
             line="117"
             column="33"/>
     </issue>
@@ -1227,7 +1227,7 @@
         errorLine1="                val contentLength = connection.contentLengthLong"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="2534"
             column="48"/>
     </issue>
@@ -1238,7 +1238,7 @@
         errorLine1="                val presented = error.certificate?.x509Certificate"
         errorLine2="                                                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="82"
             column="52"/>
     </issue>
@@ -1249,7 +1249,7 @@
         errorLine1="                val presented = error.certificate?.x509Certificate"
         errorLine2="                                                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="82"
             column="52"/>
     </issue>
@@ -1271,7 +1271,7 @@
         errorLine1="            val text = v.getText().toString().trim { it &lt;= &apos; &apos; }"
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="460"
             column="52"/>
     </issue>
@@ -1678,7 +1678,7 @@
         errorLine1="            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? android.net.wifi.WifiManager"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/DeviceInfoCollector.kt"
+            file="src/main/java/com/sour/lumaduo/utils/DeviceInfoCollector.kt"
             line="140"
             column="31"/>
     </issue>
@@ -1689,7 +1689,7 @@
         errorLine1="            val hintManager = context.getSystemService(Context.PERFORMANCE_HINT_SERVICE)"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/video/PerformanceBoostManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/video/PerformanceBoostManager.kt"
             line="36"
             column="56"/>
     </issue>
@@ -1700,7 +1700,7 @@
         errorLine1="                    requireContext().contentResolver.takePersistableUriPermission(uri, grantFlags)"
         errorLine2="                                                                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="1791"
             column="88"/>
     </issue>
@@ -1711,7 +1711,7 @@
         errorLine1="                                ctx.contentResolver.takePersistableUriPermission(dllUri, grantFlags)"
         errorLine2="                                                                                         ~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="3582"
             column="90"/>
     </issue>
@@ -1733,7 +1733,7 @@
         errorLine1="            analogStickPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_analog_stick_clean, null);"
         errorLine2="                                                                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/AnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/AnalogStick.java"
             line="474"
             column="125"/>
     </issue>
@@ -1744,7 +1744,7 @@
         errorLine1="        val inputRow = inflater.inflate(R.layout.custom_resolutions_form, null)"
         errorLine2="                                                                          ~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CustomResolutionsPreferenceDialogFragment.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CustomResolutionsPreferenceDialogFragment.kt"
             line="87"
             column="75"/>
     </issue>
@@ -1755,7 +1755,7 @@
         errorLine1="            digitalCombineButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_combine_button_clean, null);"
         errorLine2="                                                                                                                                               ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalCombineButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalCombineButton.java"
             line="335"
             column="144"/>
     </issue>
@@ -1766,7 +1766,7 @@
         errorLine1="            digitalButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_common_button_clean, null);"
         errorLine2="                                                                                                                                       ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalCommonButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalCommonButton.java"
             line="368"
             column="136"/>
     </issue>
@@ -1777,7 +1777,7 @@
         errorLine1="            digitalMovableButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_movable_button_clean, null);"
         errorLine2="                                                                                                                                               ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalMovableButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalMovableButton.java"
             line="501"
             column="144"/>
     </issue>
@@ -1788,7 +1788,7 @@
         errorLine1="            digitalPadPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_pad_clean, null);"
         errorLine2="                                                                                                                          ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalPad.java"
             line="329"
             column="123"/>
     </issue>
@@ -1799,7 +1799,7 @@
         errorLine1="            digitalStickPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_stick_clean, null);"
         errorLine2="                                                                                                                              ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalStick.java"
             line="478"
             column="127"/>
     </issue>
@@ -1810,7 +1810,7 @@
         errorLine1="            digitalSwitchButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_digital_switch_button_clean, null);"
         errorLine2="                                                                                                                                             ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalSwitchButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalSwitchButton.java"
             line="312"
             column="142"/>
     </issue>
@@ -1821,7 +1821,7 @@
         errorLine1="        this.pageEdit = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_edit, null);"
         errorLine2="                                                                                                   ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="261"
             column="100"/>
     </issue>
@@ -1832,7 +1832,7 @@
         errorLine1="        mFloatBall = LayoutInflater.from(context).inflate(R.layout.float_ball_layout, null)"
         errorLine2="                                                                                      ~~~~">
         <location
-            file="src/main/java/com/limelight/ui/FloatBallManager.kt"
+            file="src/main/java/com/sour/lumaduo/ui/FloatBallManager.kt"
             line="275"
             column="87"/>
     </issue>
@@ -1843,7 +1843,7 @@
         errorLine1="            groupButtonPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_group_button_clean, null);"
         errorLine2="                                                                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="563"
             column="125"/>
     </issue>
@@ -1854,7 +1854,7 @@
         errorLine1="            invisibleAnalogStickPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_invisible_analog_stick_clean, null);"
         errorLine2="                                                                                                                                               ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/InvisibleAnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/InvisibleAnalogStick.java"
             line="303"
             column="144"/>
     </issue>
@@ -1865,7 +1865,7 @@
         errorLine1="            invisibleDigitalStickPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_invisible_digital_stick_clean, null);"
         errorLine2="                                                                                                                                                 ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/InvisibleDigitalStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/InvisibleDigitalStick.java"
             line="341"
             column="146"/>
     </issue>
@@ -1876,7 +1876,7 @@
         errorLine1="        LayoutInflater.from(context).inflate(R.layout.item_page_super_menu, null) as LinearLayout"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/ItemPageSuperMenu.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/ItemPageSuperMenu.kt"
             line="13"
             column="77"/>
     </issue>
@@ -1887,7 +1887,7 @@
         errorLine1="        this.pageConfig = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_config,null);"
         errorLine2="                                                                                                      ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="67"
             column="103"/>
     </issue>
@@ -1898,7 +1898,7 @@
         errorLine1="                SuperPageLayout pageWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_window,null);"
         errorLine2="                                                                                                                         ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="76"
             column="122"/>
     </issue>
@@ -1909,7 +1909,7 @@
         errorLine1="                SuperPageLayout pageWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_window,null);"
         errorLine2="                                                                                                                         ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="123"
             column="122"/>
     </issue>
@@ -1920,7 +1920,7 @@
         errorLine1="        SuperPageLayout pageWindow = (SuperPageLayout) LayoutInflater.from(context).inflate(R.layout.page_window,null);"
         errorLine2="                                                                                                                 ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="435"
             column="114"/>
     </issue>
@@ -1931,7 +1931,7 @@
         errorLine1="        LayoutInflater.from(context).inflate(R.layout.page_device, null) as SuperPageLayout"
         errorLine2="                                                                   ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/PageDeviceController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/PageDeviceController.kt"
             line="23"
             column="68"/>
     </issue>
@@ -1942,7 +1942,7 @@
         errorLine1="        LayoutInflater.from(context).inflate(R.layout.page_super_menu, null) as SuperPageLayout"
         errorLine2="                                                                       ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/PageSuperMenuController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/PageSuperMenuController.kt"
             line="22"
             column="72"/>
     </issue>
@@ -1953,7 +1953,7 @@
         errorLine1="            simplifyPerformancePage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_simplify_performance_clean, null);"
         errorLine2="                                                                                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/SimplifyPerformance.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/SimplifyPerformance.java"
             line="302"
             column="141"/>
     </issue>
@@ -1964,7 +1964,7 @@
         errorLine1="        pageNull = LayoutInflater.from(context).inflate(R.layout.page_null, null) as SuperPageLayout"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/SuperPagesController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/SuperPagesController.kt"
             line="44"
             column="77"/>
     </issue>
@@ -1975,7 +1975,7 @@
         errorLine1="            wheelPadPage = (SuperPageLayout) LayoutInflater.from(getContext()).inflate(R.layout.page_wheel_pad_clean, null);"
         errorLine2="                                                                                                                      ~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/WheelPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/WheelPad.java"
             line="721"
             column="119"/>
     </issue>
@@ -2503,7 +2503,7 @@
         errorLine1="        Switch moveModeSwitch = analogStickPage.findViewById(R.id.page_analog_stick_move_mode);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/AnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/AnalogStick.java"
             line="483"
             column="9"/>
     </issue>
@@ -2514,7 +2514,7 @@
         errorLine1="        Switch joystickModeSwitch = digitalMovableButtonPage.findViewById(R.id.page_digital_movable_button_enable_touch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalMovableButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalMovableButton.java"
             line="507"
             column="9"/>
     </issue>
@@ -2525,7 +2525,7 @@
         errorLine1="        Switch trackpadModeSwitch = digitalMovableButtonPage.findViewById(R.id.page_digital_movable_button_trackpad_mode);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalMovableButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalMovableButton.java"
             line="509"
             column="9"/>
     </issue>
@@ -2536,7 +2536,7 @@
         errorLine1="        Switch dragEditSwitch = pageEdit.findViewById(R.id.page_edit_drag_edit_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="395"
             column="9"/>
     </issue>
@@ -2547,7 +2547,7 @@
         errorLine1="        Switch alignmentSnapSwitch = pageEdit.findViewById(R.id.page_edit_alignment_snap_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="410"
             column="9"/>
     </issue>
@@ -2558,7 +2558,7 @@
         errorLine1="            Switch switchView = (Switch) view;"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1009"
             column="13"/>
     </issue>
@@ -2569,7 +2569,7 @@
         errorLine1="        Switch hiddenSwitch = page.findViewById(R.id.page_group_button_hidden_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="592"
             column="9"/>
     </issue>
@@ -2580,7 +2580,7 @@
         errorLine1="        Switch movableInNormalSwitch = page.findViewById(R.id.page_group_button_movable_in_normal_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="593"
             column="9"/>
     </issue>
@@ -2591,7 +2591,7 @@
         errorLine1="        Switch permanentIndependentSwitch = page.findViewById(R.id.page_group_button_override_parent_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="821"
             column="9"/>
     </issue>
@@ -2602,7 +2602,7 @@
         errorLine1="        Switch mouseEnableSwitch = pageConfig.findViewById(R.id.mouse_enable_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="254"
             column="9"/>
     </issue>
@@ -2613,7 +2613,7 @@
         errorLine1="        Switch mouseModeSwitch = pageConfig.findViewById(R.id.trackpad_enable_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="277"
             column="9"/>
     </issue>
@@ -2624,7 +2624,7 @@
         errorLine1="        Switch gameVibratorSwitch = pageConfig.findViewById(R.id.game_vibrator_enable_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="364"
             column="9"/>
     </issue>
@@ -2635,7 +2635,7 @@
         errorLine1="        Switch buttonVibratorSwitch = pageConfig.findViewById(R.id.button_vibrator_enable_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="384"
             column="9"/>
     </issue>
@@ -2646,7 +2646,7 @@
         errorLine1="        Switch enhancedTouchSwitch = pageConfig.findViewById(R.id.enhanced_touch_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/config/PageConfigController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/config/PageConfigController.java"
             line="403"
             column="9"/>
     </issue>
@@ -2657,7 +2657,7 @@
         errorLine1="        final Switch popupSwitch = wheelPadPage.findViewById(R.id.page_wheel_pad_popup_at_center_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/WheelPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/WheelPad.java"
             line="729"
             column="9"/>
     </issue>
@@ -2668,7 +2668,7 @@
         errorLine1="        final Switch previewGroupSwitch = wheelPadPage.findViewById(R.id.page_wheel_pad_preview_group_switch);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/WheelPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/WheelPad.java"
             line="731"
             column="9"/>
     </issue>
@@ -3042,7 +3042,7 @@
         errorLine1="class ElementEditText : EditText {"
         errorLine2="                        ~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/ElementEditText.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/ElementEditText.kt"
             line="9"
             column="25"/>
     </issue>
@@ -3262,7 +3262,7 @@
         errorLine1="    defStyleAttr: Int = androidx.core.content.res.TypedArrayUtils.getAttr("
         errorLine2="                                                                  ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/SmallIconCheckboxPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/SmallIconCheckboxPreference.kt"
             line="12"
             column="67"/>
     </issue>
@@ -3273,7 +3273,7 @@
         errorLine1="        context,"
         errorLine2="        ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/SmallIconCheckboxPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/SmallIconCheckboxPreference.kt"
             line="13"
             column="9"/>
     </issue>
@@ -3687,7 +3687,7 @@
         errorLine1="            when (event.getToolType(i)) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/com/limelight/TouchInputHandler.kt"
+            file="src/main/java/com/sour/lumaduo/TouchInputHandler.kt"
             line="1007"
             column="13"/>
     </issue>
@@ -3698,7 +3698,7 @@
         errorLine1="            context.resources.getIdentifier(&quot;alertTitle&quot;, &quot;id&quot;, context.packageName),"
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="46"
             column="31"/>
     </issue>
@@ -3709,7 +3709,7 @@
         errorLine1="            context.resources.getIdentifier(&quot;alertTitle&quot;, &quot;id&quot;, &quot;android&quot;)"
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="47"
             column="31"/>
     </issue>
@@ -3720,7 +3720,7 @@
         errorLine1="        return context.resources.getIdentifier(resourceName, &quot;drawable&quot;, context.packageName)"
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/MicrophoneManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/MicrophoneManager.kt"
             line="237"
             column="34"/>
     </issue>
@@ -3731,7 +3731,7 @@
         errorLine1="@TargetApi(Build.VERSION_CODES.O)"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/capture/AndroidNativePointerCaptureProvider.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/capture/AndroidNativePointerCaptureProvider.kt"
             line="13"
             column="1"/>
     </issue>
@@ -3742,7 +3742,7 @@
         errorLine1="@TargetApi(Build.VERSION_CODES.N)"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/capture/AndroidPointerIconCaptureProvider.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/capture/AndroidPointerIconCaptureProvider.kt"
             line="9"
             column="1"/>
     </issue>
@@ -3753,7 +3753,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerContext.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerContext.kt"
             line="247"
             column="5"/>
     </issue>
@@ -3764,7 +3764,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="2336"
             column="5"/>
     </issue>
@@ -3775,7 +3775,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="29"
             column="5"/>
     </issue>
@@ -3786,7 +3786,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="49"
             column="5"/>
     </issue>
@@ -3797,7 +3797,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="86"
             column="5"/>
     </issue>
@@ -3808,7 +3808,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="106"
             column="5"/>
     </issue>
@@ -3819,7 +3819,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="316"
             column="5"/>
     </issue>
@@ -3830,7 +3830,7 @@
         errorLine1="    @TargetApi(31)"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="356"
             column="5"/>
     </issue>
@@ -3841,7 +3841,7 @@
         errorLine1="    private class KeyboardMapping @TargetApi(33) constructor(private val device: InputDevice) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/KeyboardTranslator.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/KeyboardTranslator.kt"
             line="20"
             column="35"/>
     </issue>
@@ -3852,7 +3852,7 @@
         errorLine1="        @TargetApi(33)"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/KeyboardTranslator.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/KeyboardTranslator.kt"
             line="38"
             column="9"/>
     </issue>
@@ -3863,7 +3863,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.N_MR1)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="27"
             column="5"/>
     </issue>
@@ -3874,7 +3874,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.N_MR1)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="41"
             column="5"/>
     </issue>
@@ -3885,7 +3885,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.N_MR1)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="49"
             column="5"/>
     </issue>
@@ -3896,7 +3896,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.N_MR1)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="54"
             column="5"/>
     </issue>
@@ -3907,7 +3907,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="112"
             column="5"/>
     </issue>
@@ -3918,7 +3918,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/SuperPageLayout.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/SuperPageLayout.kt"
             line="38"
             column="5"/>
     </issue>
@@ -3929,7 +3929,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="85"
             column="5"/>
     </issue>
@@ -3940,7 +3940,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="186"
             column="5"/>
     </issue>
@@ -3951,7 +3951,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="206"
             column="5"/>
     </issue>
@@ -3962,7 +3962,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="243"
             column="5"/>
     </issue>
@@ -3973,7 +3973,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="248"
             column="5"/>
     </issue>
@@ -3984,7 +3984,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.O)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="295"
             column="5"/>
     </issue>
@@ -4402,7 +4402,7 @@
         errorLine1="        return context.getResources().getColorStateList(colorResId);"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1046"
             column="16"/>
     </issue>
@@ -4413,7 +4413,7 @@
         errorLine1="            Drawable d = getResources().getDrawable(icon);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/DigitalButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/DigitalButton.java"
             line="155"
             column="26"/>
     </issue>
@@ -4864,18 +4864,18 @@
         errorLine1="            val intent = Intent()"
         errorLine2="                         ~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PcView.kt"
+            file="src/main/java/com/sour/lumaduo/PcView.kt"
             line="2681"
             column="26"/>
     </issue>
 
     <issue
         id="UnsafeImplicitIntentLaunch"
-        message="The intent action `com.limelight.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
+        message="The intent action `com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
         errorLine1="            context.sendBroadcast(Intent(BackgroundSource.ACTION_REFRESH))"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="360"
             column="35"/>
     </issue>
@@ -4893,44 +4893,44 @@
 
     <issue
         id="UnsafeImplicitIntentLaunch"
-        message="The intent action `com.limelight.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
-        errorLine1="                    val broadcastIntent = Intent(&quot;com.limelight.REFRESH_BACKGROUND_IMAGE&quot;)"
+        message="The intent action `com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
+        errorLine1="                    val broadcastIntent = Intent(&quot;com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE&quot;)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="2893"
             column="43"/>
     </issue>
 
     <issue
         id="UnsafeImplicitIntentLaunch"
-        message="The intent action `com.limelight.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
-        errorLine1="                    val broadcastIntent = Intent(&quot;com.limelight.REFRESH_BACKGROUND_IMAGE&quot;)"
+        message="The intent action `com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
+        errorLine1="                    val broadcastIntent = Intent(&quot;com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE&quot;)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="2893"
             column="43"/>
     </issue>
 
     <issue
         id="UnsafeImplicitIntentLaunch"
-        message="The intent action `com.limelight.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
-        errorLine1="                    val broadcastIntent = Intent(&quot;com.limelight.REFRESH_BACKGROUND_IMAGE&quot;)"
+        message="The intent action `com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
+        errorLine1="                    val broadcastIntent = Intent(&quot;com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE&quot;)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="2903"
             column="43"/>
     </issue>
 
     <issue
         id="UnsafeImplicitIntentLaunch"
-        message="The intent action `com.limelight.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
-        errorLine1="                    val broadcastIntent = Intent(&quot;com.limelight.REFRESH_BACKGROUND_IMAGE&quot;)"
+        message="The intent action `com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID>)`."
+        errorLine1="                    val broadcastIntent = Intent(&quot;com.sour.lumaduo.REFRESH_BACKGROUND_IMAGE&quot;)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="2903"
             column="43"/>
     </issue>
@@ -4941,7 +4941,7 @@
         errorLine1="        val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="938"
             column="25"/>
     </issue>
@@ -4952,7 +4952,7 @@
         errorLine1="        webView.settings.javaScriptEnabled = true"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/HelpActivity.kt"
+            file="src/main/java/com/sour/lumaduo/HelpActivity.kt"
             line="47"
             column="9"/>
     </issue>
@@ -4963,7 +4963,7 @@
         errorLine1="            javaScriptEnabled = true"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="70"
             column="13"/>
     </issue>
@@ -4992,7 +4992,7 @@
         errorLine1="                    handler.proceed()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="84"
             column="21"/>
     </issue>
@@ -5003,7 +5003,7 @@
         errorLine1="                    handler.proceed()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="84"
             column="21"/>
     </issue>
@@ -5014,7 +5014,7 @@
         errorLine1="                    .setPositiveButton(R.string.sunshine_webui_ssl_proceed) { _, _ -> handler.proceed() }"
         errorLine2="                                                                                      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="90"
             column="87"/>
     </issue>
@@ -5025,7 +5025,7 @@
         errorLine1="                    .setPositiveButton(R.string.sunshine_webui_ssl_proceed) { _, _ -> handler.proceed() }"
         errorLine2="                                                                                      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/SunshineWebUiActivity.kt"
+            file="src/main/java/com/sour/lumaduo/SunshineWebUiActivity.kt"
             line="90"
             column="87"/>
     </issue>
@@ -5036,7 +5036,7 @@
         errorLine1="            val left = RectF(w * 0.08f, h * 0.2f, w * 0.08f + screenW, h * 0.2f + screenH)"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="264"
             column="24"/>
     </issue>
@@ -5047,7 +5047,7 @@
         errorLine1="            val right = RectF(w * 0.54f, h * 0.2f, w * 0.54f + screenW, h * 0.2f + screenH)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="265"
             column="25"/>
     </issue>
@@ -5058,7 +5058,7 @@
         errorLine1="            val center = RectF(w * 0.31f, h * 0.17f, w * 0.31f + screenW, h * 0.17f + screenH)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="266"
             column="26"/>
     </issue>
@@ -5069,7 +5069,7 @@
         errorLine1="                    val faintLeft = RectF(w * 0.05f, h * 0.28f, w * 0.28f, h * 0.63f)"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="297"
             column="37"/>
     </issue>
@@ -5080,7 +5080,7 @@
         errorLine1="                    val faintRight = RectF(w * 0.72f, h * 0.28f, w * 0.95f, h * 0.63f)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="298"
             column="38"/>
     </issue>
@@ -5091,7 +5091,7 @@
         errorLine1="            notifyDataSetChanged()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/AdapterRecyclerBridge.kt"
+            file="src/main/java/com/sour/lumaduo/ui/AdapterRecyclerBridge.kt"
             line="33"
             column="13"/>
     </issue>
@@ -5102,7 +5102,7 @@
         errorLine1="            notifyDataSetChanged()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/AdapterRecyclerBridge.kt"
+            file="src/main/java/com/sour/lumaduo/ui/AdapterRecyclerBridge.kt"
             line="37"
             column="13"/>
     </issue>
@@ -5113,7 +5113,7 @@
         errorLine1="        categoryAdapter?.notifyDataSetChanged()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="598"
             column="9"/>
     </issue>
@@ -5124,7 +5124,7 @@
         errorLine1="                animators += ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 1.04f)"
         errorLine2="                                            ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PcView.kt"
+            file="src/main/java/com/sour/lumaduo/PcView.kt"
             line="293"
             column="45"/>
     </issue>
@@ -5135,7 +5135,7 @@
         errorLine1="                animators += ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 1.04f)"
         errorLine2="                                            ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PcView.kt"
+            file="src/main/java/com/sour/lumaduo/PcView.kt"
             line="294"
             column="45"/>
     </issue>
@@ -5146,7 +5146,7 @@
         errorLine1="        Cursor cursor = readableDataBase.query("
         errorLine2="                                         ~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/sqlite/SuperConfigDatabaseHelper.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/sqlite/SuperConfigDatabaseHelper.java"
             line="659"
             column="42"/>
     </issue>
@@ -5157,7 +5157,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/AndroidAudioRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/AndroidAudioRenderer.kt"
             line="278"
             column="21"/>
     </issue>
@@ -5168,7 +5168,7 @@
         errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/audio/AndroidAudioRenderer.kt"
+            file="src/main/java/com/sour/lumaduo/binding/audio/AndroidAudioRenderer.kt"
             line="351"
             column="17"/>
     </issue>
@@ -5179,7 +5179,7 @@
         errorLine1="            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/capture/AndroidNativePointerCaptureProvider.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/capture/AndroidNativePointerCaptureProvider.kt"
             line="23"
             column="20"/>
     </issue>
@@ -5190,7 +5190,7 @@
         errorLine1="            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/capture/AndroidPointerIconCaptureProvider.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/capture/AndroidPointerIconCaptureProvider.kt"
             line="19"
             column="20"/>
     </issue>
@@ -5201,7 +5201,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="90"
             column="13"/>
     </issue>
@@ -5212,7 +5212,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CapabilityDiagnosticActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CapabilityDiagnosticActivity.kt"
             line="437"
             column="21"/>
     </issue>
@@ -5223,7 +5223,7 @@
         errorLine1="            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="204"
             column="17"/>
     </issue>
@@ -5234,7 +5234,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerContext.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerContext.kt"
             line="286"
             column="13"/>
     </issue>
@@ -5245,7 +5245,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="322"
             column="13"/>
     </issue>
@@ -5256,7 +5256,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &amp;&amp; context.inputDevice!!.batteryState.isPresent) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="362"
             column="13"/>
     </issue>
@@ -5267,7 +5267,7 @@
         errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1010"
             column="17"/>
     </issue>
@@ -5278,7 +5278,7 @@
         errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1017"
             column="17"/>
     </issue>
@@ -5289,7 +5289,7 @@
         errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/ElementController.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/ElementController.java"
             line="1809"
             column="20"/>
     </issue>
@@ -5300,7 +5300,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/ExternalDisplayPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/ExternalDisplayPreference.kt"
             line="41"
             column="21"/>
     </issue>
@@ -5311,7 +5311,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="898"
             column="21"/>
     </issue>
@@ -5322,7 +5322,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1054"
             column="21"/>
     </issue>
@@ -5333,7 +5333,7 @@
         errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1054"
             column="21"/>
     </issue>
@@ -5344,7 +5344,7 @@
         errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/SuperPageLayout.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/SuperPageLayout.kt"
             line="38"
             column="5"/>
     </issue>
@@ -5369,7 +5369,7 @@
         errorLine1="object ConfigurationSyncScheduler {"
         errorLine2="^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncScheduler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncScheduler.kt"
             line="20"
             column="1"/>
     </issue>
@@ -5380,7 +5380,7 @@
         errorLine1="    private var liveContext: Context? = null"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncScheduler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncScheduler.kt"
             line="33"
             column="5"/>
     </issue>
@@ -5391,7 +5391,7 @@
         errorLine1="        var instance: LocalImagePickerPreference? = null"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/preferences/LocalImagePickerPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/LocalImagePickerPreference.kt"
             line="134"
             column="9"/>
     </issue>
@@ -9961,7 +9961,7 @@
         errorLine1="public class AnalogStick extends VirtualControllerElement {"
         errorLine2="             ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/AnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/AnalogStick.java"
             line="19"
             column="14"/>
     </issue>
@@ -9972,7 +9972,7 @@
         errorLine1="public class AnalogStick extends Element {"
         errorLine2="             ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/AnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/AnalogStick.java"
             line="35"
             column="14"/>
     </issue>
@@ -9983,7 +9983,7 @@
         errorLine1="public class DigitalButton extends VirtualControllerElement {"
         errorLine2="             ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/DigitalButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/DigitalButton.java"
             line="21"
             column="14"/>
     </issue>
@@ -9994,7 +9994,7 @@
         errorLine1="public class DigitalCombineButton extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalCombineButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalCombineButton.java"
             line="34"
             column="14"/>
     </issue>
@@ -10005,7 +10005,7 @@
         errorLine1="public class DigitalCommonButton extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalCommonButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalCommonButton.java"
             line="36"
             column="14"/>
     </issue>
@@ -10016,7 +10016,7 @@
         errorLine1="public class DigitalMovableButton extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalMovableButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalMovableButton.java"
             line="41"
             column="14"/>
     </issue>
@@ -10027,7 +10027,7 @@
         errorLine1="public class DigitalPad extends VirtualControllerElement {"
         errorLine2="             ~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/DigitalPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/DigitalPad.java"
             line="16"
             column="14"/>
     </issue>
@@ -10038,7 +10038,7 @@
         errorLine1="public class DigitalPad extends Element {"
         errorLine2="             ~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalPad.java"
             line="32"
             column="14"/>
     </issue>
@@ -10049,7 +10049,7 @@
         errorLine1="public class DigitalStick extends Element {"
         errorLine2="             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalStick.java"
             line="31"
             column="14"/>
     </issue>
@@ -10060,7 +10060,7 @@
         errorLine1="public class DigitalSwitchButton extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/DigitalSwitchButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/DigitalSwitchButton.java"
             line="34"
             column="14"/>
     </issue>
@@ -10071,7 +10071,7 @@
         errorLine1="public class GroupButton extends Element {"
         errorLine2="             ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="41"
             column="14"/>
     </issue>
@@ -10082,7 +10082,7 @@
         errorLine1="public class InvisibleAnalogStick extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/InvisibleAnalogStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/InvisibleAnalogStick.java"
             line="35"
             column="14"/>
     </issue>
@@ -10093,7 +10093,7 @@
         errorLine1="public class InvisibleDigitalStick extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/InvisibleDigitalStick.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/InvisibleDigitalStick.java"
             line="31"
             column="14"/>
     </issue>
@@ -10104,7 +10104,7 @@
         errorLine1="class LeftAnalogStick(controller: VirtualController, context: Context) :"
         errorLine2="      ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/LeftAnalogStick.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/LeftAnalogStick.kt"
             line="9"
             column="7"/>
     </issue>
@@ -10115,7 +10115,7 @@
         errorLine1="class LeftTrigger(controller: VirtualController, layer: Int, context: Context) :"
         errorLine2="      ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/LeftTrigger.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/LeftTrigger.kt"
             line="8"
             column="7"/>
     </issue>
@@ -10126,7 +10126,7 @@
         errorLine1="class RightAnalogStick(controller: VirtualController, context: Context) :"
         errorLine2="      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/RightAnalogStick.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/RightAnalogStick.kt"
             line="9"
             column="7"/>
     </issue>
@@ -10137,7 +10137,7 @@
         errorLine1="class RightTrigger(controller: VirtualController, layer: Int, context: Context) :"
         errorLine2="      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/virtual_controller/RightTrigger.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/virtual_controller/RightTrigger.kt"
             line="8"
             column="7"/>
     </issue>
@@ -10148,7 +10148,7 @@
         errorLine1="class ScreenCombinationModePickerView("
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/ScreenCombinationModePickerView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/ScreenCombinationModePickerView.kt"
             line="21"
             column="7"/>
     </issue>
@@ -10159,7 +10159,7 @@
         errorLine1="public class SimplifyPerformance extends Element {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/SimplifyPerformance.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/SimplifyPerformance.java"
             line="39"
             column="14"/>
     </issue>
@@ -10170,7 +10170,7 @@
         errorLine1="public class WheelPad extends Element {"
         errorLine2="             ~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/WheelPad.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/WheelPad.java"
             line="44"
             column="14"/>
     </issue>
@@ -10192,7 +10192,7 @@
         errorLine1="                prefs.edit().putBoolean(PREF_FIRST_STREAM_DONE, true).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AnalyticsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AnalyticsManager.kt"
             line="146"
             column="17"/>
     </issue>
@@ -10203,7 +10203,7 @@
         errorLine1="                prefs.edit().putString(PREF_FIRST_OPEN_DATE, dateStr).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AnalyticsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AnalyticsManager.kt"
             line="192"
             column="17"/>
     </issue>
@@ -10214,7 +10214,7 @@
         errorLine1="            preferences.edit()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppCacheManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppCacheManager.kt"
             line="22"
             column="13"/>
     </issue>
@@ -10225,7 +10225,7 @@
         errorLine1="            val editor = preferences.edit()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppCacheManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppCacheManager.kt"
             line="82"
             column="26"/>
     </issue>
@@ -10236,7 +10236,7 @@
         errorLine1="            preferences.edit()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppCacheManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppCacheManager.kt"
             line="100"
             column="13"/>
     </issue>
@@ -10247,7 +10247,7 @@
         errorLine1="            preferences.edit().clear().apply()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppCacheManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppCacheManager.kt"
             line="112"
             column="13"/>
     </issue>
@@ -10258,7 +10258,7 @@
         errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="29"
             column="46"/>
     </issue>
@@ -10269,7 +10269,7 @@
         errorLine1="        listView.divider = ColorDrawable(Color.TRANSPARENT)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="97"
             column="28"/>
     </issue>
@@ -10280,7 +10280,7 @@
         errorLine1="        listView.divider = ColorDrawable(Color.TRANSPARENT)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="97"
             column="28"/>
     </issue>
@@ -10291,7 +10291,7 @@
         errorLine1="        listView.selector = ColorDrawable(Color.TRANSPARENT)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="99"
             column="29"/>
     </issue>
@@ -10302,7 +10302,7 @@
         errorLine1="        listView.selector = ColorDrawable(Color.TRANSPARENT)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppDialogStyler.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppDialogStyler.kt"
             line="99"
             column="29"/>
     </issue>
@@ -10313,7 +10313,7 @@
         errorLine1="            preferences.edit()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppSettingsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppSettingsManager.kt"
             line="35"
             column="13"/>
     </issue>
@@ -10324,7 +10324,7 @@
         errorLine1="        preferences.edit()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppSettingsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppSettingsManager.kt"
             line="71"
             column="9"/>
     </issue>
@@ -10335,7 +10335,7 @@
         errorLine1="        preferences.edit()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppSettingsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppSettingsManager.kt"
             line="101"
             column="9"/>
     </issue>
@@ -10346,7 +10346,7 @@
         errorLine1="        preferences.edit()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/AppSettingsManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/AppSettingsManager.kt"
             line="110"
             column="9"/>
     </issue>
@@ -10357,7 +10357,7 @@
         errorLine1="            getSharedPreferences(APPVIEW_PREFS_NAME, MODE_PRIVATE)"
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/AppView.kt"
+            file="src/main/java/com/sour/lumaduo/AppView.kt"
             line="931"
             column="13"/>
     </issue>
@@ -10368,7 +10368,7 @@
         errorLine1="            it.setImageDrawable(ColorDrawable(color))"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/BackgroundImageManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/BackgroundImageManager.kt"
             line="140"
             column="33"/>
     </issue>
@@ -10379,7 +10379,7 @@
         errorLine1="        clearImageView.setImageDrawable(ColorDrawable(color))"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/BackgroundImageManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/BackgroundImageManager.kt"
             line="146"
             column="41"/>
     </issue>
@@ -10390,7 +10390,7 @@
         errorLine1="                val small = Bitmap.createScaledBitmap(src, smallWidth, smallHeight, true)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/BackgroundImageManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/BackgroundImageManager.kt"
             line="273"
             column="29"/>
     </issue>
@@ -10401,7 +10401,7 @@
         errorLine1="            prefs.edit().remove(KEY_LOCAL_PATH).apply()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="81"
             column="13"/>
     </issue>
@@ -10412,7 +10412,7 @@
         errorLine1="            val editor = prefs.edit()"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="125"
             column="26"/>
     </issue>
@@ -10423,7 +10423,7 @@
         errorLine1="            prefs.edit()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="139"
             column="13"/>
     </issue>
@@ -10434,7 +10434,7 @@
         errorLine1="            PreferenceManager.getDefaultSharedPreferences(ctx)"
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="152"
             column="13"/>
     </issue>
@@ -10445,7 +10445,7 @@
         errorLine1="                prefs.edit().remove(LEGACY_KEY_TYPE).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="173"
             column="17"/>
     </issue>
@@ -10456,7 +10456,7 @@
         errorLine1="            prefs.edit()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/BackgroundSource.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/BackgroundSource.kt"
             line="181"
             column="13"/>
     </issue>
@@ -10467,7 +10467,7 @@
         errorLine1="    private val placeholderBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/grid/assets/CachedAppAssetLoader.kt"
+            file="src/main/java/com/sour/lumaduo/grid/assets/CachedAppAssetLoader.kt"
             line="58"
             column="45"/>
     </issue>
@@ -10478,7 +10478,7 @@
         errorLine1="        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="181"
             column="39"/>
     </issue>
@@ -10489,7 +10489,7 @@
         errorLine1="                    var color = Color.parseColor(hexString)"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="276"
             column="33"/>
     </issue>
@@ -10500,7 +10500,7 @@
         errorLine1="        computerDb.beginTransaction()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/computers/ComputerDatabaseManager.kt"
+            file="src/main/java/com/sour/lumaduo/computers/ComputerDatabaseManager.kt"
             line="74"
             column="9"/>
     </issue>
@@ -10511,7 +10511,7 @@
         errorLine1="        PreferenceManager.getDefaultSharedPreferences(context)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="572"
             column="9"/>
     </issue>
@@ -10522,7 +10522,7 @@
         errorLine1="        PreferenceManager.getDefaultSharedPreferences(context)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="584"
             column="9"/>
     </issue>
@@ -10533,7 +10533,7 @@
         errorLine1="            PreferenceManager.getDefaultSharedPreferences(context)"
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="758"
             column="13"/>
     </issue>
@@ -10544,7 +10544,7 @@
         errorLine1="        prefs.edit()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="931"
             column="9"/>
     </issue>
@@ -10555,7 +10555,7 @@
         errorLine1="        PreferenceManager.getDefaultSharedPreferences(context)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="985"
             column="9"/>
     </issue>
@@ -10566,7 +10566,7 @@
         errorLine1="        val stateEditor = statePrefs.edit()"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="1016"
             column="27"/>
     </issue>
@@ -10577,7 +10577,7 @@
         errorLine1="        statePrefs.edit()"
         errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="1167"
             column="9"/>
     </issue>
@@ -10588,7 +10588,7 @@
         errorLine1="        val stateEditor = statePrefs.edit()"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="1450"
             column="27"/>
     </issue>
@@ -10599,7 +10599,7 @@
         errorLine1="        PreferenceManager.getDefaultSharedPreferences(context)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="1720"
             column="9"/>
     </issue>
@@ -10610,7 +10610,7 @@
         errorLine1="        prefs.edit()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="2023"
             column="9"/>
     </issue>
@@ -10621,7 +10621,7 @@
         errorLine1="                context.applicationContext"
         errorLine2="                ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="2140"
             column="17"/>
     </issue>
@@ -10632,7 +10632,7 @@
         errorLine1="            return Uri.parse(uriString)"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="3015"
             column="20"/>
     </issue>
@@ -10643,7 +10643,7 @@
         errorLine1="            PreferenceManager.getDefaultSharedPreferences(context.applicationContext)"
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="3020"
             column="13"/>
     </issue>
@@ -10654,7 +10654,7 @@
         errorLine1="            PreferenceManager.getDefaultSharedPreferences(context.applicationContext)"
         errorLine2="            ^">
         <location
-            file="src/main/java/com/limelight/utils/ConfigurationSyncManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ConfigurationSyncManager.kt"
             line="3020"
             column="13"/>
     </issue>
@@ -10665,7 +10665,7 @@
         errorLine1="            ctx.getSharedPreferences(OSC_PREFERENCE, Context.MODE_PRIVATE).edit().clear().apply()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/ConfirmDeleteOscDialogFragment.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/ConfirmDeleteOscDialogFragment.kt"
             line="15"
             column="13"/>
     </issue>
@@ -10676,7 +10676,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="101"
             column="27"/>
     </issue>
@@ -10687,7 +10687,7 @@
         errorLine1="        for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="109"
             column="27"/>
     </issue>
@@ -10698,7 +10698,7 @@
         errorLine1="            for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="209"
             column="31"/>
     </issue>
@@ -10709,7 +10709,7 @@
         errorLine1="            for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="216"
             column="31"/>
     </issue>
@@ -10720,7 +10720,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="288"
             column="27"/>
     </issue>
@@ -10731,7 +10731,7 @@
         errorLine1="        for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="294"
             column="27"/>
     </issue>
@@ -10742,7 +10742,7 @@
         errorLine1="        if (handler.inputDeviceContexts.size() > 0) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="311"
             column="13"/>
     </issue>
@@ -10753,7 +10753,7 @@
         errorLine1="        if (handler.usbDeviceContexts.size() > 0) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="315"
             column="13"/>
     </issue>
@@ -10764,7 +10764,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="332"
             column="27"/>
     </issue>
@@ -10775,7 +10775,7 @@
         errorLine1="        for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="342"
             column="27"/>
     </issue>
@@ -10786,7 +10786,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="465"
             column="27"/>
     </issue>
@@ -10797,7 +10797,7 @@
         errorLine1="        for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerGyroManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerGyroManager.kt"
             line="469"
             column="27"/>
     </issue>
@@ -10808,7 +10808,7 @@
         errorLine1="        for (i in 0 until inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="449"
             column="27"/>
     </issue>
@@ -10819,7 +10819,7 @@
         errorLine1="        for (i in 0 until usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="453"
             column="27"/>
     </issue>
@@ -10830,7 +10830,7 @@
         errorLine1="        for (i in 0 until inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="474"
             column="27"/>
     </issue>
@@ -10841,7 +10841,7 @@
         errorLine1="        for (i in 0 until inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="484"
             column="27"/>
     </issue>
@@ -10852,7 +10852,7 @@
         errorLine1="        for (i in 0 until inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="1101"
             column="27"/>
     </issue>
@@ -10863,7 +10863,7 @@
         errorLine1="        for (i in 0 until usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="1116"
             column="27"/>
     </issue>
@@ -10874,7 +10874,7 @@
         errorLine1="        for (i in 0 until inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerHandler.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerHandler.kt"
             line="2260"
             column="27"/>
     </issue>
@@ -10885,7 +10885,7 @@
         errorLine1="        for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="208"
             column="27"/>
     </issue>
@@ -10896,7 +10896,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="245"
             column="27"/>
     </issue>
@@ -10907,7 +10907,7 @@
         errorLine1="            for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="289"
             column="31"/>
     </issue>
@@ -10918,7 +10918,7 @@
         errorLine1="        for (i in 0 until handler.usbDeviceContexts.size()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="307"
             column="27"/>
     </issue>
@@ -10929,7 +10929,7 @@
         errorLine1="            for (i in 0 until handler.inputDeviceContexts.size()) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/ControllerRumbleManager.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/ControllerRumbleManager.kt"
             line="323"
             column="31"/>
     </issue>
@@ -10940,7 +10940,7 @@
         errorLine1="            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))"
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CrownStoreActivity.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CrownStoreActivity.kt"
             line="2070"
             column="54"/>
     </issue>
@@ -10951,7 +10951,7 @@
         errorLine1="            defaultCursorBitmap = Bitmap.createBitmap(DEFAULT_SIZE, DEFAULT_SIZE, Bitmap.Config.ARGB_8888)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/CursorView.kt"
+            file="src/main/java/com/sour/lumaduo/ui/CursorView.kt"
             line="46"
             column="35"/>
     </issue>
@@ -10962,7 +10962,7 @@
         errorLine1="        list.divider = ColorDrawable(ContextCompat.getColor(context, R.color.app_dialog_outline))"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CustomResolutionsPreferenceDialogFragment.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CustomResolutionsPreferenceDialogFragment.kt"
             line="76"
             column="24"/>
     </issue>
@@ -10973,7 +10973,7 @@
         errorLine1="        list.divider = ColorDrawable(ContextCompat.getColor(context, R.color.app_dialog_outline))"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/CustomResolutionsPreferenceDialogFragment.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/CustomResolutionsPreferenceDialogFragment.kt"
             line="76"
             column="24"/>
     </issue>
@@ -10984,7 +10984,7 @@
         errorLine1="                val compressed = Bitmap.createScaledBitmap(original, newWidth, newHeight, true)"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/grid/assets/DiskAssetLoader.kt"
+            file="src/main/java/com/sour/lumaduo/grid/assets/DiskAssetLoader.kt"
             line="183"
             column="34"/>
     </issue>
@@ -10995,7 +10995,7 @@
         errorLine1="        prefs.edit().clear().apply()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/DynamicPerfOverlayPositionPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/DynamicPerfOverlayPositionPreference.kt"
             line="78"
             column="9"/>
     </issue>
@@ -11006,7 +11006,7 @@
         errorLine1="        activity.getSharedPreferences(EASYTIER_PREFS, Context.MODE_PRIVATE)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/utils/EasyTierController.kt"
+            file="src/main/java/com/sour/lumaduo/utils/EasyTierController.kt"
             line="804"
             column="9"/>
     </issue>
@@ -11017,7 +11017,7 @@
         errorLine1="        mSharedPreferences.edit().putBoolean(KEY_IS_HALF_SHOW, true).apply()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/FloatBallManager.kt"
+            file="src/main/java/com/sour/lumaduo/ui/FloatBallManager.kt"
             line="444"
             column="9"/>
     </issue>
@@ -11028,7 +11028,7 @@
         errorLine1="        mSharedPreferences.edit().putBoolean(KEY_IS_HALF_SHOW, false).apply()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/FloatBallManager.kt"
+            file="src/main/java/com/sour/lumaduo/ui/FloatBallManager.kt"
             line="461"
             column="9"/>
     </issue>
@@ -11039,7 +11039,7 @@
         errorLine1="        mSharedPreferences.edit()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/ui/FloatBallManager.kt"
+            file="src/main/java/com/sour/lumaduo/ui/FloatBallManager.kt"
             line="484"
             column="9"/>
     </issue>
@@ -11050,7 +11050,7 @@
         errorLine1="        prefs.edit().putInt(PREF_INTERNAL_WIDTH, percent).apply()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/FramegenSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/FramegenSettings.kt"
             line="82"
             column="9"/>
     </issue>
@@ -11061,7 +11061,7 @@
         errorLine1="        val editor = context.getSharedPreferences(&quot;widget_prefs&quot;, Context.MODE_PRIVATE).edit()"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/widget/GameListWidgetProvider.kt"
+            file="src/main/java/com/sour/lumaduo/widget/GameListWidgetProvider.kt"
             line="66"
             column="22"/>
     </issue>
@@ -11072,7 +11072,7 @@
         errorLine1="                serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/widget/GameListWidgetProvider.kt"
+            file="src/main/java/com/sour/lumaduo/widget/GameListWidgetProvider.kt"
             line="105"
             column="38"/>
     </issue>
@@ -11083,7 +11083,7 @@
         errorLine1="                serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/widget/GameListWidgetProvider.kt"
+            file="src/main/java/com/sour/lumaduo/widget/GameListWidgetProvider.kt"
             line="105"
             column="38"/>
     </issue>
@@ -11094,7 +11094,7 @@
         errorLine1="        return prefs.edit()"
         errorLine2="               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/GlPreferences.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/GlPreferences.kt"
             line="11"
             column="16"/>
     </issue>
@@ -11105,7 +11105,7 @@
         errorLine1="            i.data = Uri.parse(url)"
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/HelpLauncher.kt"
+            file="src/main/java/com/sour/lumaduo/utils/HelpLauncher.kt"
             line="15"
             column="22"/>
     </issue>
@@ -11116,7 +11116,7 @@
         errorLine1="            i.data = Uri.parse(url)"
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/HelpLauncher.kt"
+            file="src/main/java/com/sour/lumaduo/utils/HelpLauncher.kt"
             line="15"
             column="22"/>
     </issue>
@@ -11127,7 +11127,7 @@
         errorLine1="        i.data = Uri.parse(url)"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/HelpLauncher.kt"
+            file="src/main/java/com/sour/lumaduo/utils/HelpLauncher.kt"
             line="36"
             column="18"/>
     </issue>
@@ -11138,7 +11138,7 @@
         errorLine1="        i.data = Uri.parse(url)"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/HelpLauncher.kt"
+            file="src/main/java/com/sour/lumaduo/utils/HelpLauncher.kt"
             line="36"
             column="18"/>
     </issue>
@@ -11149,7 +11149,7 @@
         errorLine1="            if (view != null &amp;&amp; view.visibility == View.VISIBLE) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/JitterMonitorManager.kt"
+            file="src/main/java/com/sour/lumaduo/JitterMonitorManager.kt"
             line="37"
             column="33"/>
     </issue>
@@ -11160,7 +11160,7 @@
         errorLine1="                    prefs.edit().putInt(KEY_OPACITY, progress).apply()"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="122"
             column="21"/>
     </issue>
@@ -11171,7 +11171,7 @@
         errorLine1="        prefs.edit().putBoolean(KEY_IS_MINI, mini).apply()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="196"
             column="9"/>
     </issue>
@@ -11182,7 +11182,7 @@
         errorLine1="                        prefs.edit()"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="308"
             column="25"/>
     </issue>
@@ -11193,7 +11193,7 @@
         errorLine1="                            prefs.edit().putInt(KEY_HEIGHT, keyboardContent.getHeight()).apply()"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="368"
             column="29"/>
     </issue>
@@ -11204,7 +11204,7 @@
         errorLine1="        btn.setTextColor(if (active) Color.WHITE else Color.parseColor(&quot;#88FFFFFF&quot;))"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="386"
             column="55"/>
     </issue>
@@ -11215,7 +11215,7 @@
         errorLine1="        btn.setBackgroundColor(if (active) Color.parseColor(&quot;#40FFFFFF&quot;) else Color.TRANSPARENT)"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="387"
             column="44"/>
     </issue>
@@ -11226,7 +11226,7 @@
         errorLine1="        for (i in 0..&lt;root.getChildCount()) {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="391"
             column="23"/>
     </issue>
@@ -11237,7 +11237,7 @@
         errorLine1="                    data = Uri.parse(&quot;package:${context.packageName}&quot;)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/LanguagePreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/LanguagePreference.kt"
             line="29"
             column="28"/>
     </issue>
@@ -11248,7 +11248,7 @@
         errorLine1="                    data = Uri.parse(&quot;package:${context.packageName}&quot;)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/LanguagePreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/LanguagePreference.kt"
             line="29"
             column="28"/>
     </issue>
@@ -11259,7 +11259,7 @@
         errorLine1="                PreferenceManager.getDefaultSharedPreferences(context).edit()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/LocalImagePickerPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/LocalImagePickerPreference.kt"
             line="86"
             column="17"/>
     </issue>
@@ -11270,7 +11270,7 @@
         errorLine1="        val host = try { android.net.Uri.parse(url ?: return false).host } catch (_: Exception) { null }"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/NetHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/NetHelper.kt"
             line="172"
             column="26"/>
     </issue>
@@ -11281,7 +11281,7 @@
         errorLine1="            sharedPreferences.edit()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/grid/PcGridAdapter.kt"
+            file="src/main/java/com/sour/lumaduo/grid/PcGridAdapter.kt"
             line="194"
             column="13"/>
     </issue>
@@ -11292,7 +11292,7 @@
         errorLine1="                val view = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PcView.kt"
+            file="src/main/java/com/sour/lumaduo/PcView.kt"
             line="2355"
             column="55"/>
     </issue>
@@ -11303,7 +11303,7 @@
         errorLine1="                prefs.edit().putStringSet(key, filteredItems).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PerfOverlayDisplayItemsPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PerfOverlayDisplayItemsPreference.kt"
             line="59"
             column="17"/>
     </issue>
@@ -11314,7 +11314,7 @@
         errorLine1="            prefs.edit().putStringSet(&quot;perf_overlay_display_items&quot;, items).apply()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PerfOverlayDisplayItemsPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PerfOverlayDisplayItemsPreference.kt"
             line="94"
             column="13"/>
     </issue>
@@ -11325,7 +11325,7 @@
         errorLine1="        canvas.save()"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/PerformanceOverlayManager.kt"
+            file="src/main/java/com/sour/lumaduo/PerformanceOverlayManager.kt"
             line="1320"
             column="9"/>
     </issue>
@@ -11336,7 +11336,7 @@
         errorLine1="            prefs.edit()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="316"
             column="13"/>
     </issue>
@@ -11347,7 +11347,7 @@
         errorLine1="                prefs.edit()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="942"
             column="17"/>
     </issue>
@@ -11358,7 +11358,7 @@
         errorLine1="            prefs.edit()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1001"
             column="13"/>
     </issue>
@@ -11369,7 +11369,7 @@
         errorLine1="            prefs.edit().putString(LANGUAGE_PREF_STRING, DEFAULT_LANGUAGE).apply()"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1021"
             column="13"/>
     </issue>
@@ -11380,7 +11380,7 @@
         errorLine1="                    prefs.edit()"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1040"
             column="21"/>
     </issue>
@@ -11391,7 +11391,7 @@
         errorLine1="                    prefs.edit()"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1040"
             column="21"/>
     </issue>
@@ -11402,7 +11402,7 @@
         errorLine1="                prefs.edit().putBoolean(SMALL_ICONS_PREF_STRING, getDefaultSmallMode(context)).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1085"
             column="17"/>
     </issue>
@@ -11413,7 +11413,7 @@
         errorLine1="                prefs.edit().putBoolean(SMALL_ICONS_PREF_STRING, getDefaultSmallMode(context)).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1085"
             column="17"/>
     </issue>
@@ -11424,7 +11424,7 @@
         errorLine1="                prefs.edit().putBoolean(GAMEPAD_MOTION_SENSORS_PREF_STRING, false).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1094"
             column="17"/>
     </issue>
@@ -11435,7 +11435,7 @@
         errorLine1="                prefs.edit().putBoolean(GAMEPAD_MOTION_SENSORS_PREF_STRING, false).apply()"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/PreferenceConfiguration.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/PreferenceConfiguration.kt"
             line="1094"
             column="17"/>
     </issue>
@@ -11446,7 +11446,7 @@
         errorLine1="        context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/limelight/QuickActionRegistry.kt"
+            file="src/main/java/com/sour/lumaduo/QuickActionRegistry.kt"
             line="69"
             column="9"/>
     </issue>
@@ -11457,7 +11457,7 @@
         errorLine1="            val output = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ShortcutHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ShortcutHelper.kt"
             line="191"
             column="26"/>
     </issue>
@@ -11468,7 +11468,7 @@
         errorLine1="                sample.addPixel(bitmap.getPixel(x, y), hsv)"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/SoftBackgroundColorExtractor.kt"
+            file="src/main/java/com/sour/lumaduo/utils/SoftBackgroundColorExtractor.kt"
             line="60"
             column="33"/>
     </issue>
@@ -11479,7 +11479,7 @@
         errorLine1="        return Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888).apply {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/SponsorPreference.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/SponsorPreference.kt"
             line="92"
             column="16"/>
     </issue>
@@ -11490,7 +11490,7 @@
         errorLine1="                startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/preferences/StreamSettings.kt"
+            file="src/main/java/com/sour/lumaduo/preferences/StreamSettings.kt"
             line="4116"
             column="58"/>
     </issue>
@@ -11501,7 +11501,7 @@
         errorLine1="        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/TvChannelHelper.kt"
+            file="src/main/java/com/sour/lumaduo/utils/TvChannelHelper.kt"
             line="114"
             column="22"/>
     </issue>
@@ -11512,7 +11512,7 @@
         errorLine1="        val prefs = context.getSharedPreferences(&quot;widget_prefs&quot;, Context.MODE_PRIVATE).edit()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/widget/WidgetConfigurationActivity.kt"
+            file="src/main/java/com/sour/lumaduo/widget/WidgetConfigurationActivity.kt"
             line="82"
             column="21"/>
     </issue>
@@ -11523,7 +11523,7 @@
         errorLine1="        override fun onTouchEvent(event: MotionEvent): Boolean {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="460"
             column="22"/>
     </issue>
@@ -11534,7 +11534,7 @@
         errorLine1="        override fun onTouchEvent(event: MotionEvent): Boolean {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="547"
             column="22"/>
     </issue>
@@ -11545,7 +11545,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
         errorLine2="                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/element/GroupButton.java"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/element/GroupButton.java"
             line="375"
             column="20"/>
     </issue>
@@ -11556,7 +11556,7 @@
         errorLine1="            override fun onTouch(v: View, event: MotionEvent): Boolean {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="284"
             column="26"/>
     </issue>
@@ -11567,7 +11567,7 @@
         errorLine1="                override fun onTouch(v: View, event: MotionEvent): Boolean {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="341"
             column="30"/>
     </issue>
@@ -11578,7 +11578,7 @@
         errorLine1="                    child.setOnTouchListener(OnTouchListener { v: View?, event: MotionEvent? ->"
         errorLine2="                                                             ^">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/KeyboardUIController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/KeyboardUIController.kt"
             line="398"
             column="62"/>
     </issue>
@@ -11589,7 +11589,7 @@
         errorLine1="    override fun onTouchEvent(event: MotionEvent): Boolean {"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/SuperPageLayout.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/SuperPageLayout.kt"
             line="71"
             column="18"/>
     </issue>
@@ -11600,7 +11600,7 @@
         errorLine1="    private val blockingListener = View.OnTouchListener { _, _ ->"
         errorLine2="                                                        ^">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/TouchController.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/TouchController.kt"
             line="20"
             column="57"/>
     </issue>
@@ -12227,7 +12227,7 @@
         errorLine1="            text = &quot;HEX&quot;"
         errorLine2="                    ~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="122"
             column="21"/>
     </issue>
@@ -12238,7 +12238,7 @@
         errorLine1="                    editText.setText(progress.toString())"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="299"
             column="38"/>
     </issue>
@@ -12249,7 +12249,7 @@
         errorLine1="            alphaValue!!.setText(Color.alpha(color).toString())"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="361"
             column="34"/>
     </issue>
@@ -12260,7 +12260,7 @@
         errorLine1="        redValue.setText(Color.red(color).toString())"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="364"
             column="26"/>
     </issue>
@@ -12271,7 +12271,7 @@
         errorLine1="        greenValue.setText(Color.green(color).toString())"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="366"
             column="28"/>
     </issue>
@@ -12282,7 +12282,7 @@
         errorLine1="        blueValue.setText(Color.blue(color).toString())"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/ColorPickerDialog.kt"
+            file="src/main/java/com/sour/lumaduo/utils/ColorPickerDialog.kt"
             line="368"
             column="27"/>
     </issue>
@@ -12293,7 +12293,7 @@
         errorLine1="                    statusText?.text = &quot;OFF&quot;"
         errorLine2="                                        ~~~">
         <location
-            file="src/main/java/com/limelight/GyroCardController.kt"
+            file="src/main/java/com/sour/lumaduo/GyroCardController.kt"
             line="73"
             column="41"/>
     </issue>
@@ -12304,7 +12304,7 @@
         errorLine1="        numberSeekbarNumber.text = numberSeekbarSeekbar.progress.toString()"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="51"
             column="36"/>
     </issue>
@@ -12315,7 +12315,7 @@
         errorLine1="                numberSeekbarNumber.text = progressValue.toString()"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="62"
             column="44"/>
     </issue>
@@ -12326,7 +12326,7 @@
         errorLine1="                numberSeekbarNumber.text = progress.toString()"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="73"
             column="44"/>
     </issue>
@@ -12337,7 +12337,7 @@
         errorLine1="        numberSeekbarNumber.text = value.toString()"
         errorLine2="                                   ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/binding/input/advance_setting/superpage/NumberSeekbar.kt"
+            file="src/main/java/com/sour/lumaduo/binding/input/advance_setting/superpage/NumberSeekbar.kt"
             line="113"
             column="36"/>
     </issue>
@@ -12348,7 +12348,7 @@
         errorLine1="            version.text = &quot;v$curVer → v${updateInfo.version}&quot;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/limelight/utils/UpdateManager.kt"
+            file="src/main/java/com/sour/lumaduo/utils/UpdateManager.kt"
             line="383"
             column="28"/>
     </issue>
@@ -19014,7 +19014,7 @@
         errorLine1="            params.gravity = Gravity.TOP or Gravity.LEFT"
         errorLine2="                                                    ~~~~">
         <location
-            file="src/main/java/com/limelight/CursorServiceManager.kt"
+            file="src/main/java/com/sour/lumaduo/CursorServiceManager.kt"
             line="105"
             column="53"/>
     </issue>
@@ -19025,7 +19025,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.TOP or Gravity.LEFT"
         errorLine2="                                                                  ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="32"
             column="67"/>
     </issue>
@@ -19036,7 +19036,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.TOP or Gravity.RIGHT"
         errorLine2="                                                                  ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="36"
             column="67"/>
     </issue>
@@ -19047,7 +19047,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT"
         errorLine2="                                                                              ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="38"
             column="79"/>
     </issue>
@@ -19058,7 +19058,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.RIGHT"
         errorLine2="                                                                              ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="42"
             column="79"/>
     </issue>
@@ -19069,7 +19069,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.BOTTOM or Gravity.LEFT"
         errorLine2="                                                                     ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="44"
             column="70"/>
     </issue>
@@ -19080,7 +19080,7 @@
         errorLine1="                    layoutParams.gravity = Gravity.BOTTOM or Gravity.RIGHT"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="48"
             column="70"/>
     </issue>
@@ -19091,7 +19091,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.TOP or Gravity.RIGHT)"
         errorLine2="                                                                ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="66"
             column="65"/>
     </issue>
@@ -19102,7 +19102,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.BOTTOM or Gravity.LEFT)"
         errorLine2="                                                                   ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="71"
             column="68"/>
     </issue>
@@ -19113,7 +19113,7 @@
         errorLine1="            if (layoutParams.gravity == Gravity.LEFT ||"
         errorLine2="                                                ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="76"
             column="49"/>
     </issue>
@@ -19124,7 +19124,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.CENTER_VERTICAL or Gravity.LEFT) ||"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="77"
             column="77"/>
     </issue>
@@ -19135,7 +19135,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.BOTTOM or Gravity.LEFT)"
         errorLine2="                                                                   ~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="78"
             column="68"/>
     </issue>
@@ -19146,7 +19146,7 @@
         errorLine1="            } else if (layoutParams.gravity == Gravity.RIGHT ||"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="81"
             column="56"/>
     </issue>
@@ -19157,7 +19157,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.CENTER_VERTICAL or Gravity.RIGHT) ||"
         errorLine2="                                                                            ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="82"
             column="77"/>
     </issue>
@@ -19168,7 +19168,7 @@
         errorLine1="                layoutParams.gravity == (Gravity.TOP or Gravity.RIGHT)"
         errorLine2="                                                                ~~~~~">
         <location
-            file="src/main/java/com/limelight/DisplayPositionManager.kt"
+            file="src/main/java/com/sour/lumaduo/DisplayPositionManager.kt"
             line="83"
             column="65"/>
     </issue>
@@ -19179,7 +19179,7 @@
         errorLine1="                Gravity.CENTER_VERTICAL or Gravity.LEFT,"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="216"
             column="52"/>
     </issue>
@@ -19190,7 +19190,7 @@
         errorLine1="                Gravity.CENTER_VERTICAL or Gravity.RIGHT,"
         errorLine2="                                                   ~~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="217"
             column="52"/>
     </issue>
@@ -19201,7 +19201,7 @@
         errorLine1="                Gravity.TOP or Gravity.LEFT,"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="218"
             column="40"/>
     </issue>
@@ -19212,7 +19212,7 @@
         errorLine1="                Gravity.TOP or Gravity.RIGHT,"
         errorLine2="                                       ~~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="219"
             column="40"/>
     </issue>
@@ -19223,7 +19223,7 @@
         errorLine1="                Gravity.BOTTOM or Gravity.LEFT,"
         errorLine2="                                          ~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="220"
             column="43"/>
     </issue>
@@ -19234,7 +19234,7 @@
         errorLine1="                Gravity.BOTTOM or Gravity.RIGHT"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/main/java/com/limelight/ExternalDisplayManager.kt"
+            file="src/main/java/com/sour/lumaduo/ExternalDisplayManager.kt"
             line="221"
             column="43"/>
     </issue>

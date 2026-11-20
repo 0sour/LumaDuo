@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define JNI_NAME(name) Java_com_limelight_nvstream_jni_MoonBridge_##name
+#define JNI_NAME(name) Java_com_sour_lumaduo_nvstream_jni_MoonBridge_##name
 #define MAX_SLOTS 16
 
 typedef struct {

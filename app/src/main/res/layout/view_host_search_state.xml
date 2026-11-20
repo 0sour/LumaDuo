@@ -11,7 +11,7 @@
     android:paddingStart="12dp"
     android:paddingEnd="12dp">
 
-    <com.limelight.ui.HostSearchRadarView
+    <com.sour.lumaduo.ui.HostSearchRadarView
         android:id="@+id/host_search_radar"
         android:layout_width="104dp"
         android:layout_height="104dp"

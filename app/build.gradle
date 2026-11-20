@@ -22,7 +22,7 @@ def escapeBuildConfigString = { value ->
     value.replace("\\", "\\\\").replace("\"", "\\\"")
 }
 def enableX86TestAbi = (project.findProperty("enableX86TestAbi") ?: "false").toString().toBoolean()
-def audioHapticsAppLabel = "Moonlight V+"
+def audioHapticsAppLabel = "LumaDuo"
 def audioHapticsSdkDir = (
         project.findProperty("audioHapticsSdkDir")
                 ?: localProperties.getProperty("audioHapticsSdkDir")
@@ -50,7 +50,7 @@ android {
 
     compileSdkVersion 36
 
-    namespace 'com.limelight'
+    namespace 'com.sour.lumaduo'
 
     defaultConfig {
         minSdk 22
@@ -62,10 +62,9 @@ android {
         // 强调色会让它直接构建失败；这些 PNG 在 22+ 设备上本来也永远不会被用到）。
         vectorDrawables.useSupportLibrary = true
 
-        // 记录最近一次发布的版本。发版时由 CI 依据 tag 和发布历史覆写
-        // （见 .github/release/version-code.sh）。
-        versionName "12.15.7"
-        versionCode = 121507001
+        // LumaDuo starts its own version line; upstream history stays in git.
+        versionName "0.1.0"
+        versionCode = 1
 
         // Optional GitHub OAuth App client ID. Enable Device Flow on the OAuth app,
         // then set githubOAuthClientId in local.properties, pass -PgithubOAuthClientId=...,
@@ -110,7 +109,7 @@ android {
                 }
             }
 
-            applicationId "com.limelight.root"
+            applicationId "com.sour.lumaduo.root"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "true"
         }
@@ -122,7 +121,7 @@ android {
                 }
             }
 
-            applicationId "com.limelight"
+            applicationId "com.sour.lumaduo"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "false"
         }
@@ -180,7 +179,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".vplus_debug"
+            applicationIdSuffix ".debug"
             resValue "string", "app_label", audioHapticsAppLabel
             resValue "string", "app_label_root", audioHapticsAppLabel
 
@@ -219,9 +218,8 @@ android {
             // is to please change the applicationId before you publish.
             //
             // TL;DR: Leave the following line alone!
-            applicationIdSuffix ".qiin"
             resValue "string", "app_label", audioHapticsAppLabel
-            resValue "string", "app_label_root", "Moonlight (Root)"
+            resValue "string", "app_label_root", "LumaDuo (Root)"
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

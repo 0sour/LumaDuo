@@ -13,7 +13,7 @@ plugins {
 }
 
 android {
-    namespace 'com.limelight.framegen'
+    namespace 'com.sour.lumaduo.framegen'
     compileSdk 36
     ndkVersion "28.2.13676358"
 

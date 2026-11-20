@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
-    <com.limelight.ui.StreamView
+    <com.sour.lumaduo.ui.StreamView
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,9 +21,9 @@
         android:focusedByDefault="true"
         android:defaultFocusHighlightEnabled="false">
         <requestFocus />
-    </com.limelight.ui.StreamView>
+    </com.sour.lumaduo.ui.StreamView>
 
-    <com.limelight.ui.CursorView
+    <com.sour.lumaduo.ui.CursorView
         android:id="@+id/cursorOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -201,7 +201,7 @@
             android:includeFontPadding="false"
             android:gravity="center_vertical" />
 
-        <com.limelight.perfhud.PerfHudView
+        <com.sour.lumaduo.perfhud.PerfHudView
             android:id="@+id/perfHud"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

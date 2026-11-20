@@ -99,7 +99,7 @@ void teardown(Instance& instance) {
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_usbip_NativeUsbIp_start(JNIEnv* env, jclass) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_start(JNIEnv* env, jclass) {
     std::lock_guard lock(mutex);
     jlong handle = 0;
     bool acquired = false;
@@ -142,7 +142,7 @@ Java_com_limelight_usbip_NativeUsbIp_start(JNIEnv* env, jclass) {
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_limelight_usbip_NativeUsbIp_localPort(JNIEnv* env, jclass, jlong handle) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_localPort(JNIEnv* env, jclass, jlong handle) {
     std::lock_guard lock(mutex);
     Instance* instance = find(handle);
     if (!instance) {
@@ -153,7 +153,7 @@ Java_com_limelight_usbip_NativeUsbIp_localPort(JNIEnv* env, jclass, jlong handle
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_usbip_NativeUsbIp_authorizeLocalConnection(JNIEnv* env, jclass, jlong handle,
+Java_com_sour_lumaduo_usbip_NativeUsbIp_authorizeLocalConnection(JNIEnv* env, jclass, jlong handle,
                                                               jint sourcePort) {
     std::lock_guard lock(mutex);
     Instance* instance = find(handle);
@@ -166,7 +166,7 @@ Java_com_limelight_usbip_NativeUsbIp_authorizeLocalConnection(JNIEnv* env, jclas
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_usbip_NativeUsbIp_revokeLocalConnection(JNIEnv*, jclass, jlong handle, jint sourcePort) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_revokeLocalConnection(JNIEnv*, jclass, jlong handle, jint sourcePort) {
     if (sourcePort < 1 || sourcePort > 65535) return;
     std::lock_guard lock(mutex);
     Instance* instance = find(handle);
@@ -177,7 +177,7 @@ Java_com_limelight_usbip_NativeUsbIp_revokeLocalConnection(JNIEnv*, jclass, jlon
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_limelight_usbip_NativeUsbIp_bind(JNIEnv* env, jclass, jlong handle, jint fd) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_bind(JNIEnv* env, jclass, jlong handle, jint fd) {
     std::lock_guard lock(mutex);
     Instance* instance = find(handle);
     int ownedFd = -1;
@@ -218,7 +218,7 @@ Java_com_limelight_usbip_NativeUsbIp_bind(JNIEnv* env, jclass, jlong handle, jin
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_usbip_NativeUsbIp_unbind(JNIEnv* env, jclass, jlong handle, jstring busId) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_unbind(JNIEnv* env, jclass, jlong handle, jstring busId) {
     std::lock_guard lock(mutex);
     Instance* instance = find(handle);
     if (!instance || !instance->server) {
@@ -263,7 +263,7 @@ Java_com_limelight_usbip_NativeUsbIp_unbind(JNIEnv* env, jclass, jlong handle, j
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_usbip_NativeUsbIp_stop(JNIEnv* env, jclass, jlong handle) {
+Java_com_sour_lumaduo_usbip_NativeUsbIp_stop(JNIEnv* env, jclass, jlong handle) {
     std::lock_guard lock(mutex);
     auto found = instances.find(handle);
     if (found == instances.end()) return;

@@ -1,7 +1,7 @@
 plugins { id 'com.android.library' }
 
 android {
-    namespace 'com.limelight.usbip'
+    namespace 'com.sour.lumaduo.usbip'
     compileSdk 36
     ndkVersion '28.2.13676358'
     defaultConfig {

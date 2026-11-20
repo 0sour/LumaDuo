@@ -1,5 +1,5 @@
 param(
-    [string]$Package = "com.limelight.vplus_debug",
+    [string]$Package = "com.sour.lumaduo.vplus_debug",
     [string]$DeviceSerial = "",
     [string]$HostName = "Mock Paired PC",
     [string]$Uuid = "MOCK-PC-PAIRING-UUID",

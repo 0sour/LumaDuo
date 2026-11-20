@@ -33,7 +33,7 @@
 
     </RelativeLayout>
 
-    <com.limelight.ui.ExpressiveToolbarButton
+    <com.sour.lumaduo.ui.ExpressiveToolbarButton
         android:id="@+id/settingsButton"
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
@@ -45,7 +45,7 @@
         android:layout_alignParentLeft="true"
         style="?android:attr/borderlessButtonStyle"/>
 
-    <com.limelight.ui.ExpressiveToolbarButton
+    <com.sour.lumaduo.ui.ExpressiveToolbarButton
         android:id="@+id/aboutButton"
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
@@ -59,7 +59,7 @@
         style="?android:attr/borderlessButtonStyle"/>
 
     <!-- EasyTier 控制按钮 -->
-    <com.limelight.ui.ExpressiveToolbarButton
+    <com.sour.lumaduo.ui.ExpressiveToolbarButton
         android:id="@+id/easyTierControlButton"
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"
@@ -72,7 +72,7 @@
         android:src="@drawable/ic_network_control"
         style="?android:attr/borderlessButtonStyle"/>
 
-    <com.limelight.ui.ExpressiveToolbarButton
+    <com.sour.lumaduo.ui.ExpressiveToolbarButton
         android:id="@+id/pcToolbarMenuButton"
         android:layout_width="@dimen/pc_toolbar_button_size"
         android:layout_height="@dimen/pc_toolbar_button_size"

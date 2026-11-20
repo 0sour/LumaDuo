@@ -7,7 +7,7 @@
       强制覆盖：framegen 功能本身在 SDK<29 上会通过 FramegenInterceptor.isAvailable()
       返回 false 自动禁用，因此低版本设备不会触达 framegen 代码。
     -->
-    <uses-sdk tools:overrideLibrary="com.limelight.framegen,rikka.shizuku.api,rikka.shizuku.provider,rikka.shizuku.shared,rikka.shizuku.aidl" />
+    <uses-sdk tools:overrideLibrary="com.sour.lumaduo.framegen,rikka.shizuku.api,rikka.shizuku.provider,rikka.shizuku.shared,rikka.shizuku.aidl" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -105,8 +105,8 @@
         android:isGame="true"
         android:banner="@drawable/atv_banner"
         android:appCategory="game"
-        android:icon="@mipmap/ic_launcher_saba"
-        android:roundIcon="@mipmap/ic_launcher_saba"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:installLocation="auto"
         android:gwpAsanMode="always"
         android:localeConfig="@xml/locales_config"
@@ -193,8 +193,8 @@
             android:exported="true"
             android:resizeableActivity="true"
             android:banner="@drawable/atv_banner"
-            android:icon="@mipmap/ic_launcher_saba"
-            android:roundIcon="@mipmap/ic_launcher_saba"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:label="@string/app_label"
             android:theme="@style/Theme.App.Starting"
             android:enableOnBackInvokedCallback="true"
@@ -217,8 +217,8 @@
             android:exported="true"
             android:targetActivity=".PcView"
             android:banner="@drawable/atv_banner"
-            android:icon="@mipmap/ic_launcher_saba"
-            android:roundIcon="@mipmap/ic_launcher_saba"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:label="@string/app_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -236,8 +236,8 @@
             android:exported="true"
             android:targetActivity=".PcView"
             android:banner="@drawable/atv_banner"
-            android:icon="@mipmap/ic_launcher_saba_dark"
-            android:roundIcon="@mipmap/ic_launcher_saba_dark"
+            android:icon="@mipmap/ic_launcher_round"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:label="@string/app_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -432,7 +432,7 @@
             android:name=".utils.ConfigurationSyncReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.limelight.action.RUN_CONFIG_SYNC" />
+                <action android:name="com.sour.lumaduo.action.RUN_CONFIG_SYNC" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

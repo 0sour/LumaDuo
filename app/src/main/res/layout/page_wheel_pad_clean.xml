@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.limelight.binding.input.advance_setting.superpage.SuperPageLayout
+<com.sour.lumaduo.binding.input.advance_setting.superpage.SuperPageLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="320dp"
@@ -60,7 +60,7 @@
                         android:text="@string/layout_page_wheel_pad_text_c814c"
                         android:textSize="12sp"
                         android:paddingBottom="4dp"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                    <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                         android:id="@+id/page_wheel_pad_center_text"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
@@ -90,7 +90,7 @@
                             android:layout_weight="1"
                             android:text="@string/layout_page_wheel_pad_text_43868"
                             android:textSize="13sp"/>
-                        <com.limelight.utils.AppSwitchView
+                        <com.sour.lumaduo.utils.AppSwitchView
                             style="@style/AppSwitchWidget"
                             android:id="@+id/page_wheel_pad_popup_at_center_switch"/>
                     </LinearLayout>
@@ -106,7 +106,7 @@
                             android:layout_weight="1"
                             android:text="@string/layout_page_wheel_pad_text_91286"
                             android:textSize="13sp"/>
-                        <com.limelight.utils.AppSwitchView
+                        <com.sour.lumaduo.utils.AppSwitchView
                             style="@style/AppSwitchWidget"
                             android:id="@+id/page_wheel_pad_preview_group_switch"/>
                     </LinearLayout>
@@ -129,7 +129,7 @@
                     android:textSize="14sp"
                     android:paddingBottom="8dp"/>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_segment_count"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -156,14 +156,14 @@
                     android:layout_marginBottom="4dp"
                     android:background="@drawable/crown_config_input_bg" />
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_size"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginVertical="4dp"
                     app:text="@string/apptext_pg_wheel_pad_4b2d6" />
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_inner_radius"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -220,21 +220,21 @@
                     android:textSize="14sp"
                     android:paddingBottom="8dp"/>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_central_x"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginVertical="4dp"
                     app:text="X" />
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_central_y"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginVertical="4dp"
                     app:text="Y" />
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_thick"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -244,7 +244,7 @@
                     app:min="0"
                     app:progress="5"/>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_layer"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -288,7 +288,7 @@
                             android:text="@string/layout_page_analog_stick_text_9b4ba"
                             android:textSize="12sp"
                             android:paddingBottom="4dp"/>
-                        <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                        <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                             android:id="@+id/page_wheel_pad_normal_color"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
@@ -308,7 +308,7 @@
                             android:text="@string/layout_page_wheel_pad_text_97f5a"
                             android:textSize="12sp"
                             android:paddingBottom="4dp"/>
-                        <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                        <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                             android:id="@+id/page_wheel_pad_pressed_color"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
@@ -328,7 +328,7 @@
                         android:text="@string/layout_page_analog_stick_text_4573a"
                         android:textSize="12sp"
                         android:paddingBottom="4dp"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                    <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                         android:id="@+id/page_wheel_pad_background_color"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -354,7 +354,7 @@
                     android:textSize="14sp"
                     android:paddingBottom="8dp"/>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_text_size"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -373,7 +373,7 @@
                         android:text="@string/layout_page_wheel_pad_text_3ed82"
                         android:textSize="12sp"
                         android:paddingBottom="4dp"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                    <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                         android:id="@+id/page_wheel_pad_normal_text_color"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -394,7 +394,7 @@
                         android:text="@string/layout_page_wheel_pad_text_pressed_text_color"
                         android:textSize="12sp"
                         android:paddingBottom="4dp"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                    <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                         android:id="@+id/page_wheel_pad_pressed_text_color"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -403,14 +403,14 @@
                         android:background="@drawable/crown_color_input_bg" />
                 </LinearLayout>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_trigger_text_size"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginVertical="4dp"
                     app:text="@string/apptext_pg_wheel_pad_6c613"/>
                 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/page_wheel_pad_center_text_size"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -428,7 +428,7 @@
                         android:text="@string/layout_page_wheel_pad_text_58796"
                         android:textSize="12sp"
                         android:paddingBottom="4dp"/>
-                    <com.limelight.binding.input.advance_setting.superpage.ElementEditText
+                    <com.sour.lumaduo.binding.input.advance_setting.superpage.ElementEditText
                         android:id="@+id/page_wheel_pad_center_text_color"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -476,4 +476,4 @@
 
         </LinearLayout>
     </ScrollView>
-</com.limelight.binding.input.advance_setting.superpage.SuperPageLayout>
+</com.sour.lumaduo.binding.input.advance_setting.superpage.SuperPageLayout>

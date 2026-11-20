@@ -2,10 +2,10 @@
 -dontobfuscate
 
 # Our code
--keep class com.limelight.binding.input.evdev.* {*;}
+-keep class com.sour.lumaduo.binding.input.evdev.* {*;}
 
 # Moonlight common
--keep class com.limelight.nvstream.jni.* {*;}
+-keep class com.sour.lumaduo.nvstream.jni.* {*;}
 
 # Okio
 -keep class sun.misc.Unsafe {*;}
@@ -28,7 +28,7 @@
 -dontwarn org.slf4j.**
 
 # Shizuku starts this service by class name in another process.
--keep class com.limelight.services.ShellService { *; }
--keep class com.limelight.services.IKeyboardAccessibilityShell { *; }
--keep class com.limelight.services.IKeyboardAccessibilityShell$Stub { *; }
--keep class com.limelight.services.IKeyboardAccessibilityShell$Stub$Proxy { *; }
+-keep class com.sour.lumaduo.services.ShellService { *; }
+-keep class com.sour.lumaduo.services.IKeyboardAccessibilityShell { *; }
+-keep class com.sour.lumaduo.services.IKeyboardAccessibilityShell$Stub { *; }
+-keep class com.sour.lumaduo.services.IKeyboardAccessibilityShell$Stub$Proxy { *; }

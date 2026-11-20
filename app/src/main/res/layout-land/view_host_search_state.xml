@@ -7,7 +7,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <com.limelight.ui.HostSearchRadarView
+    <com.sour.lumaduo.ui.HostSearchRadarView
         android:id="@+id/host_search_radar"
         android:layout_width="96dp"
         android:layout_height="96dp"

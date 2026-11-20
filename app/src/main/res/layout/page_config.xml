@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.limelight.binding.input.advance_setting.superpage.SuperPageLayout
+<com.sour.lumaduo.binding.input.advance_setting.superpage.SuperPageLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="320dp"
@@ -95,7 +95,7 @@
                         android:textColor="@color/crown_text_primary"
                         android:textSize="13sp" />
 
-                    <com.limelight.utils.AppSwitchView
+                    <com.sour.lumaduo.utils.AppSwitchView
                         style="@style/AppSwitchWidget"
                         android:id="@+id/mouse_enable_switch"
                         android:checked="true" />
@@ -117,7 +117,7 @@
                         android:textColor="@color/crown_text_primary"
                         android:textSize="13sp" />
 
-                    <com.limelight.utils.AppSwitchView
+                    <com.sour.lumaduo.utils.AppSwitchView
                         style="@style/AppSwitchWidget"
                         android:id="@+id/trackpad_enable_switch"
                         android:checked="true" />
@@ -140,13 +140,13 @@
                         android:textColor="@color/crown_text_primary"
                         android:textSize="13sp" />
 
-                    <com.limelight.utils.AppSwitchView
+                    <com.sour.lumaduo.utils.AppSwitchView
                         style="@style/AppSwitchWidget"
                         android:id="@+id/enhanced_touch_switch"
                         android:checked="false" />
                 </LinearLayout>
 
-                <com.limelight.utils.AppSwitchView
+                <com.sour.lumaduo.utils.AppSwitchView
                     style="@style/AppSwitchWidget"
                     android:id="@+id/apply_touchpad_sensitivity_switch"
                     android:layout_width="match_parent"
@@ -155,7 +155,7 @@
                     android:textColor="@color/crown_text_primary"
                     android:textSize="13sp" />
 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/mouse_sense_number_seekbar"
                     android:layout_width="match_parent"
                     android:layout_height="62dp"
@@ -165,7 +165,7 @@
                     app:progress="100"
                     app:text="@string/apptext_pg_config_835d4" />
 
-                <com.limelight.utils.AppSwitchView
+                <com.sour.lumaduo.utils.AppSwitchView
                     style="@style/AppSwitchWidget"
                     android:id="@+id/apply_mouse_wheel_speed_switch"
                     android:layout_width="match_parent"
@@ -174,7 +174,7 @@
                     android:textColor="@color/crown_text_primary"
                     android:textSize="13sp" />
 
-                <com.limelight.binding.input.advance_setting.superpage.NumberSeekbar
+                <com.sour.lumaduo.binding.input.advance_setting.superpage.NumberSeekbar
                     android:id="@+id/mouse_wheel_speed_number_seekbar"
                     android:layout_width="match_parent"
                     android:layout_height="62dp"
@@ -219,7 +219,7 @@
                         android:textColor="@color/crown_text_primary"
                         android:textSize="13sp" />
 
-                    <com.limelight.utils.AppSwitchView
+                    <com.sour.lumaduo.utils.AppSwitchView
                         style="@style/AppSwitchWidget"
                         android:id="@+id/game_vibrator_enable_switch"
                         android:checked="true" />
@@ -241,7 +241,7 @@
                         android:textColor="@color/crown_text_primary"
                         android:textSize="13sp" />
 
-                    <com.limelight.utils.AppSwitchView
+                    <com.sour.lumaduo.utils.AppSwitchView
                         style="@style/AppSwitchWidget"
                         android:id="@+id/button_vibrator_enable_switch"
                         android:checked="true" />
@@ -309,4 +309,4 @@
             android:src="@drawable/phc_action_check"
             android:tint="@color/crown_text_primary" />
     </LinearLayout>
-</com.limelight.binding.input.advance_setting.superpage.SuperPageLayout>
+</com.sour.lumaduo.binding.input.advance_setting.superpage.SuperPageLayout>

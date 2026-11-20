@@ -7,107 +7,107 @@
 -keep class androidx.compose.** { *; }
 
 # Cross-APK instrumentation tests inspect dialog recreation and focus state.
--keepclassmembers class com.limelight.utils.AboutDialogLauncher {
+-keepclassmembers class com.sour.lumaduo.utils.AboutDialogLauncher {
 	*** dialogSnapshot*(...);
 }
--keep class com.limelight.utils.AboutDialogLauncher$DialogSnapshot { *; }
+-keep class com.sour.lumaduo.utils.AboutDialogLauncher$DialogSnapshot { *; }
 
 # Instrumentation invokes these target-APK symbols after the debug APK is minified.
--keepclassmembers class com.limelight.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper {
+-keepclassmembers class com.sour.lumaduo.binding.input.advance_setting.sqlite.SuperConfigDatabaseHelper {
     public java.lang.Object queryElementAttribute(long, long, java.lang.String);
 }
--keep class com.limelight.grid.PcCardDecor { *; }
--keep class com.limelight.utils.AppTheme { *; }
--keep class com.limelight.utils.BgAccent { *; }
--keep class com.limelight.gamemenu.TouchPointerSensitivity** { *; }
--keep class com.limelight.gamemenu.TouchPointerPreset** { *; }
--keep class com.limelight.gamemenu.GameMenuCardsKt { *; }
+-keep class com.sour.lumaduo.grid.PcCardDecor { *; }
+-keep class com.sour.lumaduo.utils.AppTheme { *; }
+-keep class com.sour.lumaduo.utils.BgAccent { *; }
+-keep class com.sour.lumaduo.gamemenu.TouchPointerSensitivity** { *; }
+-keep class com.sour.lumaduo.gamemenu.TouchPointerPreset** { *; }
+-keep class com.sour.lumaduo.gamemenu.GameMenuCardsKt { *; }
 # USB panel instrumentation renders state and exercises controller navigation.
--keep class com.limelight.UsbDevicePanelKt { *; }
--keep class com.limelight.UsbPanelDevice { *; }
--keep class com.limelight.UsbDeviceType** { *; }
--keep class com.limelight.utils.AppActionSheet** { *; }
--keep class com.limelight.ui.ControllerInputKt {
+-keep class com.sour.lumaduo.UsbDevicePanelKt { *; }
+-keep class com.sour.lumaduo.UsbPanelDevice { *; }
+-keep class com.sour.lumaduo.UsbDeviceType** { *; }
+-keep class com.sour.lumaduo.utils.AppActionSheet** { *; }
+-keep class com.sour.lumaduo.ui.ControllerInputKt {
     public static boolean isGamepadNavigationSource(android.view.KeyEvent);
 }
 # Per-app settings instrumentation verifies the JSON/Intent round trip after R8.
--keep class com.limelight.utils.AppSettingsManager {
+-keep class com.sour.lumaduo.utils.AppSettingsManager {
     public <init>(android.content.Context);
-    public static final com.limelight.utils.AppSettingsManager$Companion Companion;
-    public void saveAppLastSettings(java.lang.String, com.limelight.nvstream.http.NvApp, com.limelight.preferences.PreferenceConfiguration);
-    public com.limelight.preferences.PreferenceConfiguration getAppLastSettings(java.lang.String, com.limelight.nvstream.http.NvApp);
-    public com.limelight.utils.LastSettingsSummary getLastSettingsSummary(java.lang.String, com.limelight.nvstream.http.NvApp);
-    public boolean applyLastSettingsFromIntent(android.content.Intent, com.limelight.preferences.PreferenceConfiguration);
+    public static final com.sour.lumaduo.utils.AppSettingsManager$Companion Companion;
+    public void saveAppLastSettings(java.lang.String, com.sour.lumaduo.nvstream.http.NvApp, com.sour.lumaduo.preferences.PreferenceConfiguration);
+    public com.sour.lumaduo.preferences.PreferenceConfiguration getAppLastSettings(java.lang.String, com.sour.lumaduo.nvstream.http.NvApp);
+    public com.sour.lumaduo.utils.LastSettingsSummary getLastSettingsSummary(java.lang.String, com.sour.lumaduo.nvstream.http.NvApp);
+    public boolean applyLastSettingsFromIntent(android.content.Intent, com.sour.lumaduo.preferences.PreferenceConfiguration);
 }
--keep class com.limelight.utils.AppSettingsManager$Companion {
-    public void addLastSettingsToIntent(android.content.Intent, com.limelight.preferences.PreferenceConfiguration);
+-keep class com.sour.lumaduo.utils.AppSettingsManager$Companion {
+    public void addLastSettingsToIntent(android.content.Intent, com.sour.lumaduo.preferences.PreferenceConfiguration);
 }
--keep class com.limelight.utils.LastSettingsSummary {
+-keep class com.sour.lumaduo.utils.LastSettingsSummary {
     public java.util.List getRows();
 }
--keepclassmembers class com.limelight.nvstream.http.NvApp {
+-keepclassmembers class com.sour.lumaduo.nvstream.http.NvApp {
     public <init>(java.lang.String, int, boolean);
 }
--keepclassmembers class com.limelight.preferences.IconListPreference {
+-keepclassmembers class com.sour.lumaduo.preferences.IconListPreference {
     public int[] getEntryIcons();
 }
--keepclassmembers class com.limelight.preferences.DisplayChoicePreference {
+-keepclassmembers class com.sour.lumaduo.preferences.DisplayChoicePreference {
     public java.util.Set getEnabledValues();
 }
 
 # Virtual-controller instrumentation calls across the target/test APK boundary.
--keep class com.limelight.binding.input.virtual_controller.** { *; }
+-keep class com.sour.lumaduo.binding.input.virtual_controller.** { *; }
 
 # Instrumentation exercises constructors and IME metadata across the APK boundary.
--keepclassmembers class com.limelight.ui.StreamView {
+-keepclassmembers class com.sour.lumaduo.ui.StreamView {
     public <init>(...);
     public void setTextInputEnabled(boolean);
     public boolean isTextInputEnabled();
 }
 
 # Cursor instrumentation checks negotiated mode across the target/test APK boundary.
--keepclassmembers class com.limelight.CursorServiceManager {
+-keepclassmembers class com.sour.lumaduo.CursorServiceManager {
     public boolean isServiceRunning();
 }
 
 # Remote-IME instrumentation constructs the controller via default arguments and
 # copies RemoteTextContext fixtures across the APK boundary.
--keep class com.limelight.utils.RemoteImeController { <init>(...); }
--keep class com.limelight.nvstream.RemoteTextContext { *; }
+-keep class com.sour.lumaduo.utils.RemoteImeController { <init>(...); }
+-keep class com.sour.lumaduo.nvstream.RemoteTextContext { *; }
 
 # Display-panel instrumentation constructs state and calls the target APK's
 # composables/persistence seam. These symbols must retain their cross-APK ABI.
 # Test composables also read Compose-generated $stable fields on these models.
--keep class com.limelight.gamemenu.GameMenuScreenKt {
+-keep class com.sour.lumaduo.gamemenu.GameMenuScreenKt {
     public static void GameMenuScreen(...);
 }
--keep class com.limelight.gamemenu.GameMenuCallbacks { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.GameMenuComposeUiState { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.GameMenuVisibleCards { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.GameMenuGuideDismissController { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.BitrateCardState { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.DisplayChoice { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.DisplaySettingsDraft { <init>(...); public static final int $stable; }
--keepclassmembers class com.limelight.gamemenu.SensitivityParameter {
+-keep class com.sour.lumaduo.gamemenu.GameMenuCallbacks { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.GameMenuComposeUiState { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.GameMenuVisibleCards { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.GameMenuGuideDismissController { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.BitrateCardState { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.DisplayChoice { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.DisplaySettingsDraft { <init>(...); public static final int $stable; }
+-keepclassmembers class com.sour.lumaduo.gamemenu.SensitivityParameter {
     public static final int $stable;
 }
--keepclassmembers class com.limelight.preferences.TouchpadInputValues {
+-keepclassmembers class com.sour.lumaduo.preferences.TouchpadInputValues {
     public <init>(...);
 }
--keep class com.limelight.gamemenu.AudioHapticsCardState { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.WaveformHapticsCardState { <init>(...); public static final int $stable; }
--keep class com.limelight.gamemenu.GyroCardState { <init>(...); public static final int $stable; }
--keepclassmembers class com.limelight.gamemenu.BitrateCardController {
-    public static final com.limelight.gamemenu.BitrateCardController$Companion Companion;
+-keep class com.sour.lumaduo.gamemenu.AudioHapticsCardState { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.WaveformHapticsCardState { <init>(...); public static final int $stable; }
+-keep class com.sour.lumaduo.gamemenu.GyroCardState { <init>(...); public static final int $stable; }
+-keepclassmembers class com.sour.lumaduo.gamemenu.BitrateCardController {
+    public static final com.sour.lumaduo.gamemenu.BitrateCardController$Companion Companion;
 }
--keep class com.limelight.gamemenu.BitrateCardController$Companion {
+-keep class com.sour.lumaduo.gamemenu.BitrateCardController$Companion {
     *** persistDisplayDraft*(...);
 }
--keep class com.limelight.DisplayReconnectSettings** { *; }
--keepclassmembers class com.limelight.preferences.DisplayPreferenceValues {
+-keep class com.sour.lumaduo.DisplayReconnectSettings** { *; }
+-keepclassmembers class com.sour.lumaduo.preferences.DisplayPreferenceValues {
     public java.util.Map of(...);
 }
--keepclassmembers class com.limelight.preferences.PreferenceConfiguration {
+-keepclassmembers class com.sour.lumaduo.preferences.PreferenceConfiguration {
     public <init>();
     public *** *Width(...);
     public *** *Height(...);
@@ -122,13 +122,13 @@
     public boolean getShowAudioHapticsCard();
     public int getPerfOverlayBgOpacity();
 }
--keepclassmembers class com.limelight.preferences.PreferenceConfiguration$Companion {
+-keepclassmembers class com.sour.lumaduo.preferences.PreferenceConfiguration$Companion {
     public int getDefaultBitrate(java.lang.String, java.lang.String);
-    public com.limelight.preferences.PreferenceConfiguration readPreferences(android.content.Context, android.view.Display);
+    public com.sour.lumaduo.preferences.PreferenceConfiguration readPreferences(android.content.Context, android.view.Display);
 }
 
 # Feature-page navigation is exercised by instrumentation after R8.
--keep class com.limelight.preferences.StreamSettings$SettingsFragment {
+-keep class com.sour.lumaduo.preferences.StreamSettings$SettingsFragment {
     public <init>();
     public java.lang.String getActiveSettingsScreenKey();
     public void applySearchFilter(java.lang.String);
@@ -137,12 +137,12 @@
 }
 
 # Backup instrumentation exercises the public exporter/importer across APKs.
--keep class com.limelight.utils.ConfigurationSyncManager {
+-keep class com.sour.lumaduo.utils.ConfigurationSyncManager {
     public <init>(android.content.Context);
     public java.lang.String exportSyncPackage();
-    public com.limelight.utils.ConfigurationSyncManager$ImportResult importSyncPackage(java.lang.String, java.lang.String);
+    public com.sour.lumaduo.utils.ConfigurationSyncManager$ImportResult importSyncPackage(java.lang.String, java.lang.String);
 }
--keep class com.limelight.utils.ConfigurationSyncManager$ImportResult {
+-keep class com.sour.lumaduo.utils.ConfigurationSyncManager$ImportResult {
     public int getDefaultPreferencesImported();
     public int getTotalImported();
     public int getCrownProfilesFailed();

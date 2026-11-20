@@ -9,7 +9,7 @@ typedef struct {
 } OpusContext;
 
 JNIEXPORT jlong JNICALL
-Java_com_limelight_binding_audio_OpusEncoder_nativeInit(JNIEnv* env, jclass clazz,
+Java_com_sour_lumaduo_binding_audio_OpusEncoder_nativeInit(JNIEnv* env, jclass clazz,
                                                       jint sampleRate, jint channels, jint bitrate) {
     int error;
     OpusContext* ctx = (OpusContext*)malloc(sizeof(OpusContext));
@@ -50,7 +50,7 @@ Java_com_limelight_binding_audio_OpusEncoder_nativeInit(JNIEnv* env, jclass claz
 }
 
 JNIEXPORT jbyteArray
-Java_com_limelight_binding_audio_OpusEncoder_nativeEncode(JNIEnv* env, jclass clazz,
+Java_com_sour_lumaduo_binding_audio_OpusEncoder_nativeEncode(JNIEnv* env, jclass clazz,
                                                         jlong handle, jbyteArray pcmData,
                                                         jint offset, jint length) {
     if (handle == 0) {
@@ -103,7 +103,7 @@ Java_com_limelight_binding_audio_OpusEncoder_nativeEncode(JNIEnv* env, jclass cl
 }
 
 JNIEXPORT void JNICALL
-Java_com_limelight_binding_audio_OpusEncoder_nativeDestroy(JNIEnv* env, jclass clazz, jlong handle) {
+Java_com_sour_lumaduo_binding_audio_OpusEncoder_nativeDestroy(JNIEnv* env, jclass clazz, jlong handle) {
     OpusContext* ctx = (OpusContext*)handle;
     if (ctx) {
         if (ctx->encoder) {

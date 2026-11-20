@@ -111,9 +111,9 @@ JNIEnv* GetThreadEnv(void) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_init(JNIEnv *env, jclass clazz) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_init(JNIEnv *env, jclass clazz) {
     (*env)->GetJavaVM(env, &JVM);
-    GlobalBridgeClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/limelight/nvstream/jni/MoonBridge"));
+    GlobalBridgeClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/sour/lumaduo/nvstream/jni/MoonBridge"));
     BridgeDrSetupMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrSetup", "(IIII)I");
     BridgeDrStartMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrStart", "()V");
     BridgeDrStopMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrStop", "()V");
@@ -926,7 +926,7 @@ hasFastAes() {
 }
 
 JNIEXPORT jint JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_getNegotiatedDynamicHdrFormat(JNIEnv *env, jclass clazz) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_getNegotiatedDynamicHdrFormat(JNIEnv *env, jclass clazz) {
     return LiGetNegotiatedDynamicHdrFormat();
 }
 
@@ -937,7 +937,7 @@ static int s_dynamicHdrDirectSurface;
 static int s_dynamicHdrPreference;
 
 JNIEXPORT void JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_setDynamicHdrNegotiation(JNIEnv *env, jclass clazz,
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_setDynamicHdrNegotiation(JNIEnv *env, jclass clazz,
                                                                     jint caps,
                                                                     jint dolbyVisionDirectSurface,
                                                                     jint dynamicHdrPreference) {
@@ -947,14 +947,14 @@ Java_com_limelight_nvstream_jni_MoonBridge_setDynamicHdrNegotiation(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_setAuthoredHapticsEnabled(JNIEnv *env, jclass clazz, jboolean enabled) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_setAuthoredHapticsEnabled(JNIEnv *env, jclass clazz, jboolean enabled) {
     (void)env;
     (void)clazz;
     s_authoredHapticsEnabled = enabled;
 }
 
 JNIEXPORT jint JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_startConnection(JNIEnv *env, jclass clazz,
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_startConnection(JNIEnv *env, jclass clazz,
                                                            jstring address, jstring appVersion, jstring gfeVersion,
                                                            jstring rtspSessionUrl, jint serverCodecModeSupport,
                                                            jint width, jint height, jint fps,

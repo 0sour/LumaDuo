@@ -5,7 +5,7 @@ plugins {
 def enableX86TestAbi = (project.findProperty('enableX86TestAbi') ?: 'false').toString().toBoolean()
 
 android {
-    namespace 'com.limelight.pyrowave.runtime'
+    namespace 'com.sour.lumaduo.pyrowave.runtime'
     compileSdk 36
     ndkVersion '28.2.13676358'
 

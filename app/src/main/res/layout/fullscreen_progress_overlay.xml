@@ -16,7 +16,7 @@
             android:scaleType="centerCrop" />
 
         <!-- 中间完整图片 -->
-        <com.limelight.utils.AcrylicImageView
+        <com.sour.lumaduo.utils.AcrylicImageView
             android:id="@+id/appPosterBackgroundClear"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -55,7 +55,7 @@
         android:paddingStart="24dp"
         android:paddingEnd="24dp">
 
-        <com.limelight.ui.MoonwaxLoaderView
+        <com.sour.lumaduo.ui.MoonwaxLoaderView
             android:id="@+id/loading_moonwax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

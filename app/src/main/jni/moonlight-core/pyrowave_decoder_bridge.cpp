@@ -298,7 +298,7 @@ bool can_create_decoder(api_t &api, int width, int height) {
 }  // namespace
 
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveGetCapabilities(JNIEnv *env, jclass) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveGetCapabilities(JNIEnv *env, jclass) {
   bool runtime_available = false;
   try {
     api_t api;
@@ -309,7 +309,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveGetCapabilities(JNIEnv *env, 
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveIsAvailableFor(
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveIsAvailableFor(
     JNIEnv *, jclass, jint width, jint height) {
   if (!valid_dimensions(width, height)) {
     return JNI_FALSE;
@@ -333,7 +333,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveIsAvailableFor(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveCreate(JNIEnv *, jclass, jint width, jint height, jint hdr_mode, jboolean full_range) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveCreate(JNIEnv *, jclass, jint width, jint height, jint hdr_mode, jboolean full_range) {
   // This is the SDR CPU-staging fallback. HDR must stay on the Vulkan
   // Surface path, which preserves 10-bit planes and the negotiated transfer.
   if (!valid_dimensions(width, height) || hdr_mode != 0) {
@@ -379,7 +379,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveCreate(JNIEnv *, jclass, jint
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveSetSurface(JNIEnv *env, jclass, jlong handle, jobject surface) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveSetSurface(JNIEnv *env, jclass, jlong handle, jobject surface) {
   auto *decoder = from_handle(handle);
   if (decoder == nullptr) {
     return;
@@ -399,7 +399,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveSetSurface(JNIEnv *env, jclas
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveSubmit(JNIEnv *env, jclass, jlong handle, jbyteArray data, jint length) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveSubmit(JNIEnv *env, jclass, jlong handle, jbyteArray data, jint length) {
   auto *decoder = from_handle(handle);
   if (decoder == nullptr || data == nullptr || length <= 0) {
     return -1;
@@ -480,7 +480,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveSubmit(JNIEnv *env, jclass, j
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveGetLastTimings(
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveGetLastTimings(
     JNIEnv *, jclass, jlong handle) {
   auto *decoder = from_handle(handle);
   if (decoder == nullptr) return 0;
@@ -495,7 +495,7 @@ Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveGetLastTimings(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_limelight_nvstream_jni_MoonBridge_pyrowaveDestroy(JNIEnv *, jclass, jlong handle) {
+Java_com_sour_lumaduo_nvstream_jni_MoonBridge_pyrowaveDestroy(JNIEnv *, jclass, jlong handle) {
   try {
     delete from_handle(handle);
   } catch (...) {

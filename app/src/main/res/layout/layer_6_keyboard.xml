@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="gone">
-    <com.limelight.binding.input.advance_setting.KeyboardTouchGuardLayout
+    <com.sour.lumaduo.binding.input.advance_setting.KeyboardTouchGuardLayout
         android:id="@+id/keyboard_content"
         style="@style/VirtualKeyboardStyle"
         android:orientation="vertical"
@@ -92,7 +92,7 @@
                     android:layout_marginBottom="4dp"/>
                 <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/keyboard_opacity" android:textColor="#88FFFFFF" android:textSize="8sp" android:gravity="center" android:layout_marginBottom="8dp"/>
-                <com.limelight.utils.AppSliderView
+                <com.sour.lumaduo.utils.AppSliderView
                     android:id="@+id/float_keyboard_seekbar"
                     android:progressBackgroundTint="@color/crown_input_border"
                     android:layout_width="160dp"
@@ -106,7 +106,7 @@
                     android:layout_marginBottom="40dp"/>
             </LinearLayout>
         </LinearLayout>
-    </com.limelight.binding.input.advance_setting.KeyboardTouchGuardLayout>
+    </com.sour.lumaduo.binding.input.advance_setting.KeyboardTouchGuardLayout>
 
     <!-- iOS Style Key Popup Overlay -->
     <TextView
