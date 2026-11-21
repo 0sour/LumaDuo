@@ -75,6 +75,7 @@ interface DuoStreamActions {
     fun hostKeyboard()
     fun sleepHost()
     fun unlockHost()
+    fun setControllerMouse(enabled: Boolean)
     fun mouseMove(dx: Float, dy: Float)
     fun mouseButton(button: Int)
     fun mouseButtonDown(button: Int)
@@ -225,9 +226,13 @@ fun DuoStreamConsole(
                                     mode = mode,
                                     scene = sceneState,
                                     settingsRepository = settingsRepository,
+                                    controllerMouse = state.controllerMouse,
                                     onChanged = { changed() },
                                     onEnterLocal = { actions.setMode(DuoStreamMode.LOCAL) },
                                     onResume = { actions.setMode(DuoStreamMode.PASSTHROUGH) },
+                                    onToggleControllerMouse = {
+                                        actions.setControllerMouse(!state.controllerMouse)
+                                    },
                                 )
                                 DuoStreamTab.CONNECTION -> ConnectionTab(
                                     state = state,
@@ -883,9 +888,11 @@ private fun InputTab(
     mode: DuoStreamMode,
     scene: DuoSettingsRepository.Snapshot,
     settingsRepository: DuoSettingsRepository,
+    controllerMouse: Boolean,
     onChanged: () -> Unit,
     onEnterLocal: () -> Unit,
     onResume: () -> Unit,
+    onToggleControllerMouse: () -> Unit,
 ) {
     DuoSettingRow(
         "输入模式",
@@ -936,6 +943,14 @@ private fun InputTab(
         })
     }
     DuoSettingRow(
+        "手柄鼠标模拟",
+        if (controllerMouse) "开" else "关",
+        detail = "用摇杆控制 PC 鼠标；速度在设置中调整",
+        isSwitch = true,
+        switchOn = controllerMouse,
+        onActivate = onToggleControllerMouse,
+    )
+    DuoSettingRow(
         "震动",
         scene.rumbleLabel,
         detail = "智能 / 仅本机 / 仅手柄",
@@ -947,9 +962,6 @@ private fun InputTab(
             onChanged()
         },
     )
-    if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow("USB 设备", "连接页", enabled = false)
-    }
 }
 
 @Composable
@@ -974,9 +986,6 @@ private fun ConnectionTab(
         enabled = false,
     )
     DuoSettingRow("EasyTier", remoteRuntime.virtualIp ?: state.easyTierLabel, detail = "虚拟网络", isSubpage = true, onActivate = onOpenRemote)
-    if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow("USB 设备", "${state.usbDeviceCount} 个", detail = "共享 / 释放 / 自动共享", enabled = false)
-    }
     DuoSettingRow(
         "网络测试",
         if (state.networkTestRunning) "测试中…" else state.networkTestLabel ?: "重新测速",

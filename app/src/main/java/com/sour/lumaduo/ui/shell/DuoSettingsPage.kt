@@ -274,6 +274,12 @@ fun DuoSettingsPage(
                         .padding(horizontal = 4.dp, vertical = 2.dp),
                 ) {
                     when (subpage) {
+                        "framePacing" -> FramePacingPage(
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChoose = ::choose,
+                        )
                         "display" -> DisplayPage(
                             repository = repository,
                             version = version,
@@ -320,6 +326,12 @@ fun DuoSettingsPage(
                             onRefresh = { version++ },
                             onChoose = ::choose,
                         )
+                        "controllerMouse" -> ControllerMousePage(
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChoose = ::choose,
+                        )
                         "touch" -> TouchPage(
                             repository = repository,
                             version = version,
@@ -347,6 +359,11 @@ fun DuoSettingsPage(
                         "advVideo" -> AdvancedPage(
                             "画面",
                             listOfNotNull(
+                                AdvancedEntry(
+                                    "帧节奏 / FEC",
+                                    "精确同步 · FEC · 渲染缩放",
+                                    "framePacing",
+                                ),
                                 AdvancedEntry(
                                     "显示与布局",
                                     "拉伸 · 位置 · 外接屏 · PiP",
@@ -378,6 +395,7 @@ fun DuoSettingsPage(
                             "输入",
                             listOfNotNull(
                                 AdvancedEntry("手柄", "多手柄 · JoyCon · 翻键 · USB", "gamepad"),
+                                AdvancedEntry("手柄鼠标", "摇杆速度 · D-pad 行为", "controllerMouse"),
                                 AdvancedEntry("触控", "双击拖拽 · 触屏键盘 · 增强分区", "touch"),
                                 AdvancedEntry("键盘与鼠标", "远程 IME · 中键 · 滚轮", "keyboard"),
                                 if (!BuildConfig.MINIMAL_EDITION) {
@@ -418,6 +436,7 @@ fun DuoSettingsPage(
 }
 
 private fun subpageTitle(id: String?): String = when (id) {
+    "framePacing" -> "帧节奏 / FEC"
     "display" -> "显示与布局"
     "overlay" -> "性能浮层"
     "experimental" -> "实验性"
@@ -425,6 +444,7 @@ private fun subpageTitle(id: String?): String = when (id) {
     "audioPass" -> "音频直通"
     "mic" -> "麦克风"
     "gamepad" -> "手柄"
+    "controllerMouse" -> "手柄鼠标"
     "touch" -> "触控"
     "keyboard" -> "键盘与鼠标"
     "osc" -> "虚拟手柄"
@@ -873,8 +893,12 @@ private fun NetworkParent(
     DuoSettingRow(
         title = "IPv6",
         value = "按主机启用",
-        detail = "在主机详情的高级项中切换",
-        enabled = false,
+        detail = "在主机详情的“更多”中切换",
+        isSubpage = true,
+        onActivate = {
+            onNotice("选择主机后，在“更多”菜单切换 IPv6")
+            onOpenHosts()
+        },
     )
 }
 
@@ -1194,13 +1218,101 @@ private fun QualityPage(
             onChanged()
         },
     )
-    DuoSettingRow(
-        title = "帧节奏 / FEC",
-        value = "高级",
-        detail = "精确同步、FEC 模式、渲染缩放",
-        isSubpage = true,
-        onActivate = { },
-        enabled = false,
+}
+
+@Composable
+private fun FramePacingPage(
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
+) {
+    val pacing = repository.getString("frame_pacing", "precise-sync")
+    val pacingLabel = when (pacing) {
+        "balanced" -> "均衡"
+        "latency" -> "最低延迟"
+        "smoothness" -> "最平滑"
+        "cap-fps" -> "均衡 + 限帧"
+        "experimental-low-latency" -> "实验性超低延迟"
+        else -> "精确同步"
+    }
+    DuoChoiceRow(
+        title = "帧节奏",
+        value = pacingLabel,
+        detail = "精确同步优先稳定，最低延迟优先响应",
+        options = listOf(
+            ChoiceOption("precise-sync", "精确同步（推荐）"),
+            ChoiceOption("balanced", "均衡"),
+            ChoiceOption("latency", "最低延迟"),
+            ChoiceOption("smoothness", "最平滑"),
+            ChoiceOption("cap-fps", "均衡 + 限帧"),
+            ChoiceOption("experimental-low-latency", "实验性超低延迟"),
+        ),
+        current = pacing,
+        onChoose = onChoose,
+        requiresReconnect = true,
+        onSelected = {
+            repository.putString("frame_pacing", it)
+            onRefresh()
+        },
+    )
+    val cadence = repository.getBoolean("checkbox_enable_host_cadence_precise_sync", true)
+    DuoSwitchRow(
+        title = "主机节奏精确同步",
+        checked = cadence,
+        detail = "使用主机显示节奏校准帧调度",
+        requiresReconnect = true,
+        onToggle = {
+            repository.putBoolean("checkbox_enable_host_cadence_precise_sync", !cadence)
+            onRefresh()
+        },
+    )
+    val fecMode = repository.getString("list_fec_mode", "host")
+    val fecLabel = when (fecMode) {
+        "automatic" -> "自动"
+        "fixed" -> "固定百分比"
+        else -> "跟随主机"
+    }
+    DuoChoiceRow(
+        title = "FEC 模式",
+        value = fecLabel,
+        detail = "前向纠错；无线网络丢包时更稳",
+        options = listOf(
+            ChoiceOption("host", "跟随主机"),
+            ChoiceOption("automatic", "自动"),
+            ChoiceOption("fixed", "固定百分比"),
+        ),
+        current = fecMode,
+        onChoose = onChoose,
+        requiresReconnect = true,
+        onSelected = {
+            repository.putString("list_fec_mode", it)
+            onRefresh()
+        },
+    )
+    if (fecMode == "fixed") {
+        val fec = repository.getInt("seekbar_fec_percentage", 20).coerceIn(0, 100)
+        DuoSliderRow(
+            title = "FEC 百分比",
+            valueLabel = "$fec%",
+            detail = "仅固定模式生效",
+            value = fec.toFloat(),
+            range = 0f..100f,
+            steps = 19,
+            onValueChange = { repository.putInt("seekbar_fec_percentage", it.toInt()) },
+            onValueChangeFinished = onRefresh,
+        )
+    }
+    val scale = repository.getInt("seekbar_resolutions_scale", 100).coerceIn(50, 400)
+    DuoSliderRow(
+        title = "主机渲染缩放",
+        valueLabel = "$scale%",
+        detail = "PC 端以缩放后的分辨率渲染",
+        value = scale.toFloat(),
+        range = 50f..400f,
+        steps = 69,
+        onValueChange = { repository.putInt("seekbar_resolutions_scale", it.toInt()) },
+        onValueChangeFinished = onRefresh,
     )
 }
 
@@ -1215,7 +1327,6 @@ private fun DisplayPage(
     val stretch = repository.getBoolean("checkbox_stretch_video", false)
     val reverse = repository.getBoolean("checkbox_reverse_resolution", false)
     val external = repository.getBoolean("use_external_display", false)
-    val pip = repository.getBoolean("checkbox_enable_pip", false)
     DuoSettingRow(
         title = "拉伸画面",
         value = if (stretch) "开" else "关",
@@ -1289,14 +1400,9 @@ private fun DisplayPage(
     }
     DuoSettingRow(
         title = "画中画",
-        value = if (pip) "开" else "关",
-        detail = "需要系统 PiP 支持",
-        isSwitch = true,
-        switchOn = pip,
-        onActivate = {
-            repository.putBoolean("checkbox_enable_pip", !pip)
-            onRefresh()
-        },
+        value = "延期",
+        detail = "按 D-043 暂不提供；代码保留",
+        enabled = false,
     )
 }
 
@@ -1557,6 +1663,9 @@ private fun MicPage(
     val processing = repository.getBoolean("checkbox_mic_volume_processing", false)
     val gain = repository.getBoolean("checkbox_mic_gain", false)
     val gainDb = repository.getInt("seekbar_mic_gain_db", 0)
+    val showButton = repository.getBoolean("checkbox_show_mic_button", true)
+    val buttonPosition = repository.getString("list_mic_button_position", "center_right")
+    val iconColor = repository.getString("list_mic_icon_color", "solid_white")
     DuoSettingRow(
         title = "启用麦克风",
         value = if (enabled) "开" else "关",
@@ -1564,6 +1673,75 @@ private fun MicPage(
         switchOn = enabled,
         onActivate = {
             repository.putBoolean("checkbox_enable_mic", !enabled)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "显示麦克风按钮",
+        checked = showButton,
+        detail = "串流画面上的悬浮按钮",
+        enabled = enabled,
+        requiresReconnect = true,
+        onToggle = {
+            repository.putBoolean("checkbox_show_mic_button", !showButton)
+            onRefresh()
+        },
+    )
+    DuoChoiceRow(
+        title = "按钮位置",
+        value = when (buttonPosition) {
+            "top_left" -> "左上"
+            "top_center" -> "上中"
+            "top_right" -> "右上"
+            "center_left" -> "左中"
+            "bottom_left" -> "左下"
+            "bottom_center" -> "下中"
+            "bottom_right" -> "右下"
+            else -> "右中"
+        },
+        options = listOf(
+            ChoiceOption("top_left", "左上"),
+            ChoiceOption("top_center", "上中"),
+            ChoiceOption("top_right", "右上"),
+            ChoiceOption("center_left", "左中"),
+            ChoiceOption("center_right", "右中"),
+            ChoiceOption("bottom_left", "左下"),
+            ChoiceOption("bottom_center", "下中"),
+            ChoiceOption("bottom_right", "右下"),
+        ),
+        current = buttonPosition,
+        enabled = enabled,
+        requiresReconnect = true,
+        onChoose = onChoose,
+        onSelected = {
+            repository.putString("list_mic_button_position", it)
+            onRefresh()
+        },
+    )
+    DuoChoiceRow(
+        title = "图标颜色",
+        value = when (iconColor) {
+            "gradient_blue" -> "蓝渐变"
+            "gradient_purple" -> "紫渐变"
+            "gradient_green" -> "绿渐变"
+            "gradient_orange" -> "橙渐变"
+            "gradient_red" -> "红渐变"
+            else -> "纯白"
+        },
+        options = listOf(
+            ChoiceOption("gradient_blue", "蓝渐变"),
+            ChoiceOption("gradient_purple", "紫渐变"),
+            ChoiceOption("gradient_green", "绿渐变"),
+            ChoiceOption("gradient_orange", "橙渐变"),
+            ChoiceOption("gradient_red", "红渐变"),
+            ChoiceOption("solid_white", "纯白"),
+        ),
+        current = iconColor,
+        enabled = enabled,
+        requiresReconnect = true,
+        onChoose = onChoose,
+        onSelected = {
+            repository.putString("list_mic_icon_color", it)
             onRefresh()
         },
     )
@@ -1712,6 +1890,48 @@ private fun GamepadPage(
             },
         )
     }
+}
+
+@Composable
+private fun ControllerMousePage(
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
+) {
+    val speed = repository.getInt("controller_mouse_speed_percent", 100).coerceIn(50, 200)
+    val dpad = repository.getString("controller_mouse_dpad_behavior", "scroll")
+    DuoSliderRow(
+        title = "指针速度",
+        valueLabel = "$speed%",
+        detail = "右摇杆模拟鼠标的移动倍率",
+        value = speed.toFloat(),
+        range = 50f..200f,
+        steps = 29,
+        onValueChange = { repository.putInt("controller_mouse_speed_percent", it.toInt()) },
+        onValueChangeFinished = onRefresh,
+    )
+    DuoChoiceRow(
+        title = "十字键行为",
+        value = if (dpad == "arrows") "方向键" else "滚轮",
+        detail = "手柄鼠标模式下 D-pad 的作用",
+        options = listOf(
+            ChoiceOption("scroll", "滚轮"),
+            ChoiceOption("arrows", "方向键"),
+        ),
+        current = dpad,
+        onChoose = onChoose,
+        onSelected = {
+            repository.putString("controller_mouse_dpad_behavior", it)
+            onRefresh()
+        },
+    )
+    DuoSettingRow(
+        title = "启用方式",
+        value = "控制台 · 输入",
+        detail = "串流中打开输入页，切换“手柄鼠标模拟”",
+        enabled = false,
+    )
 }
 
 @Composable

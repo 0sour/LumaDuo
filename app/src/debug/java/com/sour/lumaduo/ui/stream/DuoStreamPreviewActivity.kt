@@ -110,8 +110,12 @@ class DuoStreamPreviewActivity : ComponentActivity() {
             override fun hostKeyboard() = Unit
             override fun sleepHost() = Unit
             override fun unlockHost() = Unit
+            override fun setControllerMouse(enabled: Boolean) = Unit
             override fun mouseMove(dx: Float, dy: Float) = Unit
             override fun mouseButton(button: Int) = Unit
+            override fun mouseButtonDown(button: Int) = Unit
+            override fun mouseButtonUp(button: Int) = Unit
+            override fun mouseScroll(delta: Int) = Unit
             override fun sendKey(key: String, modifiers: Set<String>) = Unit
             override fun sendShortcut(label: String) = Unit
             override fun clearNotice() = Unit

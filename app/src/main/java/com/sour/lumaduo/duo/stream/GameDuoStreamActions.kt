@@ -86,6 +86,11 @@ class GameDuoStreamActions(
         controller.unlockHost()
     }
 
+    override fun setControllerMouse(enabled: Boolean) {
+        controller.setControllerMouseEmulation(enabled)
+        bridge.setControllerMouse(enabled)
+    }
+
     override fun mouseMove(dx: Float, dy: Float) {
         val x = dx.roundToInt()
         val y = dy.roundToInt()

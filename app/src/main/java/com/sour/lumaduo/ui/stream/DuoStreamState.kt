@@ -42,6 +42,7 @@ data class DuoStreamState(
     val configuredBitrateMbps: Int? = null,
     val codec: String = "—",
     val hdr: Boolean = false,
+    val controllerMouse: Boolean = false,
     val actualFps: Double? = null,
     val networkLatencyMs: Double? = null,
     val rttMs: Double? = null,

@@ -152,6 +152,10 @@ class DuoStreamBridge(
         _mode.value = mode
     }
 
+    fun setControllerMouse(enabled: Boolean) {
+        _state.update { it.copy(controllerMouse = enabled) }
+    }
+
     fun setNetworkTestRunning() {
         _state.update {
             it.copy(

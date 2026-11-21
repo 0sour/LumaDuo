@@ -10,6 +10,23 @@ All notable changes to LumaDuo are recorded here.
   Launchers that read the application label instead of the activity alias no
   longer fall back to the package name and now show **LumaDuo**.
 
+### Added
+
+- Host page: all/paired/unpaired filter chips, online→paired→name ordering,
+  multi-address selection with a real address sheet, and "restore last session"
+  across any online host with a running app.
+- Host actions: Sunshine WebUI opens the browser at the host's HTTPS Web UI;
+  "create desktop shortcut" pins a real launcher shortcut via `ShortcutHelper`.
+- Settings: a real frame-pacing/FEC page (pacing mode, host cadence sync, FEC
+  mode/percentage, host render scale), controller-mouse speed/D-pad options,
+  microphone button visibility/position/icon color, IPv6 jump to hosts, and a
+  remote EasyTier "restore default values" action.
+- Stream console input tab: controller-mouse-emulation toggle wired through
+  `StreamSessionController` to `ControllerHandler`, plus a matching
+  `DuoStreamState.controllerMouse` flag.
+- Removed dead minimal-edition rows for USB and replaced the PiP toggle with an
+  explicit D-043 deferred status so no visible control is a no-op.
+
 ### Changed
 
 - Repository cleanup for the first LumaDuo snapshot: removed V+ promo assets,

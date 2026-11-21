@@ -53,12 +53,22 @@ enum class DuoHostAction {
     UNLOCK,
     DELETE,
     MORE,
+    ADDRESS,
+    RESTORE,
+}
+
+enum class DuoHostFilter(val label: String) {
+    ALL("全部"),
+    PAIRED("已配对"),
+    UNPAIRED("未配对"),
 }
 
 @Composable
 fun DuoHostsPage(
     hosts: List<ComputerDetails>,
     selectedUuid: String?,
+    filter: DuoHostFilter,
+    onFilterChange: (DuoHostFilter) -> Unit,
     onSelect: (ComputerDetails) -> Unit,
     onAction: (ComputerDetails, DuoHostAction) -> Unit,
     onAdd: () -> Unit,
@@ -76,7 +86,18 @@ fun DuoHostsPage(
         ) {
             Column(Modifier.weight(1f).fillMaxSize()) {
                 DuoSectionHeader("最近主机", "${hosts.size} 台 · 实时")
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(5.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    DuoHostFilter.entries.forEach { entry ->
+                        DuoTextButton(
+                            entry.label,
+                            onClick = { onFilterChange(entry) },
+                            accent = entry == filter,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                Spacer(Modifier.height(5.dp))
                 if (hosts.isEmpty()) {
                     DuoEmpty(
                         title = "还没有主机",
@@ -268,6 +289,14 @@ private fun DuoHostDetail(
             )
         }
         Spacer(Modifier.height(8.dp))
+        if (host.availableAddresses.size > 1) {
+            DuoTextButton(
+                "切换地址 · ${host.availableAddresses.size}",
+                onClick = { onAction(host, DuoHostAction.ADDRESS) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(5.dp))
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             DuoChip(if (online) "在线" else "离线", if (online) LumaColors.Success else LumaColors.Disabled)
             DuoChip(if (paired) "已配对" else "未配对")

@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -104,6 +105,7 @@ interface DuoShellHost {
     fun clearPair()
     fun wake(host: ComputerDetails)
     fun delete(host: ComputerDetails)
+    fun selectAddress(host: ComputerDetails, address: ComputerDetails.AddressTuple)
     fun hostMore(host: ComputerDetails, action: DuoHostAction)
     fun addHost(host: String, port: Int, onResult: (String?) -> Unit)
     fun openApp(host: ComputerDetails, app: NvApp, useLastSettings: Boolean)
@@ -147,8 +149,10 @@ fun DuoShellScreen(
     modifier: Modifier = Modifier,
 ) {
     var selectedUuid by rememberSaveable { mutableStateOf("") }
+    var hostFilter by rememberSaveable { mutableStateOf(DuoHostFilter.ALL) }
     var appSheet by remember { mutableStateOf<NvApp?>(null) }
     var hostMore by remember { mutableStateOf<ComputerDetails?>(null) }
+    var addressHost by remember { mutableStateOf<ComputerDetails?>(null) }
     var netTestHost by remember { mutableStateOf<ComputerDetails?>(null) }
     var netTestNonce by remember { mutableStateOf(0) }
     var netTestRunning by remember { mutableStateOf(false) }
@@ -176,10 +180,21 @@ fun DuoShellScreen(
     val appLoading by appsLoading.collectAsState()
     val appError by appsError.collectAsState()
     val appIconMap by appIcons.collectAsState()
-    val selected = hostList.firstOrNull { it.uuid == selectedUuid } ?: hostList.firstOrNull()
+    val visibleHosts = remember(hostList, hostFilter) {
+        when (hostFilter) {
+            DuoHostFilter.ALL -> hostList
+            DuoHostFilter.PAIRED -> hostList.filter {
+                it.pairState == PairingManager.PairState.PAIRED
+            }
+            DuoHostFilter.UNPAIRED -> hostList.filter {
+                it.pairState != PairingManager.PairState.PAIRED
+            }
+        }
+    }
+    val selected = visibleHosts.firstOrNull { it.uuid == selectedUuid } ?: visibleHosts.firstOrNull()
     val pair = pairHost ?: hostList.firstOrNull { it.uuid == pairState.hostUuid }
     val hasShellOverlay = addOpen || pair != null && (pairState.pin != null || pairState.error != null) ||
-        hostMore != null || appSheet != null || confirm != null || netTestHost != null ||
+        hostMore != null || addressHost != null || appSheet != null || confirm != null || netTestHost != null ||
         remoteEdit || remoteAdvanced || qrContent != null
 
     // Back/Escape/Button-B reach the Presentation's dispatcher. Overlays consume the
@@ -192,6 +207,7 @@ fun DuoShellScreen(
             remoteEdit -> remoteEdit = false
             appSheet != null -> appSheet = null
             netTestHost != null && !netTestRunning -> netTestHost = null
+            addressHost != null -> addressHost = null
             hostMore != null -> hostMore = null
             pair != null && (pairState.pin != null || pairState.error != null) -> {
                 pairHost = null
@@ -352,8 +368,10 @@ fun DuoShellScreen(
         ) {
             when (destination) {
                 DuoDestination.HOSTS -> DuoHostsPage(
-                    hosts = hostList,
+                    hosts = visibleHosts,
                     selectedUuid = selected?.uuid,
+                    filter = hostFilter,
+                    onFilterChange = { hostFilter = it },
                     onSelect = { selectedUuid = it.uuid.orEmpty() },
                     onAction = { target, action ->
                         when (action) {
@@ -371,6 +389,8 @@ fun DuoShellScreen(
                                 }
                             }
                             DuoHostAction.WAKE -> host.wake(target)
+                            DuoHostAction.ADDRESS -> addressHost = target
+                            DuoHostAction.RESTORE -> host.hostMore(target, action)
                             DuoHostAction.DELETE -> confirm = ConfirmRequest(
                                 title = "删除主机？",
                                 body = "将从列表移除 ${target.name ?: "这台主机"}，不会卸载 PC 端 Sunshine。",
@@ -485,6 +505,17 @@ fun DuoShellScreen(
                 onCancel = {
                     pairHost = null
                     host.clearPair()
+                },
+            )
+        }
+
+        addressHost?.let { target ->
+            AddressOverlay(
+                host = target,
+                onDismiss = { addressHost = null },
+                onSelect = { address ->
+                    host.selectAddress(target, address)
+                    addressHost = null
                 },
             )
         }
@@ -856,6 +887,38 @@ private fun PairOverlay(
 }
 
 @Composable
+private fun AddressOverlay(
+    host: ComputerDetails,
+    onDismiss: () -> Unit,
+    onSelect: (ComputerDetails.AddressTuple) -> Unit,
+) {
+    val context = LocalContext.current
+    DuoOverlay(onDismiss = onDismiss, width = 420.dp) {
+        Column {
+            Text("选择连接地址", style = LumaType.titleM, color = LumaColors.Text)
+            Text(
+                "${host.name ?: "主机"} · ${host.availableAddresses.size} 个地址",
+                style = LumaType.micro,
+                color = LumaColors.Tertiary,
+            )
+            Spacer(Modifier.height(8.dp))
+            host.availableAddresses.forEach { address ->
+                val current = address == host.activeAddress
+                DuoSettingRow(
+                    title = address.toString(),
+                    value = if (current) "当前" else host.getAddressTypeDescription(context, address),
+                    detail = if (current) "串流和应用列表使用此地址" else null,
+                    isSubpage = true,
+                    onActivate = { onSelect(address) },
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            DuoTextButton("关闭", onClick = onDismiss, modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
 private fun HostMoreOverlay(
     host: ComputerDetails,
     onDismiss: () -> Unit,
@@ -870,6 +933,9 @@ private fun HostMoreOverlay(
                 color = LumaColors.Tertiary,
             )
             Spacer(Modifier.height(8.dp))
+            DuoSettingRow("恢复上次会话", "运行中", detail = "继续任意在线主机的运行中应用", onActivate = {
+                onAction(DuoHostAction.RESTORE)
+            })
             DuoSettingRow("唤醒主机", "WOL", detail = "离线且已记录 MAC 时可用", onActivate = {
                 onAction(DuoHostAction.WAKE)
             })
@@ -891,9 +957,6 @@ private fun HostMoreOverlay(
                 if (host.ipv6Disabled) "已禁用" else "已启用",
                 onActivate = { onAction(DuoHostAction.IPV6) },
             )
-            DuoSettingRow("自动解锁", "P2", detail = "生物识别 + Windows PIN", onActivate = {
-                onAction(DuoHostAction.UNLOCK)
-            })
             Spacer(Modifier.height(6.dp))
             DuoTextButton(
                 "删除主机",

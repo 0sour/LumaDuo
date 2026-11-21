@@ -74,13 +74,14 @@ class DuoHostRepository(context: Context) {
     private var appsHostUuid: String? = null
     private var iconsJob: Job? = null
     private var bound = false
+    private val addressOverrides = HashMap<String, ComputerDetails.AddressTuple>()
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val manager = service as? ComputerManagerService.ComputerManagerBinder ?: return
             binder = manager
             manager.startPolling()
-            _hosts.value = sortHosts(manager.getComputers())
+            _hosts.value = sortHosts(manager.getComputers().map(::withAddressOverride))
             updatesJob?.cancel()
             updatesJob = scope.launch {
                 manager.computerUpdates.collect { update ->
@@ -124,8 +125,30 @@ class DuoHostRepository(context: Context) {
 
     fun refresh() {
         val manager = binder ?: return
-        _hosts.value = sortHosts(manager.getComputers())
+        _hosts.value = sortHosts(manager.getComputers().map(::withAddressOverride))
         manager.startPolling()
+    }
+
+    /**
+     * Remembers a user-selected address for this host. The manager may keep polling
+     * other addresses, so the override is re-applied to every snapshot until the app
+     * process ends. Connection and app-list requests use the resulting activeAddress.
+     */
+    fun selectAddress(host: ComputerDetails, address: ComputerDetails.AddressTuple) {
+        val uuid = host.uuid ?: return
+        addressOverrides[uuid] = address
+        _hosts.value = sortHosts(
+            _hosts.value.map { current ->
+                if (current.uuid == uuid) {
+                    ComputerDetails(current).apply { activeAddress = address }
+                } else {
+                    current
+                }
+            },
+        )
+        if (appsHostUuid == uuid) {
+            _hosts.value.firstOrNull { it.uuid == uuid }?.let { loadApps(it, force = true) }
+        }
     }
 
     /** Loads the selected host's app list. A different host cancels the old request. */
@@ -422,17 +445,28 @@ class DuoHostRepository(context: Context) {
         val merged = _hosts.value.toMutableList()
         val index = merged.indexOfFirst { it.uuid == uuid }
         if (index >= 0) {
-            merged[index] = ComputerDetails(update)
+            merged[index] = withAddressOverride(update)
         } else {
-            merged += ComputerDetails(update)
+            merged += withAddressOverride(update)
         }
         _hosts.value = sortHosts(merged)
+    }
+
+    private fun withAddressOverride(details: ComputerDetails): ComputerDetails {
+        val copy = ComputerDetails(details)
+        val uuid = copy.uuid ?: return copy
+        val override = addressOverrides[uuid] ?: return copy
+        if (copy.availableAddresses.contains(override) || copy.activeAddress == override) {
+            copy.activeAddress = override
+        }
+        return copy
     }
 
     private fun sortHosts(hosts: List<ComputerDetails>): List<ComputerDetails> {
         return hosts.sortedWith(
             compareBy(
                 { it.state != ComputerDetails.State.ONLINE },
+                { it.pairState != PairingManager.PairState.PAIRED },
                 { it.name.orEmpty().lowercase() },
             ),
         )

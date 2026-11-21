@@ -537,6 +537,33 @@ fun DuoRemoteAdvanced(
                 value = value.copy(disableEncryption = it)
             }
             Spacer(Modifier.height(8.dp))
+            DuoTextButton(
+                "恢复默认值",
+                onClick = {
+                    value = value.copy(
+                        networkName = "easytier",
+                        secret = "",
+                        ipv4 = "10.0.0.1",
+                        peers = "tcp://public.easytier.top:11010",
+                        listeners = "tcp://0.0.0.0:11010\nudp://0.0.0.0:11010\nwg://0.0.0.0:11011",
+                        useSmoltcp = false,
+                        latencyFirst = false,
+                        disableP2p = false,
+                        privateMode = false,
+                        disableIpv6 = false,
+                        enableKcpProxy = false,
+                        disableKcpInput = false,
+                        enableQuicProxy = false,
+                        disableQuicInput = false,
+                        proxyForwardBySystem = false,
+                        disableEncryption = false,
+                        disableUdpHolePunching = false,
+                        disableSymHolePunching = false,
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DuoTextButton("取消", onClick = onDismiss, modifier = Modifier.weight(1f))
                 DuoTextButton(

@@ -3842,6 +3842,12 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
 
     override fun unlockHost() = startHostUnlock()
 
+    override fun setControllerMouseEmulation(enabled: Boolean) {
+        if (::controllerHandler.isInitialized) {
+            controllerHandler.defaultContext.setMouseEmulation(enabled)
+        }
+    }
+
     override fun mouseButton(button: Int) {
         val evdevButton = consoleButtonToEvdev(button) ?: return
         mouseButtonEvent(evdevButton, true)

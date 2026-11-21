@@ -8,6 +8,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -78,6 +80,7 @@ import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaTheme
 import com.sour.lumaduo.ui.luma.LumaType
 import com.sour.lumaduo.ui.shell.DuoDestination
+import com.sour.lumaduo.utils.ShortcutHelper
 import com.sour.lumaduo.ui.shell.DuoChip
 import com.sour.lumaduo.ui.shell.DuoHostAction
 import com.sour.lumaduo.ui.shell.DuoShellHost
@@ -445,6 +448,11 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         notice("已删除 ${host.name ?: "主机"}")
     }
 
+    override fun selectAddress(host: ComputerDetails, address: ComputerDetails.AddressTuple) {
+        hostRepository.selectAddress(host, address)
+        notice("已切换到 ${address}")
+    }
+
     override fun hostMore(host: ComputerDetails, action: DuoHostAction) {
         when (action) {
             DuoHostAction.SLEEP -> hostRepository.sleepHost(host) { error ->
@@ -459,9 +467,33 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
                 hostRepository.refresh()
                 notice(if (host.ipv6Disabled) "已禁用 IPv6" else "已启用 IPv6")
             }
+            DuoHostAction.RESTORE -> {
+                val target = hostRepository.hosts.value.firstOrNull {
+                    it.state == ComputerDetails.State.ONLINE &&
+                        it.pairState == PairingManager.PairState.PAIRED &&
+                        it.runningGameId != 0
+                }
+                if (target == null) {
+                    notice("没有可恢复的会话")
+                } else {
+                    connect(target)
+                }
+            }
+            DuoHostAction.WEBUI -> {
+                val address = host.activeAddress?.address
+                    ?: host.availableAddresses.firstOrNull()?.address
+                if (address.isNullOrBlank()) {
+                    notice("主机没有可用地址")
+                } else {
+                    val authority = if (address.contains(':')) "[$address]" else address
+                    val opened = runCatching {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://$authority:47990")))
+                    }.isSuccess
+                    if (!opened) notice("没有可用的浏览器")
+                }
+            }
             DuoHostAction.NETWORK_TEST -> notice("网络测试在连接页/主机详情接入（M3）")
-            DuoHostAction.WEBUI -> notice("Sunshine WebUI 在 M4 接入")
-            DuoHostAction.UNLOCK -> notice("主机自动解锁在 P2 接入")
+            DuoHostAction.UNLOCK -> notice("主机自动解锁在串流工具页的“解锁”中使用")
             else -> Unit
         }
     }
@@ -540,7 +572,17 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         hostRepository.isAppHidden(host, app)
 
     override fun createShortcut(host: ComputerDetails, app: NvApp) {
-        notice("桌面快捷方式在 P1 接入")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            notice("桌面快捷方式需要 Android 8.0 以上")
+            return
+        }
+        if (host.uuid.isNullOrBlank() || host.name.isNullOrBlank()) {
+            notice("主机信息尚未就绪")
+            return
+        }
+        val icon = hostRepository.appIcons.value[app.appId]
+        val requested = ShortcutHelper(this).createPinnedGameShortcut(host, app, icon)
+        notice(if (requested) "已请求创建桌面快捷方式" else "当前启动器不支持固定快捷方式")
     }
 
     override fun startStopEasyTier() {

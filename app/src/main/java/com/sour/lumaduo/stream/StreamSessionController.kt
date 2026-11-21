@@ -26,6 +26,7 @@ interface StreamSessionController {
     fun reconnectStream()
     fun disconnectStream()
     fun unlockHost()
+    fun setControllerMouseEmulation(enabled: Boolean)
     fun togglePerformanceOverlay()
 
     fun mouseMove(dx: Int, dy: Int)
