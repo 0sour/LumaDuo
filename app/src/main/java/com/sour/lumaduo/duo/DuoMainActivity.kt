@@ -344,6 +344,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             apps = hostRepository.apps,
             appsLoading = hostRepository.appsLoading,
             appsError = hostRepository.appsError,
+            appIcons = hostRepository.appIcons,
             settings = settingsSnapshot,
             remote = remoteSnapshot,
             remoteConfig = remoteConfig,

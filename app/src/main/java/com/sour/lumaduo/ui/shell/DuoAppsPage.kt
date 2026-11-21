@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.ui.shell
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,6 +60,7 @@ fun DuoAppsPage(
     apps: List<NvApp>,
     loading: Boolean,
     error: String?,
+    icons: Map<Int, Bitmap> = emptyMap(),
     onOpenApp: (NvApp) -> Unit,
     onAppAction: (NvApp, DuoAppAction) -> Unit,
     onSelectionChanged: (NvApp?) -> Unit = {},
@@ -107,6 +112,7 @@ fun DuoAppsPage(
                         itemsIndexed(apps, key = { _, app -> app.appId }) { index, app ->
                             DuoAppCard(
                                 app = app,
+                                icon = icons[app.appId],
                                 selected = index == selectedIndex,
                                 onFocus = { selectedIndex = index },
                                 onClick = {
@@ -120,6 +126,7 @@ fun DuoAppsPage(
                     DuoAppDetail(
                         host = host,
                         app = selected,
+                        icon = selected?.let { icons[it.appId] },
                         onAction = onAppAction,
                     )
                 }
@@ -131,6 +138,7 @@ fun DuoAppsPage(
 @Composable
 private fun DuoAppCard(
     app: NvApp,
+    icon: Bitmap?,
     selected: Boolean,
     onFocus: () -> Unit,
     onClick: () -> Unit,
@@ -172,11 +180,20 @@ private fun DuoAppCard(
                         .background(color),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = initial,
-                        style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
-                        color = Color(0xFF121216),
-                    )
+                    if (icon != null) {
+                        Image(
+                            bitmap = icon.asImageBitmap(),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                    } else {
+                        Text(
+                            text = initial,
+                            style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFF121216),
+                        )
+                    }
                 }
                 Spacer(Modifier.weight(1f))
                 if (app.isHdrSupported()) DuoChip("HDR", LumaColors.Signal)
@@ -197,6 +214,7 @@ private fun DuoAppCard(
 private fun DuoAppDetail(
     host: ComputerDetails,
     app: NvApp?,
+    icon: Bitmap?,
     onAction: (NvApp, DuoAppAction) -> Unit,
 ) {
     Row(
@@ -219,11 +237,20 @@ private fun DuoAppDetail(
                 .background(color),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = app.appName.trim().firstOrNull()?.uppercase() ?: "?",
-                style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
-                color = Color(0xFF121216),
-            )
+            if (icon != null) {
+                Image(
+                    bitmap = icon.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Text(
+                    text = app.appName.trim().firstOrNull()?.uppercase() ?: "?",
+                    style = LumaType.titleM.copy(fontWeight = FontWeight.Bold),
+                    color = Color(0xFF121216),
+                )
+            }
         }
         Spacer(Modifier.width(9.dp))
         Column(Modifier.weight(1f)) {

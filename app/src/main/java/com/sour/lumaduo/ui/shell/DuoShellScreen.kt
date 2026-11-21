@@ -97,6 +97,7 @@ fun DuoShellScreen(
     apps: StateFlow<List<NvApp>>,
     appsLoading: StateFlow<Boolean>,
     appsError: StateFlow<String?>,
+    appIcons: StateFlow<Map<Int, android.graphics.Bitmap>>,
     settings: DuoSettingsRepository.Snapshot,
     remote: DuoRemoteRepository.Snapshot,
     remoteConfig: DuoRemoteRepository.Config,
@@ -133,6 +134,7 @@ fun DuoShellScreen(
     val appList by apps.collectAsState()
     val appLoading by appsLoading.collectAsState()
     val appError by appsError.collectAsState()
+    val appIconMap by appIcons.collectAsState()
     val selected = hostList.firstOrNull { it.uuid == selectedUuid } ?: hostList.firstOrNull()
     val pair = pairHost ?: hostList.firstOrNull { it.uuid == pairState.hostUuid }
     val hasShellOverlay = addOpen || pair != null && (pairState.pin != null || pairState.error != null) ||
@@ -310,6 +312,7 @@ fun DuoShellScreen(
                     },
                     loading = appLoading,
                     error = appError,
+                    icons = appIconMap,
                     onOpenApp = { app -> selected?.let { host.openApp(it, app, false) } },
                     onAppAction = { app, action ->
                         when (action) {

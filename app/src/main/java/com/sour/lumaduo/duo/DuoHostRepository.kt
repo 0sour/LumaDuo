@@ -4,6 +4,8 @@ package com.sour.lumaduo.duo
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.content.ServiceConnection
 import android.os.IBinder
 import com.sour.lumaduo.LimeLog
@@ -14,6 +16,7 @@ import com.sour.lumaduo.nvstream.http.NvApp
 import com.sour.lumaduo.nvstream.http.NvHTTP
 import com.sour.lumaduo.nvstream.http.PairingManager
 import com.sour.lumaduo.nvstream.wol.WakeOnLanSender
+import com.sour.lumaduo.utils.AppIconCache
 import java.io.IOException
 import java.io.StringReader
 import java.net.UnknownHostException
@@ -51,6 +54,9 @@ class DuoHostRepository(context: Context) {
     private val _appsError = MutableStateFlow<String?>(null)
     val appsError: StateFlow<String?> = _appsError.asStateFlow()
 
+    private val _appIcons = MutableStateFlow<Map<Int, Bitmap>>(emptyMap())
+    val appIcons: StateFlow<Map<Int, Bitmap>> = _appIcons.asStateFlow()
+
     data class PairUiState(
         val hostUuid: String? = null,
         val pin: String? = null,
@@ -66,6 +72,7 @@ class DuoHostRepository(context: Context) {
     private var updatesJob: Job? = null
     private var appsJob: Job? = null
     private var appsHostUuid: String? = null
+    private var iconsJob: Job? = null
     private var bound = false
 
     private val connection = object : ServiceConnection {
@@ -132,6 +139,10 @@ class DuoHostRepository(context: Context) {
         val hostChanged = appsHostUuid != uuid
         appsJob?.cancel()
         appsHostUuid = uuid
+        iconsJob?.cancel()
+        if (hostChanged) {
+            _appIcons.value = emptyMap()
+        }
         _appsLoading.value = true
         _appsError.value = null
         if (force || hostChanged) {
@@ -154,6 +165,7 @@ class DuoHostRepository(context: Context) {
                     NvHTTP.getAppListByReader(StringReader(http.getAppListRaw()))
                 }
                 _apps.value = list
+                loadAppIcons(host, manager, list)
             } catch (e: Exception) {
                 _appsError.value = e.message?.takeIf { it.isNotBlank() }
                     ?: e.javaClass.simpleName
@@ -167,11 +179,65 @@ class DuoHostRepository(context: Context) {
         loadApps(host, force = true)
     }
 
+    /**
+     * Loads box art lazily after the app list is visible. Icons are an enhancement, so a
+     * failed fetch leaves the letter tile in place and never blocks launching.
+     */
+    private fun loadAppIcons(
+        host: ComputerDetails,
+        manager: ComputerManagerService.ComputerManagerBinder,
+        apps: List<NvApp>,
+    ) {
+        val uuid = host.uuid ?: return
+        val cached = HashMap<Int, Bitmap>()
+        for (app in apps) {
+            AppIconCache.instance.getIcon(host, app)?.let { cached[app.appId] = it }
+        }
+        if (cached.isNotEmpty()) {
+            _appIcons.value = cached
+        }
+
+        iconsJob?.cancel()
+        iconsJob = scope.launch {
+            val loaded = withContext(Dispatchers.IO) {
+                val result = HashMap<Int, Bitmap>()
+                val address = host.activeAddress ?: return@withContext result
+                val http = NvHTTP(
+                    address,
+                    host.httpsPort,
+                    manager.getUniqueId(),
+                    "",
+                    host.serverCert,
+                    PlatformBinding.getCryptoProvider(appContext),
+                )
+                for (app in apps) {
+                    if (cached.containsKey(app.appId)) continue
+                    try {
+                        val bitmap = http.getBoxArt(app).use(BitmapFactory::decodeStream)
+                        if (bitmap != null) {
+                            AppIconCache.instance.putIcon(host, app, bitmap)
+                            result[app.appId] = bitmap
+                        }
+                    } catch (e: Exception) {
+                        LimeLog.info("App icon fetch failed for ${app.appName}: ${e.message}")
+                    }
+                }
+                result
+            }
+            if (appsHostUuid == uuid) {
+                _appIcons.value = HashMap(cached).apply { putAll(loaded) }
+            }
+        }
+    }
+
     fun stopAppList() {
         appsJob?.cancel()
         appsJob = null
+        iconsJob?.cancel()
+        iconsJob = null
         appsHostUuid = null
         _apps.value = emptyList()
+        _appIcons.value = emptyMap()
         _appsError.value = null
         _appsLoading.value = false
     }
