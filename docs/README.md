@@ -19,26 +19,26 @@
 
 1. [STATUS-AND-PLAN.md](STATUS-AND-PLAN.md) — 当前状态、已验证/未验证、近期 P0/P1/P2 规划
 2. [PRODUCT.md](PRODUCT.md) — 产品定位、用户、MVP 边界、非目标
-2. [DECISIONS.md](DECISIONS.md) — 已锁定/已取代决策，冲突时以此为准
-3. [ARCHITECTURE.md](ARCHITECTURE.md) — 技术架构、模块边界、状态页数据契约
-4. [DEVICE-MATRIX.md](DEVICE-MATRIX.md) — RP Duo / AYN Thor 的显示与输入差异
-5. [INPUT-AND-FOCUS.md](INPUT-AND-FOCUS.md) — 手柄状态机、键位、焦点
-6. [ui/DUO-PITFALLS.md](ui/DUO-PITFALLS.md) — bili-duo / UUYC-Duo 双屏与手柄踩坑复盘
-7. [ui/DESIGN-SYSTEM.md](ui/DESIGN-SYSTEM.md) — 颜色、字体、间距、组件、动效
-8. [ui/SCREEN-SPEC.md](ui/SCREEN-SPEC.md) — 页面与布局规格
-9. [ui/FEATURE-MAP.md](ui/FEATURE-MAP.md) — 上游功能盘点与 LumaDuo 入口矩阵
-10. [ui/TOP-SCREEN.md](ui/TOP-SCREEN.md) — 上屏视频与只读状态
-11. [ui/PROTOTYPE.md](ui/PROTOTYPE.md) — 原型范围、交互、限制
-12. [ui/prototype/index.html](ui/prototype/index.html) — 可点击 HTML 原型
-13. [ui/prototype/README.md](ui/prototype/README.md) — 原型页面、键位、URL 参数
-14. [ROADMAP.md](ROADMAP.md) — M0 / M0.5 / M1–M5
-15. [STREAM-CONSOLE.md](STREAM-CONSOLE.md) — `Game` 托管下屏、状态桥、直通/本地输入与单屏控制台
-16. [MINIMAL-EDITION.md](MINIMAL-EDITION.md) — 最小 `duo` 产品面、构建变体、瘦身数据与 Phase B/C 路线
-17. [BUILDING.md](BUILDING.md) — 工具链、源码、构建命令
-18. [NETWORKING.md](NETWORKING.md) — 配对、EasyTier、虚拟 IP
-19. [TESTING.md](TESTING.md) — 测试策略与设备验收
-20. [LEGAL.md](LEGAL.md) / [../NOTICE](../NOTICE) — 许可证与来源
-21. [../SECURITY.md](../SECURITY.md) — 敏感数据、状态页/主机数据与权限边界
+3. [DECISIONS.md](DECISIONS.md) — 已锁定/已取代决策，冲突时以此为准
+4. [ARCHITECTURE.md](ARCHITECTURE.md) — 技术架构、模块边界、状态页数据契约
+5. [DEVICE-MATRIX.md](DEVICE-MATRIX.md) — RP Duo / AYN Thor 的显示与输入差异
+6. [INPUT-AND-FOCUS.md](INPUT-AND-FOCUS.md) — 手柄状态机、键位、焦点
+7. [ui/DUO-PITFALLS.md](ui/DUO-PITFALLS.md) — bili-duo / UUYC-Duo 双屏与手柄踩坑复盘
+8. [ui/DESIGN-SYSTEM.md](ui/DESIGN-SYSTEM.md) — 颜色、字体、间距、组件、动效
+9. [ui/SCREEN-SPEC.md](ui/SCREEN-SPEC.md) — 页面与布局规格
+10. [ui/FEATURE-MAP.md](ui/FEATURE-MAP.md) — 上游功能盘点与 LumaDuo 入口矩阵
+11. [ui/TOP-SCREEN.md](ui/TOP-SCREEN.md) — 上屏视频与只读状态
+12. [ui/PROTOTYPE.md](ui/PROTOTYPE.md) — 原型范围、交互、限制
+13. [ui/prototype/index.html](ui/prototype/index.html) — 可点击 HTML 原型
+14. [ui/prototype/README.md](ui/prototype/README.md) — 原型页面、键位、URL 参数
+15. [ROADMAP.md](ROADMAP.md) — M0 / M0.5 / M1–M5
+16. [STREAM-CONSOLE.md](STREAM-CONSOLE.md) — `Game` 托管下屏、状态桥、直通/本地输入与单屏控制台
+17. [MINIMAL-EDITION.md](MINIMAL-EDITION.md) — 最小 `duo` 产品面、构建变体、瘦身数据与 Phase B/C 路线
+18. [BUILDING.md](BUILDING.md) — 工具链、源码、构建命令
+19. [NETWORKING.md](NETWORKING.md) — 配对、EasyTier、虚拟 IP
+20. [TESTING.md](TESTING.md) — 测试策略与设备验收
+21. [LEGAL.md](LEGAL.md) / [../NOTICE](../NOTICE) — 许可证与来源
+22. [../SECURITY.md](../SECURITY.md) — 敏感数据、状态页/主机数据与权限边界
 
 ## 文档状态
 
