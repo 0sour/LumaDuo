@@ -29,6 +29,10 @@ All notable changes to LumaDuo are recorded here.
 
 ### Changed
 
+- App page: the app bar title is now simply "应用"; the current host and a
+  horizontally scrollable host switch row live in the page body, so apps are
+  always loaded and shown for one host at a time instead of being mixed
+  together.
 - Host detail no longer duplicates actions: the side panel is now the primary
   action plus one "主机操作" entry (and "应用列表" only when it is not already
   the primary). Re-pair, network test and delete live only inside the operations

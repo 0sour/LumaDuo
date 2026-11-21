@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -57,10 +59,12 @@ enum class DuoAppAction {
 @Composable
 fun DuoAppsPage(
     host: ComputerDetails?,
+    hosts: List<ComputerDetails> = emptyList(),
     apps: List<NvApp>,
     loading: Boolean,
     error: String?,
     icons: Map<Int, Bitmap> = emptyMap(),
+    onSelectHost: (ComputerDetails) -> Unit = {},
     onOpenApp: (NvApp) -> Unit,
     onAppAction: (NvApp, DuoAppAction) -> Unit,
     onSelectionChanged: (NvApp?) -> Unit = {},
@@ -89,13 +93,30 @@ fun DuoAppsPage(
                 .padding(horizontal = 10.dp, vertical = 8.dp),
         ) {
             DuoSectionHeader(
-                "全部应用",
+                "${host?.name ?: "应用"} · 全部应用",
                 when {
                     loading -> "读取中"
                     error != null -> "读取失败"
                     else -> "${apps.size} 个 · 实时"
                 },
             )
+            if (hosts.size > 1) {
+                Spacer(Modifier.height(5.dp))
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    hosts.forEach { candidate ->
+                        DuoTextButton(
+                            text = candidate.name ?: "未命名主机",
+                            onClick = { onSelectHost(candidate) },
+                            accent = candidate.uuid == host?.uuid,
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.height(6.dp))
             when {
                 host == null -> DuoEmpty("先在主机页选择一台主机", "应用列表来自当前主机", Modifier.weight(1f))

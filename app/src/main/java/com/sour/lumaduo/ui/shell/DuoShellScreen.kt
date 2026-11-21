@@ -301,7 +301,7 @@ fun DuoShellScreen(
 
     val title = when (destination) {
         DuoDestination.HOSTS -> "主机"
-        DuoDestination.APPS -> selected?.name?.let { "$it · 应用" } ?: "应用"
+        DuoDestination.APPS -> "应用"
         DuoDestination.REMOTE -> "远程"
         DuoDestination.SETTINGS -> "设置"
     }
@@ -409,12 +409,20 @@ fun DuoShellScreen(
                 )
                 DuoDestination.APPS -> DuoAppsPage(
                     host = selected,
+                    hosts = hostList.filter {
+                        it.state == ComputerDetails.State.ONLINE &&
+                            it.pairState == PairingManager.PairState.PAIRED
+                    },
                     apps = if (showHidden) appList else appList.filterNot {
                         selected?.let { s -> host.appHidden(s, it) } == true
                     },
                     loading = appLoading,
                     error = appError,
                     icons = appIconMap,
+                    onSelectHost = { candidate ->
+                        hostFilter = DuoHostFilter.ALL
+                        selectedUuid = candidate.uuid.orEmpty()
+                    },
                     onOpenApp = { app -> selected?.let { host.openApp(it, app, false) } },
                     onAppAction = { app, action ->
                         when (action) {
