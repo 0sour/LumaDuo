@@ -111,30 +111,34 @@ fun LumaDuoShell(
             .background(LumaColors.Bg),
     ) {
         val compact = maxWidth < 600.dp
-        Row(Modifier.fillMaxSize()) {
-            DuoRail(
-                destination = destination,
-                onDestinationChange = onDestinationChange,
-                requesters = requesters,
-                compact = compact,
-            )
-            Column(Modifier.weight(1f).fillMaxHeight()) {
-                DuoAppBar(
-                    title = title,
-                    subtitle = subtitle,
-                    actions = actions,
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.weight(1f).fillMaxWidth()) {
+                DuoRail(
+                    destination = destination,
+                    onDestinationChange = onDestinationChange,
+                    requesters = requesters,
                     compact = compact,
                 )
-                Box(Modifier.weight(1f).fillMaxWidth()) {
-                    content()
+                Column(Modifier.weight(1f).fillMaxHeight()) {
+                    DuoAppBar(
+                        title = title,
+                        subtitle = subtitle,
+                        actions = actions,
+                        compact = compact,
+                    )
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        content()
+                    }
                 }
-                DuoModeBar(
-                    label = modeLabel,
-                    hint = modeHint,
-                    tone = modeTone,
-                    keyHints = keyHints,
-                )
             }
+            // The mode/key-hint bar spans the full width, including under the rail,
+            // matching the HTML prototype and bili-duo's bottom indicator strip.
+            DuoModeBar(
+                label = modeLabel,
+                hint = modeHint,
+                tone = modeTone,
+                keyHints = keyHints,
+            )
         }
     }
 }

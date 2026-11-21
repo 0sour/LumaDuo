@@ -79,7 +79,10 @@ fun DuoAppsPage(
         onSelectionChanged(selected)
     }
     BoxWithConstraints(modifier.fillMaxSize()) {
-        val columns = if (maxWidth < 600.dp) 2 else 3
+        // 640dp bottom screen minus the 64dp rail and page padding still leaves
+        // enough room for the prototype's 3-column grid. Only narrow single-screen
+        // fallbacks (Thor/phone) drop to 2 columns.
+        val columns = if (maxWidth < 480.dp) 2 else 3
         Column(
             Modifier
                 .fillMaxSize()
@@ -262,7 +265,7 @@ private fun DuoAppDetail(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = "${host.name ?: "主机"} · App ID ${app.appId}",
+                text = host.name ?: "主机",
                 style = LumaType.micro,
                 color = LumaColors.Tertiary,
                 maxLines = 1,
@@ -270,16 +273,16 @@ private fun DuoAppDetail(
         }
         Spacer(Modifier.width(8.dp))
         DuoTextButton(
-            text = "启动",
+            text = "启动串流",
             onClick = { onAction(app, DuoAppAction.LAUNCH) },
             accent = true,
-            modifier = Modifier.width(92.dp),
+            modifier = Modifier.width(96.dp),
         )
         Spacer(Modifier.width(6.dp))
         DuoTextButton(
-            text = "操作",
+            text = "应用操作",
             onClick = { onAction(app, DuoAppAction.INFO) },
-            modifier = Modifier.width(76.dp),
+            modifier = Modifier.width(92.dp),
         )
     }
 }
