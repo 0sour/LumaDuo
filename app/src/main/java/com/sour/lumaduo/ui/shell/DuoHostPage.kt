@@ -301,6 +301,12 @@ private fun DuoHostDetail(
                 modifier = Modifier.weight(1f),
             )
             DuoTextButton(
+                if (paired) "重新配对" else "配对",
+                onClick = { onAction(host, DuoHostAction.PAIR) },
+                enabled = online,
+                modifier = Modifier.weight(1f),
+            )
+            DuoTextButton(
                 "网络测试",
                 onClick = { onAction(host, DuoHostAction.NETWORK_TEST) },
                 enabled = online,
