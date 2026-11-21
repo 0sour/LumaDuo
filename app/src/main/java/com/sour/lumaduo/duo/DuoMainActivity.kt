@@ -426,6 +426,10 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
 
     override fun refreshHosts() {
         hostRepository.refresh()
+        notice("主机列表已刷新")
+        mainHandler.postDelayed({
+            if (shellNotice == "主机列表已刷新") shellNotice = null
+        }, 2_000L)
     }
 
     override fun pair(host: ComputerDetails) {

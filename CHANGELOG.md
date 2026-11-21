@@ -33,6 +33,8 @@ All notable changes to LumaDuo are recorded here.
   action plus one "主机操作" entry (and "应用列表" only when it is not already
   the primary). Re-pair, network test and delete live only inside the operations
   sheet, so the detail panel is no longer a button wall.
+- Host app bar no longer repeats "进入应用列表"; the app-list entry lives in the
+  detail panel. Tapping refresh now shows a transient "主机列表已刷新" notice.
 - Repository cleanup for the first LumaDuo snapshot: removed V+ promo assets,
   store metadata, upstream docs, CI/release scripts and AppVeyor config; added
   the LumaDuo documentation set, clickable HTML prototype, icon sources,

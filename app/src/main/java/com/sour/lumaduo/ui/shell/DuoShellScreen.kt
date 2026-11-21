@@ -319,12 +319,6 @@ fun DuoShellScreen(
                 addError = null
                 addOpen = true
             })
-            if (selected?.pairState == PairingManager.PairState.PAIRED) {
-                add(DuoAction(R.drawable.duo_ic_play, "进入应用列表") {
-                    selected?.let(host::openApps)
-                    onDestinationChange(DuoDestination.APPS)
-                })
-            }
             add(DuoAction(R.drawable.duo_ic_refresh, "刷新主机") { host.refreshHosts() })
         }
         DuoDestination.APPS -> buildList {
