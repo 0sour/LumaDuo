@@ -1,0 +1,65 @@
+LumaDuo / 流明双屏
+Copyright (C) 2026 LumaDuo contributors
+
+This project is licensed under the GNU General Public License, version 3.
+See LICENSE for the full text.
+
+Upstream software and assets
+============================
+
+1. Moonlight V+ (qiin2333/moonlight-vplus)
+   License: GPL-3.0
+   Used as the Android streaming client base (nonRoot product line).
+   https://github.com/qiin2333/moonlight-vplus
+
+2. Moonlight Android (moonlight-stream/moonlight-android)
+   License: GPL-3.0
+   Upstream of Moonlight V+.
+   https://github.com/moonlight-stream/moonlight-android
+
+3. Foundation Sunshine (AlkaidLab/foundation-sunshine)
+   License: GPL-3.0
+   PC host; not bundled with LumaDuo.
+   https://github.com/AlkaidLab/foundation-sunshine
+
+4. Sunshine (LizardByte/Sunshine)
+   License: GPL-3.0
+   Upstream of Foundation Sunshine.
+   https://github.com/LizardByte/Sunshine
+
+5. EasyTier (EasyTier/EasyTier)
+   License: LGPL-3.0
+   Android JNI/native components are used through Moonlight V+.
+   https://github.com/EasyTier/EasyTier
+
+6. moonlight-audio-haptics (AlkaidLab/moonlight-audio-haptics)
+   License: Apache-2.0
+   Required by Moonlight V+ builds.
+   https://github.com/AlkaidLab/moonlight-audio-haptics
+
+7. bili-duo (yearzen1)
+   License: MIT
+   Copyright (c) 2026 yearzen1
+   LumaDuo reuses the dual-screen layout, focus-ring, rail, mode-bar and
+   design-system patterns. If source files are copied, their MIT copyright
+   notice must be retained in those files.
+
+8. UUYC-Duo / DuoRemote
+   License: GPL-3.0
+   The A1 dual-screen gamepad icon geometry is reused and recolored for
+   LumaDuo. See design/icons/uuyc-a1/NOTICE.txt.
+
+Trademarks and assets
+=====================
+
+LumaDuo is an unofficial project. It is not affiliated with AYN, Retroid,
+Bilibili, NetEase, NVIDIA, Moonlight, Sunshine, or EasyTier.
+
+No Bilibili logos, mascots, screenshots, or other brand assets are included.
+No AYN/Retroid firmware, proprietary binaries, or store assets are included.
+
+Distribution
+============
+
+When distributing binaries, provide the complete corresponding source code
+and keep this NOTICE, the GPL-3.0 LICENSE, and all upstream license texts.

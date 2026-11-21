@@ -1,0 +1,8 @@
+LumaDuo icon notice
+
+The A1 dual-screen gamepad icon geometry is reused from the UUYC-Duo project
+(GPL-3.0) and recolored for LumaDuo's Lumen Gold theme.
+
+- Original: UUYC-Duo/docs/ui/duoremote-icon.svg
+- Original adaptive foreground: UUYC-Duo/app/src/main/res/drawable/ic_launcher_foreground.xml
+- LumaDuo recolor: background #15151C, screens/cursor #F5F5F7, accent #F2C14E.
