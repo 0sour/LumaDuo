@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.ui.shell
 
+import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -67,6 +68,7 @@ data class DuoTopContext(
     val appName: String? = null,
     val appInitial: String? = null,
     val appColor: Color? = null,
+    val appIcon: Bitmap? = null,
     val appHdr: Boolean = false,
     val settingsCategory: String? = null,
     val settingsDescription: String? = null,
@@ -266,6 +268,7 @@ fun DuoShellScreen(
         appName = topApp?.appName,
         appInitial = topApp?.appName?.trim()?.firstOrNull()?.uppercase(),
         appColor = topApp?.let { topAppColors[((it.appId % topAppColors.size) + topAppColors.size) % topAppColors.size] },
+        appIcon = topApp?.let { appIconMap[it.appId] },
         appHdr = topApp?.isHdrSupported() == true,
         settingsCategory = settingsTop.label.takeIf { destination == DuoDestination.SETTINGS },
         settingsDescription = settingsTop.description.takeIf { destination == DuoDestination.SETTINGS },

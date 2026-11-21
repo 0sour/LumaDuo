@@ -55,6 +55,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -976,15 +978,30 @@ private fun TopVisual(
                 Modifier
                     .size(190.dp)
                     .clip(RoundedCornerShape(28.dp))
-                    .background(context.appColor ?: LumaColors.Surface2),
+                    .background(context.appColor ?: LumaColors.Surface2)
+                    .border(
+                        1.dp,
+                        LumaColors.Outline.copy(alpha = 0.7f),
+                        RoundedCornerShape(28.dp),
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = context.appInitial ?: "?",
-                    fontSize = 84.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF121216),
-                )
+                val icon = context.appIcon
+                if (icon != null) {
+                    Image(
+                        bitmap = icon.asImageBitmap(),
+                        contentDescription = context.appName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Text(
+                        text = context.appInitial ?: "?",
+                        fontSize = 84.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF121216),
+                    )
+                }
             }
             DuoDestination.REMOTE -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

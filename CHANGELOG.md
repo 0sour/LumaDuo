@@ -33,6 +33,9 @@ All notable changes to LumaDuo are recorded here.
   horizontally scrollable host switch row live in the page body, so apps are
   always loaded and shown for one host at a time instead of being mixed
   together.
+- App page: selecting an app now mirrors its real Sunshine box art to the top
+  display instead of showing an enlarged initial; the initial tile remains only
+  as a fallback while art is unavailable.
 - Host detail no longer duplicates actions: the side panel is now the primary
   action plus one "主机操作" entry (and "应用列表" only when it is not already
   the primary). Re-pair, network test and delete live only inside the operations
