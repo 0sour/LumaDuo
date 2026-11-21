@@ -397,7 +397,7 @@ fun DuoShellScreen(
                                 confirmLabel = "删除",
                                 onConfirm = { host.delete(target) },
                             )
-                            DuoHostAction.MORE, DuoHostAction.DETAILS -> hostMore = target
+                            DuoHostAction.MORE -> hostMore = target
                             DuoHostAction.NETWORK_TEST -> {
                                 netTestNonce++
                                 netTestHost = target

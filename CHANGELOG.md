@@ -29,6 +29,10 @@ All notable changes to LumaDuo are recorded here.
 
 ### Changed
 
+- Host detail no longer duplicates actions: the side panel is now the primary
+  action plus one "主机操作" entry (and "应用列表" only when it is not already
+  the primary). Re-pair, network test and delete live only inside the operations
+  sheet, so the detail panel is no longer a button wall.
 - Repository cleanup for the first LumaDuo snapshot: removed V+ promo assets,
   store metadata, upstream docs, CI/release scripts and AppVeyor config; added
   the LumaDuo documentation set, clickable HTML prototype, icon sources,
