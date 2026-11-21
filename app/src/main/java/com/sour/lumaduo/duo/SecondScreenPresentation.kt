@@ -19,6 +19,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -89,7 +90,7 @@ class SecondScreenPresentation(
     private var backInterceptionEnabled = true
     private var lastHatKeyCode = 0
 
-    private val contentView = ComposeView(activity).apply {
+    private val contentView = ComposeView(context).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
         setContent {
             LumaTheme {
@@ -130,6 +131,7 @@ class SecondScreenPresentation(
         decor.setViewTreeLifecycleOwner(this)
         decor.setViewTreeViewModelStoreOwner(this)
         decor.setViewTreeSavedStateRegistryOwner(this)
+        decor.setViewTreeOnBackPressedDispatcherOwner(this)
         setContentView(contentView)
         LimeLog.info("LumaDuo bottom presentation created on display ${display.displayId}")
     }

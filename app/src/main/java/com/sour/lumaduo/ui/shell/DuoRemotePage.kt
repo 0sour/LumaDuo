@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,9 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,80 +72,23 @@ fun DuoRemotePage(
             .padding(horizontal = 10.dp, vertical = 8.dp),
     ) {
         Row(
-            Modifier
-                .fillMaxWidth()
-                .clip(LumaShapes.card)
-                .background(LumaColors.Surface1)
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                Modifier
-                    .size(9.dp)
-                    .clip(CircleShape)
-                    .background(
-                        when (runtime.phase) {
-                            DuoRemoteController.Phase.CONNECTED -> LumaColors.Success
-                            DuoRemoteController.Phase.STARTING -> LumaColors.Accent
-                            DuoRemoteController.Phase.NEED_PERMISSION -> LumaColors.Warning
-                            DuoRemoteController.Phase.ERROR -> LumaColors.Error
-                            else -> LumaColors.Disabled
-                        },
-                    ),
-            )
-            Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = when (runtime.phase) {
-                        DuoRemoteController.Phase.STOPPED -> "EasyTier 未启动"
-                        DuoRemoteController.Phase.NEED_PERMISSION -> "需要 VPN 权限"
-                        DuoRemoteController.Phase.STARTING -> "正在加入网络…"
-                        DuoRemoteController.Phase.CONNECTED -> "EasyTier 已连接"
-                        DuoRemoteController.Phase.ERROR -> "EasyTier 错误"
-                    },
-                    style = LumaType.titleM,
-                    color = LumaColors.Text,
-                )
-                Text(
-                    text = runtime.error ?: buildString {
-                        append(snapshot.networkName)
-                        append(" · ")
-                        append(runtime.virtualIp ?: "${snapshot.ipv4}/24")
-                        if (runtime.peers > 0) append(" · ${runtime.peers} 节点")
-                        runtime.latencyMs?.let { append(" · ${it} ms") }
-                    },
-                    style = LumaType.caption,
-                    color = if (runtime.error != null) LumaColors.Error else LumaColors.Secondary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            DuoTextButton(
-                text = when {
-                    running -> "停止"
-                    runtime.phase == DuoRemoteController.Phase.NEED_PERMISSION -> "授权"
-                    else -> "启动"
-                },
-                onClick = onStartStop,
-                accent = !running,
-                modifier = Modifier.width(88.dp),
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(
             Modifier.fillMaxWidth().weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             RemoteConfigCard(
                 snapshot = snapshot,
+                runtime = runtime,
+                running = running,
+                onStartStop = onStartStop,
                 onEdit = onEditConfig,
                 onAdvanced = onAdvanced,
-                modifier = Modifier.weight(1.2f).fillMaxSize(),
-            )
-            RemotePcCard(
-                onCopy = onCopyPcConfig,
+                onCopyPcConfig = onCopyPcConfig,
                 onShowQr = onShowQr,
+                modifier = Modifier.weight(1.25f).fillMaxSize(),
+            )
+            RemoteStatusCard(
+                runtime = runtime,
+                running = running,
                 modifier = Modifier.weight(1f).fillMaxSize(),
             )
         }
@@ -154,17 +102,35 @@ fun DuoRemotePage(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("手动添加虚拟 IP 主机", style = LumaType.bodyM, color = LumaColors.Text)
+                Text("手动添加主机", style = LumaType.bodyM, color = LumaColors.Text)
                 Text(
-                    "预填 PC 的 EasyTier 地址 10.0.0.2",
+                    "PC 端 EasyTier 使用 .2",
                     style = LumaType.micro,
                     color = LumaColors.Tertiary,
                 )
             }
-            DuoTextButton(
-                text = "添加主机",
+            LumaFocusable(
                 onClick = onAddManualHost,
-                modifier = Modifier.width(100.dp),
+                modifier = Modifier.width(140.dp).height(38.dp),
+                cornerRadius = 8.dp,
+            ) { focused ->
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .clip(LumaShapes.control)
+                        .background(if (focused) LumaColors.Surface3 else LumaColors.Surface2)
+                        .padding(horizontal = 10.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Text("10.0.0.2", style = LumaType.bodyM, color = LumaColors.Secondary)
+                }
+            }
+            Spacer(Modifier.width(6.dp))
+            DuoTextButton(
+                text = "添加",
+                onClick = onAddManualHost,
+                accent = true,
+                modifier = Modifier.width(70.dp),
             )
         }
     }
@@ -173,36 +139,12 @@ fun DuoRemotePage(
 @Composable
 private fun RemoteConfigCard(
     snapshot: DuoRemoteRepository.Snapshot,
+    runtime: DuoRemoteController.State,
+    running: Boolean,
+    onStartStop: () -> Unit,
     onEdit: () -> Unit,
     onAdvanced: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier
-            .clip(LumaShapes.card)
-            .background(LumaColors.Surface1)
-            .padding(10.dp),
-    ) {
-        DuoSectionHeader("网络配置", if (snapshot.usesDefaultTemplate) "内置模板" else "已配置")
-        Spacer(Modifier.height(5.dp))
-        RemoteLine("网络名", snapshot.networkName)
-        RemoteLine("密钥", if (snapshot.hasSecret) "•••••••• · 已设置" else "未设置")
-        RemoteLine("虚拟 IP", "${snapshot.ipv4}/24")
-        RemoteLine("Peer", snapshot.peers.firstOrNull()?.let {
-            if (snapshot.peers.size > 1) "$it +${snapshot.peers.size - 1}" else it
-        } ?: "—")
-        RemoteLine("监听", "${snapshot.listeners.size} 个")
-        Spacer(Modifier.weight(1f))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            DuoTextButton("编辑", onClick = onEdit, modifier = Modifier.weight(1f))
-            DuoTextButton("高级", onClick = onAdvanced, modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun RemotePcCard(
-    onCopy: () -> Unit,
+    onCopyPcConfig: () -> Unit,
     onShowQr: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -212,21 +154,192 @@ private fun RemotePcCard(
             .background(LumaColors.Surface1)
             .padding(10.dp),
     ) {
-        DuoSectionHeader("PC 配置", "EasyTier .2")
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "PC 端使用同一网络名与密钥，虚拟 IP 用 10.0.0.2。",
-            style = LumaType.micro,
-            color = LumaColors.Tertiary,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("EasyTier", style = LumaType.titleM, color = LumaColors.Text)
+                Text(
+                    "Android 内置客户端",
+                    style = LumaType.micro,
+                    color = LumaColors.Tertiary,
+                )
+            }
+            DuoChip(
+                text = when (runtime.phase) {
+                    DuoRemoteController.Phase.CONNECTED -> "已连接"
+                    DuoRemoteController.Phase.STARTING -> "启动中"
+                    DuoRemoteController.Phase.NEED_PERMISSION -> "待授权"
+                    DuoRemoteController.Phase.ERROR -> "错误"
+                    else -> "未启动"
+                },
+                tone = when (runtime.phase) {
+                    DuoRemoteController.Phase.CONNECTED -> LumaColors.Success
+                    DuoRemoteController.Phase.STARTING -> LumaColors.Accent
+                    DuoRemoteController.Phase.NEED_PERMISSION -> LumaColors.Warning
+                    DuoRemoteController.Phase.ERROR -> LumaColors.Error
+                    else -> LumaColors.Secondary
+                },
+            )
+        }
+        Spacer(Modifier.height(7.dp))
+        RemoteLine("网络名", snapshot.networkName)
+        RemoteLine("网络密钥", if (snapshot.hasSecret) "••••••••••••" else "未设置")
+        RemoteLine("本机虚拟 IP", "${runtime.virtualIp ?: snapshot.ipv4}/24")
+        RemoteLine("Peer", snapshot.peers.firstOrNull()?.let {
+            if (snapshot.peers.size > 1) "$it +${snapshot.peers.size - 1}" else it
+        } ?: "—")
+        RemoteLine("PC 虚拟 IP", "10.0.0.2/24")
         Spacer(Modifier.weight(1f))
-        DuoTextButton("复制 TOML", onClick = onCopy, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            DuoTextButton(
+                text = when {
+                    running -> "停止 EasyTier"
+                    runtime.phase == DuoRemoteController.Phase.NEED_PERMISSION -> "授权 EasyTier"
+                    else -> "启动 EasyTier"
+                },
+                onClick = onStartStop,
+                accent = !running,
+                modifier = Modifier.weight(1f),
+            )
+            DuoTextButton("编辑", onClick = onEdit, modifier = Modifier.width(64.dp))
+        }
         Spacer(Modifier.height(6.dp))
-        DuoTextButton(
-            "显示二维码",
-            onClick = onShowQr,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            DuoTextButton("复制 PC 配置", onClick = onCopyPcConfig, modifier = Modifier.weight(1f))
+            DuoTextButton("二维码", onClick = onShowQr, modifier = Modifier.weight(1f))
+            DuoTextButton("高级", onClick = onAdvanced, modifier = Modifier.width(58.dp))
+        }
+    }
+}
+
+@Composable
+private fun RemoteStatusCard(
+    runtime: DuoRemoteController.State,
+    running: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val tone = when (runtime.phase) {
+        DuoRemoteController.Phase.CONNECTED -> LumaColors.Success
+        DuoRemoteController.Phase.STARTING -> LumaColors.Accent
+        DuoRemoteController.Phase.NEED_PERMISSION -> LumaColors.Warning
+        DuoRemoteController.Phase.ERROR -> LumaColors.Error
+        else -> LumaColors.Disabled
+    }
+    val title = when (runtime.phase) {
+        DuoRemoteController.Phase.STOPPED -> "未启动"
+        DuoRemoteController.Phase.NEED_PERMISSION -> "待授权"
+        DuoRemoteController.Phase.STARTING -> "启动中"
+        DuoRemoteController.Phase.CONNECTED -> "已连接"
+        DuoRemoteController.Phase.ERROR -> "错误"
+    }
+    val detail = when {
+        runtime.error != null -> runtime.error
+        runtime.phase == DuoRemoteController.Phase.CONNECTED ->
+            runtime.latencyMs?.let { "P2P · $it ms" } ?: "virtual LAN"
+        runtime.phase == DuoRemoteController.Phase.STARTING -> "正在加入网络"
+        runtime.phase == DuoRemoteController.Phase.NEED_PERMISSION -> "需要 VPN 权限"
+        runtime.phase == DuoRemoteController.Phase.ERROR -> "检查配置后重试"
+        else -> "等待启动"
+    }
+    Column(
+        modifier
+            .clip(LumaShapes.card)
+            .background(LumaColors.Surface1)
+            .padding(10.dp),
+    ) {
+        Text("连接状态", style = LumaType.micro, color = LumaColors.Tertiary)
+        Spacer(Modifier.height(3.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(title, style = LumaType.titleM, color = LumaColors.Text)
+                Text(
+                    text = detail,
+                    style = LumaType.micro,
+                    color = if (runtime.error != null) LumaColors.Error else LumaColors.Tertiary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Box(
+                Modifier
+                    .size(9.dp)
+                    .clip(CircleShape)
+                    .background(tone),
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(91.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(LumaColors.Surface2)
+                .drawBehind {
+                    drawLine(
+                        color = LumaColors.Accent.copy(alpha = 0.35f),
+                        start = Offset(size.width * 0.2f, size.height / 2f),
+                        end = Offset(size.width * 0.8f, size.height / 2f),
+                        strokeWidth = 1.5f,
+                    )
+                },
+        ) {
+            Column(
+                Modifier.align(Alignment.CenterStart).padding(start = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    painter = painterResource(com.sour.lumaduo.R.drawable.duo_ic_gamepad),
+                    contentDescription = null,
+                    tint = LumaColors.Secondary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text("本机", style = LumaType.micro, color = LumaColors.Tertiary)
+            }
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(LumaColors.Surface2)
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("EasyTier", style = LumaType.label, color = LumaColors.Accent)
+                Text(
+                    if (running) "virtual LAN" else "offline",
+                    style = LumaType.micro,
+                    color = LumaColors.Tertiary,
+                )
+            }
+            Column(
+                Modifier.align(Alignment.CenterEnd).padding(end = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    painter = painterResource(com.sour.lumaduo.R.drawable.duo_ic_monitor),
+                    contentDescription = null,
+                    tint = LumaColors.Secondary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text("PC", style = LumaType.micro, color = LumaColors.Tertiary)
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        Row(Modifier.fillMaxWidth()) {
+            RemoteStat("节点", if (running) runtime.peers.toString() else "0", Modifier.weight(1f))
+            RemoteStat("延迟", runtime.latencyMs?.let { "$it ms" } ?: "—", Modifier.weight(1f))
+            // EasyTier's network info has no packet-loss field; never invent 0.0%.
+            RemoteStat("丢包", "—", Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun RemoteStat(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(value, style = LumaType.label, color = LumaColors.Text)
+        Text(label, style = LumaType.micro, color = LumaColors.Tertiary)
     }
 }
 
@@ -237,7 +350,7 @@ private fun RemoteLine(label: String, value: String) {
             .fillMaxWidth()
             .padding(vertical = 2.dp),
     ) {
-        Text(label, style = LumaType.micro, color = LumaColors.Tertiary, modifier = Modifier.width(52.dp))
+        Text(label, style = LumaType.micro, color = LumaColors.Tertiary, modifier = Modifier.width(62.dp))
         Text(
             value,
             style = LumaType.micro,
