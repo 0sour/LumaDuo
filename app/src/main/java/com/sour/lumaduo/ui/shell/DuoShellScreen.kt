@@ -59,7 +59,36 @@ import kotlinx.coroutines.withContext
 /** Read-only context mirrored to the top display. Never editable from the top. */
 data class DuoTopContext(
     val hostName: String? = null,
+    val hostAddress: String? = null,
+    val hostOnline: Boolean = false,
+    val hostPaired: Boolean = false,
+    val hostTag: String? = null,
     val appName: String? = null,
+    val appInitial: String? = null,
+    val appColor: Color? = null,
+    val appHdr: Boolean = false,
+    val settingsCategory: String? = null,
+    val settingsDescription: String? = null,
+    val settingsRows: List<String> = emptyList(),
+    val remoteName: String? = null,
+    val remoteIp: String? = null,
+    val remoteConnected: Boolean = false,
+    val remotePeers: Int = 0,
+)
+
+private data class SettingsTop(
+    val label: String,
+    val description: String,
+    val rows: List<String>,
+)
+
+private val topAppColors = listOf(
+    Color(0xFF7BA7C7),
+    Color(0xFF9B9BA8),
+    Color(0xFFF2C14E),
+    Color(0xFF4CC38A),
+    Color(0xFF5ED0FF),
+    Color(0xFFA78BFA),
 )
 
 /**
@@ -136,6 +165,9 @@ fun DuoShellScreen(
     var pairHost by remember { mutableStateOf<ComputerDetails?>(null) }
     var notice by remember { mutableStateOf<String?>(null) }
     var showHidden by rememberSaveable { mutableStateOf(false) }
+    var settingsTop by remember {
+        mutableStateOf(SettingsTop("画面", "画质、显示与 HUD", emptyList()))
+    }
     var appSelection by remember { mutableStateOf<NvApp?>(null) }
     val focusMemory = remember { DuoFocusMemory() }
 
@@ -197,13 +229,38 @@ fun DuoShellScreen(
         appSelection = null
     }
 
-    LaunchedEffect(selected?.name, appSelection?.appName, destination) {
-        onTopContextChanged(
-            DuoTopContext(
-                hostName = selected?.name,
-                appName = appSelection?.appName?.takeIf { destination == DuoDestination.APPS },
-            ),
-        )
+    val hostAddress = selected?.activeAddress
+        ?: selected?.localAddress
+        ?: selected?.manualAddress
+        ?: selected?.remoteAddress
+        ?: selected?.ipv6Address
+    val hostTag = when {
+        selected?.activeAddress != null && selected.activeAddress == selected.localAddress -> "LAN"
+        selected?.manualAddress != null -> "手动"
+        selected?.remoteAddress != null -> "远程"
+        else -> null
+    }
+    val topApp = appSelection?.takeIf { destination == DuoDestination.APPS }
+    val topContext = DuoTopContext(
+        hostName = selected?.name,
+        hostAddress = hostAddress?.address,
+        hostOnline = selected?.state == ComputerDetails.State.ONLINE,
+        hostPaired = selected?.pairState == PairingManager.PairState.PAIRED,
+        hostTag = hostTag,
+        appName = topApp?.appName,
+        appInitial = topApp?.appName?.trim()?.firstOrNull()?.uppercase(),
+        appColor = topApp?.let { topAppColors[((it.appId % topAppColors.size) + topAppColors.size) % topAppColors.size] },
+        appHdr = topApp?.isHdrSupported() == true,
+        settingsCategory = settingsTop.label.takeIf { destination == DuoDestination.SETTINGS },
+        settingsDescription = settingsTop.description.takeIf { destination == DuoDestination.SETTINGS },
+        settingsRows = settingsTop.rows.takeIf { destination == DuoDestination.SETTINGS } ?: emptyList(),
+        remoteName = remote.networkName.takeIf { destination == DuoDestination.REMOTE },
+        remoteIp = (runtime.virtualIp ?: remote.ipv4).takeIf { destination == DuoDestination.REMOTE },
+        remoteConnected = runtime.phase == DuoRemoteController.Phase.CONNECTED,
+        remotePeers = runtime.peers,
+    )
+    LaunchedEffect(topContext) {
+        onTopContextChanged(topContext)
     }
 
     LaunchedEffect(pairState.success) {
@@ -387,6 +444,9 @@ fun DuoShellScreen(
                     },
                     onNotice = { notice = it },
                     onOpenConsolePreview = host::openConsolePreview,
+                    onTopSettingsChanged = { label, description, rows ->
+                        settingsTop = SettingsTop(label, description, rows)
+                    },
                     backBlocked = hasShellOverlay,
                 )
             }

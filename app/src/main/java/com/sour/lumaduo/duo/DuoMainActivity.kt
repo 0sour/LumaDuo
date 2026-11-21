@@ -22,18 +22,24 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,10 +50,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -65,6 +78,7 @@ import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaTheme
 import com.sour.lumaduo.ui.luma.LumaType
 import com.sour.lumaduo.ui.shell.DuoDestination
+import com.sour.lumaduo.ui.shell.DuoChip
 import com.sour.lumaduo.ui.shell.DuoHostAction
 import com.sour.lumaduo.ui.shell.DuoShellHost
 import com.sour.lumaduo.ui.shell.DuoShellScreen
@@ -616,99 +630,382 @@ private fun DuoTopScreen(
         Modifier
             .fillMaxSize()
             .background(LumaColors.StageBg),
-        contentAlignment = Alignment.Center,
     ) {
+        Canvas(Modifier.fillMaxSize()) {
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(LumaColors.Accent.copy(alpha = 0.12f), Color.Transparent),
+                    center = Offset(size.width * 0.76f, size.height * 0.46f),
+                    radius = size.minDimension * 0.55f,
+                ),
+                radius = size.minDimension * 0.55f,
+                center = Offset(size.width * 0.76f, size.height * 0.46f),
+            )
+            drawCircle(
+                color = LumaColors.Signal.copy(alpha = 0.05f),
+                radius = size.minDimension * 0.34f,
+                center = Offset(size.width * 0.12f, size.height * 0.9f),
+            )
+        }
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 44.dp, vertical = 30.dp),
         ) {
-            Image(
-                painter = painterResource(R.drawable.duo_logo_full),
-                contentDescription = "LumaDuo",
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(LumaShapes.panel),
-            )
-            Spacer(Modifier.height(14.dp))
-            Text(
-                text = "LumaDuo",
-                style = LumaType.titleL,
-                color = LumaColors.Text,
-            )
-            Spacer(Modifier.height(12.dp))
-
+            TopBrandLine(location)
+            Spacer(Modifier.weight(1f))
             if (display == null) {
-                Text(
-                    text = "未检测到下屏",
-                    style = LumaType.titleM,
-                    color = LumaColors.Warning,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "单屏回退尚未接入",
-                    style = LumaType.bodyM,
-                    color = LumaColors.Secondary,
-                    textAlign = TextAlign.Center,
-                )
-            } else if (context.hostName != null) {
-                Text(
-                    text = context.hostName,
-                    style = LumaType.titleM,
-                    color = LumaColors.Text,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(3.dp))
-                Text(
-                    text = context.appName ?: "在下屏选择应用",
-                    style = LumaType.bodyM,
-                    color = if (context.appName != null) LumaColors.Accent else LumaColors.Secondary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "未检测到下屏",
+                        style = TopTitleStyle,
+                        color = LumaColors.Warning,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "单屏回退尚未接入",
+                        style = LumaType.bodyL,
+                        color = LumaColors.Secondary,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TopCopy(
+                        destination = destination,
+                        context = context,
+                        hostCount = hostCount,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(28.dp))
+                    TopVisual(
+                        destination = destination,
+                        context = context,
+                        modifier = Modifier.width(300.dp).height(230.dp),
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
-                    text = if (hostCount > 0) "已发现 $hostCount 台主机" else "等待主机",
-                    style = LumaType.titleM,
-                    color = LumaColors.Secondary,
-                    textAlign = TextAlign.Center,
+                    text = "上屏只读 · 下屏操作",
+                    style = LumaType.caption,
+                    color = LumaColors.Tertiary,
                 )
-                Spacer(Modifier.height(3.dp))
-                Text(
-                    text = "在下屏选择",
-                    style = LumaType.bodyM,
-                    color = LumaColors.Accent,
-                    textAlign = TextAlign.Center,
+                Spacer(Modifier.weight(1f))
+                if (BuildConfig.DEBUG && metrics != null) {
+                    Text(
+                        text = "下屏 ${metrics.widthPixels}×${metrics.heightPixels} @${metrics.densityDpi}dpi",
+                        style = LumaType.micro,
+                        color = LumaColors.Disabled,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private val TopTitleStyle = TextStyle(
+    fontSize = 34.sp,
+    lineHeight = 42.sp,
+    fontWeight = FontWeight.SemiBold,
+)
+
+private val TopEyebrowStyle = TextStyle(
+    fontSize = 11.sp,
+    lineHeight = 14.sp,
+    letterSpacing = 2.sp,
+    fontWeight = FontWeight.Medium,
+)
+
+@Composable
+private fun TopBrandLine(location: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            painter = painterResource(R.drawable.duo_logo_full),
+            contentDescription = "LumaDuo",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(10.dp)),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = "LumaDuo",
+            style = LumaType.label.copy(fontWeight = FontWeight.Bold),
+            color = LumaColors.Text,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "· $location",
+            style = LumaType.micro,
+            color = LumaColors.Tertiary,
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = "READ ONLY",
+            style = TopEyebrowStyle,
+            color = LumaColors.Accent.copy(alpha = 0.55f),
+        )
+    }
+}
+
+@Composable
+private fun TopCopy(
+    destination: DuoDestination,
+    context: DuoTopContext,
+    hostCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    val eyebrow: String
+    val title: String
+    val subtitle: String
+    val tags: List<Pair<String, Color>>
+    val hint: String?
+    val rows: List<String>
+    when (destination) {
+        DuoDestination.HOSTS -> {
+            val online = context.hostOnline
+            val paired = context.hostPaired
+            eyebrow = if (context.hostName != null) "当前主机" else "还没有主机"
+            title = context.hostName ?: "先添加一台 PC"
+            subtitle = if (context.hostName != null) {
+                "${context.hostAddress ?: "—"} · ${if (online) "在线" else "离线"} · ${if (paired) "已配对" else "未配对"}"
+            } else {
+                "在下屏使用 + 添加主机，或连接 EasyTier。"
+            }
+            tags = buildList {
+                if (context.hostName != null) {
+                    add((if (online) "在线" else "离线") to (if (online) LumaColors.Success else LumaColors.Disabled))
+                    add((if (paired) "已配对" else "未配对") to LumaColors.Accent)
+                    context.hostTag?.let { add(it to LumaColors.Signal) }
+                } else if (hostCount > 0) {
+                    add("已发现 $hostCount 台" to LumaColors.Signal)
+                }
+            }
+            hint = "在下屏选择或操作 · 上屏不接收输入"
+            rows = emptyList()
+        }
+        DuoDestination.APPS -> {
+            eyebrow = "${context.hostName ?: "未选择主机"} · 应用"
+            title = context.appName ?: "选择一个应用"
+            subtitle = if (context.appName != null) "在下屏选择并启动" else "应用列表来自当前主机"
+            tags = buildList {
+                if (context.appHdr) add("HDR" to LumaColors.Signal)
+                if (context.appName != null) add("上屏预览" to LumaColors.Accent)
+            }
+            hint = if (context.appName != null) "上屏只读预览 · 下屏启动" else "等待下屏选择"
+            rows = emptyList()
+        }
+        DuoDestination.REMOTE -> {
+            eyebrow = "虚拟网络"
+            title = context.remoteName ?: "EasyTier"
+            subtitle = "PC 端使用 10.0.0.2/24"
+            tags = buildList {
+                add(
+                    (if (context.remoteConnected) "已连接" else "未启动") to
+                        (if (context.remoteConnected) LumaColors.Success else LumaColors.Disabled),
+                )
+                if (context.remoteConnected) add("${context.remotePeers} 节点" to LumaColors.Accent)
+            }
+            hint = "在下屏启动 / 停止 EasyTier"
+            rows = emptyList()
+        }
+        DuoDestination.SETTINGS -> {
+            eyebrow = "设置分类"
+            title = context.settingsCategory ?: "设置"
+            subtitle = context.settingsDescription ?: "在下屏调整"
+            tags = emptyList()
+            hint = null
+            rows = context.settingsRows
+        }
+    }
+    Column(modifier) {
+        Text(eyebrow, style = TopEyebrowStyle, color = LumaColors.Accent)
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = title,
+            style = TopTitleStyle,
+            color = LumaColors.Text,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = subtitle,
+            style = LumaType.bodyL,
+            color = LumaColors.Secondary,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (tags.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                tags.forEach { (label, tone) -> DuoChip(label, tone) }
+            }
+        }
+        if (rows.isNotEmpty()) {
+            Spacer(Modifier.height(16.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                rows.take(5).forEach { row ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier
+                                .size(4.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(LumaColors.Accent.copy(alpha = 0.7f)),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(row, style = LumaType.caption, color = LumaColors.Secondary)
+                    }
+                }
+            }
+        } else if (hint != null) {
+            Spacer(Modifier.height(14.dp))
+            Text(hint, style = LumaType.micro, color = LumaColors.Tertiary)
+        }
+    }
+}
+
+@Composable
+private fun TopVisual(
+    destination: DuoDestination,
+    context: DuoTopContext,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier, contentAlignment = Alignment.Center) {
+        when (destination) {
+            DuoDestination.HOSTS -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(LumaColors.Surface1)
+                        .border(1.dp, LumaColors.Outline, RoundedCornerShape(18.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            painter = painterResource(R.drawable.duo_ic_monitor),
+                            contentDescription = null,
+                            tint = LumaColors.Accent,
+                            modifier = Modifier.size(64.dp),
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            if (context.hostOnline) "ONLINE" else "OFFLINE",
+                            style = LumaType.micro.copy(letterSpacing = 1.5.sp),
+                            color = if (context.hostOnline) LumaColors.Success else LumaColors.Disabled,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Box(
+                    Modifier
+                        .width(90.dp)
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(LumaColors.Surface3),
+                )
+                Spacer(Modifier.height(5.dp))
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(LumaColors.Surface2),
                 )
             }
-
-            Spacer(Modifier.height(16.dp))
-            Box(
+            DuoDestination.APPS -> Box(
                 Modifier
-                    .width(200.dp)
-                    .height(2.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(LumaColors.Accent.copy(alpha = 0.45f)),
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "下屏：$location · 上屏只读",
-                style = LumaType.caption,
-                color = LumaColors.Tertiary,
-                textAlign = TextAlign.Center,
-            )
-            if (BuildConfig.DEBUG && metrics != null) {
-                Spacer(Modifier.height(6.dp))
+                    .size(190.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(context.appColor ?: LumaColors.Surface2),
+                contentAlignment = Alignment.Center,
+            ) {
                 Text(
-                    text = "${metrics.widthPixels}×${metrics.heightPixels} @${metrics.densityDpi}dpi",
-                    style = LumaType.micro,
-                    color = LumaColors.Disabled,
-                    textAlign = TextAlign.Center,
+                    text = context.appInitial ?: "?",
+                    fontSize = 84.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF121216),
+                )
+            }
+            DuoDestination.REMOTE -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painterResource(R.drawable.duo_ic_gamepad),
+                        contentDescription = null,
+                        tint = LumaColors.Secondary,
+                        modifier = Modifier.size(34.dp),
+                    )
+                    Box(
+                        Modifier
+                            .width(44.dp)
+                            .height(2.dp)
+                            .background(LumaColors.Accent.copy(alpha = 0.35f)),
+                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("EasyTier", style = LumaType.label, color = LumaColors.Accent)
+                        Text(
+                            if (context.remoteConnected) "virtual LAN" else "offline",
+                            style = LumaType.micro,
+                            color = LumaColors.Tertiary,
+                        )
+                    }
+                    Box(
+                        Modifier
+                            .width(44.dp)
+                            .height(2.dp)
+                            .background(LumaColors.Accent.copy(alpha = 0.35f)),
+                    )
+                    Icon(
+                        painterResource(R.drawable.duo_ic_monitor),
+                        contentDescription = null,
+                        tint = LumaColors.Secondary,
+                        modifier = Modifier.size(34.dp),
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+                Text(
+                    text = "${context.remoteIp ?: "10.0.0.1"}/24 ↔ 10.0.0.2/24",
+                    style = LumaType.caption.copy(fontFamily = FontFamily.Monospace),
+                    color = LumaColors.Secondary,
+                )
+            }
+            DuoDestination.SETTINGS -> Box(
+                Modifier
+                    .size(190.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(LumaColors.Accent.copy(alpha = 0.08f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(topSettingsIcon(context.settingsCategory)),
+                    contentDescription = null,
+                    tint = LumaColors.Accent.copy(alpha = 0.7f),
+                    modifier = Modifier.size(88.dp),
                 )
             }
         }
     }
+}
+
+private fun topSettingsIcon(category: String?): Int = when (category) {
+    "音频" -> R.drawable.duo_ic_volume
+    "输入" -> R.drawable.duo_ic_gamepad
+    "网络" -> R.drawable.duo_ic_globe
+    "主机" -> R.drawable.duo_ic_host
+    "界面" -> R.drawable.duo_ic_sliders
+    "关于" -> R.drawable.duo_ic_apps
+    else -> R.drawable.duo_ic_monitor
 }

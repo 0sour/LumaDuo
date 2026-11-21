@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,15 +54,16 @@ import com.sour.lumaduo.ui.luma.LumaType
 
 private enum class DuoSetCat(
     val label: String,
+    val description: String,
     val icon: Int,
 ) {
-    VIDEO("画面", R.drawable.duo_ic_monitor),
-    AUDIO("音频", R.drawable.duo_ic_volume),
-    INPUT("输入", R.drawable.duo_ic_gamepad),
-    NETWORK("网络", R.drawable.duo_ic_globe),
-    HOST("主机", R.drawable.duo_ic_host),
-    INTERFACE("界面", R.drawable.duo_ic_sliders),
-    ABOUT("关于", R.drawable.duo_ic_apps),
+    VIDEO("画面", "画质、显示与 HUD", R.drawable.duo_ic_monitor),
+    AUDIO("音频", "声道、直通与麦克风", R.drawable.duo_ic_volume),
+    INPUT("输入", "手柄、触控与键盘", R.drawable.duo_ic_gamepad),
+    NETWORK("网络", "EasyTier、STUN 与测速", R.drawable.duo_ic_globe),
+    HOST("主机", "主机端行为与剪贴板", R.drawable.duo_ic_host),
+    INTERFACE("界面", "语言、主题与控制台", R.drawable.duo_ic_sliders),
+    ABOUT("关于", "版本、许可与诊断", R.drawable.duo_ic_apps),
 }
 
 private data class ChoiceOption(val value: String, val label: String)
@@ -87,6 +89,7 @@ fun DuoSettingsPage(
     onAddHost: () -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
+    onTopSettingsChanged: (String, String, List<String>) -> Unit = { _, _, _ -> },
     backBlocked: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
@@ -96,6 +99,14 @@ fun DuoSettingsPage(
     var version by remember { mutableIntStateOf(0) }
     val category = DuoSetCat.entries[categoryIndex.coerceIn(0, DuoSetCat.entries.lastIndex)]
     val config = repository.sceneConfig()
+
+    LaunchedEffect(category, version, scene, runtime.phase) {
+        onTopSettingsChanged(
+            category.label,
+            category.description,
+            settingsTopRows(category, scene, repository, remote, runtime),
+        )
+    }
 
     BackHandler(enabled = !backBlocked && (choice != null || subpage != null)) {
         if (choice != null) choice = null else subpage = null
@@ -2253,6 +2264,69 @@ private fun DuoChoiceOverlay(
             DuoTextButton("取消", onClick = onDismiss, modifier = Modifier.fillMaxWidth())
         }
     }
+}
+
+private fun settingsTopRows(
+    category: DuoSetCat,
+    scene: DuoSettingsRepository.Snapshot,
+    repository: DuoSettingsRepository,
+    remote: DuoRemoteRepository.Snapshot,
+    runtime: DuoRemoteController.State,
+): List<String> = when (category) {
+    DuoSetCat.VIDEO -> listOf(
+        "分辨率 · ${scene.resolutionLabel}",
+        "帧率 · ${scene.fps} Hz",
+        "码率 · ${scene.bitrateMbps} Mbps",
+        "智能码率 · ${if (scene.adaptiveBitrate) "开" else "关"}",
+        "视频格式 · ${scene.formatLabel}",
+    )
+    DuoSetCat.AUDIO -> listOf(
+        "声道 · ${scene.audioLabel}",
+        "音频直通 · ${if (repository.getBoolean("checkbox_enable_audio_passthrough", false)) "开" else "关"}",
+        "麦克风 · ${if (repository.getBoolean("checkbox_enable_mic", false)) "开" else "关"}",
+        "空间音频 · ${if (repository.getBoolean("checkbox_enable_spatializer", false)) "开" else "关"}",
+    )
+    DuoSetCat.INPUT -> listOf(
+        "摇杆死区 · ${repository.getInt("seekbar_deadzone", 7)}%",
+        "震动 · ${scene.rumbleLabel}",
+        "触摸模式 · ${touchPresetLabel(repository.touchPreset())}",
+        "陀螺仪 · ${if (repository.getBoolean("gyro_to_right_stick", false)) "开" else "关"}",
+    )
+    DuoSetCat.NETWORK -> listOf(
+        "EasyTier · " + when (runtime.phase) {
+            DuoRemoteController.Phase.CONNECTED -> "已连接"
+            DuoRemoteController.Phase.STARTING -> "启动中"
+            DuoRemoteController.Phase.NEED_PERMISSION -> "待授权"
+            DuoRemoteController.Phase.ERROR -> "错误"
+            else -> "未启动"
+        },
+        "网络 · ${remote.networkName}",
+        "本机 IP · ${runtime.virtualIp ?: remote.ipv4}/24",
+        "STUN · ${if (repository.getBoolean("checkbox_enable_stun", false)) "开" else "关"}",
+    )
+    DuoSetCat.HOST -> listOf(
+        "主机优化 · ${if (repository.getBoolean("checkbox_enable_sops", true)) "开" else "关"}",
+        "屏幕组合 · ${screenModeLabel(repository.getString("list_screen_combination_mode", "-1"))}",
+        "主机音频 · ${if (repository.getBoolean("checkbox_host_audio", false)) "开" else "关"}",
+        "后台串流 · " + when (repository.backgroundMode()) {
+            BackgroundStreamBehavior.RESUME -> "恢复"
+            BackgroundStreamBehavior.KEEP_CONNECTED -> "保持"
+            BackgroundStreamBehavior.KEEP_AUDIO -> "保持+音频"
+            else -> "断开"
+        },
+    )
+    DuoSetCat.INTERFACE -> listOf(
+        "语言 · 简体中文",
+        "主题 · 深色 · Lumen Gold",
+        "状态页指标 · 默认 5 项",
+        "控制台不透明度 · 固定",
+    )
+    DuoSetCat.ABOUT -> listOf(
+        "版本 · ${BuildConfig.VERSION_NAME}",
+        "上游 · Moonlight V+ 12.15.17",
+        "许可证 · GPL-3.0",
+        "隐私 · 无遥测",
+    )
 }
 
 private fun touchPresetLabel(preset: TouchModePreset): String = when (preset) {
