@@ -144,17 +144,25 @@ class SecondScreenPresentation(
     }
 
     override fun onStop() {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        // Dialog.dismiss() calls onStop from inside super.dismiss(). If dismiss() has
+        // already moved the registry to DESTROYED, sending PAUSE/STOP would throw
+        // "State is 'DESTROYED' and cannot be moved to STARTED".
+        if (lifecycleRegistry.currentState != Lifecycle.State.DESTROYED) {
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        }
         super.onStop()
     }
 
     override fun dismiss() {
+        // Let Dialog detach the window and deliver onStop while the registry is still
+        // STARTED, then finish the owner lifecycle. This keeps Compose disposal and
+        // ViewModelStore clearing in the expected order.
+        super.dismiss()
         if (lifecycleRegistry.currentState != Lifecycle.State.DESTROYED) {
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         }
         store.clear()
-        super.dismiss()
     }
 
     /**
