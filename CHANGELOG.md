@@ -4,6 +4,12 @@ All notable changes to LumaDuo are recorded here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Declare `android:label="@string/app_label"` on the `<application>` element.
+  Launchers that read the application label instead of the activity alias no
+  longer fall back to the package name and now show **LumaDuo**.
+
 ### Changed
 
 - Repository cleanup for the first LumaDuo snapshot: removed V+ promo assets,
