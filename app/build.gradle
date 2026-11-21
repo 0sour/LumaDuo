@@ -105,6 +105,8 @@ android {
             buildConfigField "boolean", "MINIMAL_EDITION", "false"
         }
 
+        // Full V+ product surface for upstream comparison and debugging only.
+        // The final product package is owned by the duo flavor below.
         nonRoot {
             externalNativeBuild {
                 ndkBuild {
@@ -120,14 +122,14 @@ android {
                 abiFilters(*supportedAbis)
             }
 
-            applicationId "com.sour.lumaduo"
+            applicationId "com.sour.lumaduo.full"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "false"
             buildConfigField "boolean", "MINIMAL_EDITION", "false"
         }
 
-        // Minimal product edition: LumaDuo shell + stream console only. The full
-        // nonRoot/root editions remain available for upstream comparison and debugging.
+        // Minimal product edition: LumaDuo shell + stream console only. This flavor
+        // owns the production package and upgrade path; full editions use suffixed IDs.
         duo {
             externalNativeBuild {
                 ndkBuild {
@@ -139,7 +141,7 @@ android {
                 abiFilters 'arm64-v8a'
             }
 
-            applicationId "com.sour.lumaduo.duo"
+            applicationId "com.sour.lumaduo"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "false"
             buildConfigField "boolean", "MINIMAL_EDITION", "true"
