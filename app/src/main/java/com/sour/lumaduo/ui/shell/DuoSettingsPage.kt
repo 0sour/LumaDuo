@@ -2443,7 +2443,7 @@ private fun HostAdvancedPage(
     DuoSettingRow(
         title = "主机端能力",
         value = "Foundation",
-        detail = "自动解锁 / WebUI 等在主机的更多操作中",
+        detail = "WebUI 见主机“更多”；解锁在串流工具页",
         enabled = false,
     )
 }

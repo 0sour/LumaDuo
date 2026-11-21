@@ -1009,7 +1009,7 @@ private fun AppActionsOverlay(
                 if (hidden) "已隐藏" else "",
                 onActivate = { onAction(DuoAppAction.HIDE) },
             )
-            DuoSettingRow("创建桌面快捷方式", "P1", onActivate = { onAction(DuoAppAction.SHORTCUT) })
+            DuoSettingRow("创建桌面快捷方式", "桌面", onActivate = { onAction(DuoAppAction.SHORTCUT) })
             Spacer(Modifier.height(6.dp))
             DuoTextButton("关闭", onClick = onDismiss, modifier = Modifier.fillMaxWidth())
         }

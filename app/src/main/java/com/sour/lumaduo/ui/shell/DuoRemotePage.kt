@@ -538,7 +538,7 @@ fun DuoRemoteAdvanced(
             }
             Spacer(Modifier.height(8.dp))
             DuoTextButton(
-                "恢复默认值",
+                "填入默认值（保存后生效）",
                 onClick = {
                     value = value.copy(
                         networkName = "easytier",
