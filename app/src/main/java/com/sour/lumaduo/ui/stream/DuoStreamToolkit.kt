@@ -3,8 +3,9 @@ package com.sour.lumaduo.ui.stream
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,12 @@ import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaFocusable
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaType
+import com.sour.lumaduo.ui.shell.DuoConfirmPanel
+import com.sour.lumaduo.ui.shell.DuoOverlay
 import com.sour.lumaduo.ui.shell.DuoTextButton
+import kotlin.math.abs
+
+private const val WHEEL_STEP_PX = 40f
 
 private data class KeyDef(
     val label: String,
@@ -167,6 +173,7 @@ fun DuoStreamToolkit(
                     onClick = { tab = entry },
                     modifier = Modifier
                         .height(30.dp)
+                        .width(76.dp)
                         .padding(end = 6.dp),
                     cornerRadius = 6.dp,
                 ) { focused ->
@@ -215,6 +222,7 @@ private fun Touchpad(actions: DuoStreamActions) {
     val density = LocalDensity.current
     var pointer by remember { mutableStateOf<Offset?>(null) }
     var dragLock by remember { mutableStateOf(false) }
+    var lastTapAt by remember { mutableStateOf(0L) }
     Column(Modifier.fillMaxSize()) {
         Box(
             Modifier
@@ -224,29 +232,85 @@ private fun Touchpad(actions: DuoStreamActions) {
                 .background(LumaColors.Bg)
                 .border(1.dp, LumaColors.Outline, LumaShapes.card)
                 .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            pointer = offset
-                            actions.mouseButton(1)
-                        },
-                        onDoubleTap = { dragLock = !dragLock },
-                        onLongPress = { dragLock = true },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = { pointer = it },
-                        onDragEnd = { pointer = null },
-                        onDragCancel = { pointer = null },
-                    ) { change, drag ->
-                        change.consume()
-                        pointer = (pointer ?: Offset.Zero) + drag
-                        actions.mouseMove(drag.x, drag.y)
+                    awaitEachGesture {
+                        val first = awaitFirstDown(requireUnconsumed = false)
+                        pointer = first.position
+                        var lastPosition = first.position
+                        var lastAverageY = 0f
+                        var twoFinger = false
+                        var moved = false
+                        var scrolledPx = 0f
+                        var scrollAccum = 0f
+                        var heldLeft = false
+                        val startedAt = System.currentTimeMillis()
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val pressed = event.changes.filter { it.pressed }
+                            if (pressed.isEmpty()) break
+                            if (pressed.size >= 2) {
+                                if (!twoFinger) {
+                                    twoFinger = true
+                                    if (heldLeft) {
+                                        actions.mouseButtonUp(1)
+                                        heldLeft = false
+                                    }
+                                }
+                                val averageY = pressed.map { it.position.y }.average().toFloat()
+                                if (lastAverageY != 0f) {
+                                    val dy = averageY - lastAverageY
+                                    scrolledPx += abs(dy)
+                                    scrollAccum += dy
+                                    while (scrollAccum <= -WHEEL_STEP_PX) {
+                                        actions.mouseScroll(1)
+                                        scrollAccum += WHEEL_STEP_PX
+                                    }
+                                    while (scrollAccum >= WHEEL_STEP_PX) {
+                                        actions.mouseScroll(-1)
+                                        scrollAccum -= WHEEL_STEP_PX
+                                    }
+                                }
+                                lastAverageY = averageY
+                                pressed.forEach { it.consume() }
+                            } else if (!twoFinger) {
+                                val change = pressed.first()
+                                val delta = change.position - lastPosition
+                                if (delta.getDistance() > 2f) {
+                                    moved = true
+                                    if (dragLock && !heldLeft) {
+                                        actions.mouseButtonDown(1)
+                                        heldLeft = true
+                                    }
+                                    actions.mouseMove(delta.x, delta.y)
+                                    pointer = (pointer ?: Offset.Zero) + delta
+                                }
+                                lastPosition = change.position
+                                change.consume()
+                            }
+                        }
+                        if (heldLeft) actions.mouseButtonUp(1)
+                        val now = System.currentTimeMillis()
+                        if (twoFinger) {
+                            // Two-finger tap (not a scroll) is a right click.
+                            if (scrolledPx < 12f) actions.mouseButton(3)
+                        } else if (!moved) {
+                            when {
+                                now - startedAt > 600L -> dragLock = true
+                                now - lastTapAt < 320L -> {
+                                    dragLock = !dragLock
+                                    lastTapAt = 0L
+                                }
+                                else -> {
+                                    actions.mouseButton(1)
+                                    lastTapAt = now
+                                }
+                            }
+                        }
+                        pointer = null
                     }
                 },
         ) {
             Text(
-                if (dragLock) "拖拽锁定" else "单指移动 · 轻点左键 · 双击/长按拖拽",
+                if (dragLock) "拖拽锁定" else "单指移动/点击 · 双指滚动/右键 · 双击长按拖拽",
                 style = LumaType.micro,
                 color = LumaColors.Tertiary,
                 modifier = Modifier.align(Alignment.Center),
@@ -274,7 +338,7 @@ private fun Touchpad(actions: DuoStreamActions) {
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            "相对鼠标增量 · 不承诺远端绝对光标；双指滚动/右键在 M3 输入 Sink 接入。",
+            "相对鼠标增量 · 单指移动/点击 · 双指滚动/轻点右键 · 长按或双击切换拖拽。",
             style = LumaType.micro,
             color = LumaColors.Tertiary,
         )
@@ -392,6 +456,8 @@ private fun Key(
 
 @Composable
 private fun Shortcuts(actions: DuoStreamActions) {
+    var confirmAction by remember { mutableStateOf<String?>(null) }
+    BackHandler(enabled = confirmAction != null) { confirmAction = null }
     val actionStrip = listOf(
         "本地键盘" to { actions.localKeyboard() },
         "主机键盘" to { actions.hostKeyboard() },
@@ -404,7 +470,13 @@ private fun Shortcuts(actions: DuoStreamActions) {
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.fillMaxWidth()) {
             actionStrip.forEach { (label, action) ->
                 LumaFocusable(
-                    onClick = action,
+                    onClick = {
+                        when (label) {
+                            "休眠" -> confirmAction = "sleep"
+                            "退出" -> confirmAction = "exit"
+                            else -> action()
+                        }
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(28.dp),
@@ -440,7 +512,9 @@ private fun Shortcuts(actions: DuoStreamActions) {
                     row.forEach { (label, name) ->
                         val danger = label == "Win + L"
                         LumaFocusable(
-                            onClick = { actions.sendShortcut(label) },
+                            onClick = {
+                                if (danger) confirmAction = "lock" else actions.sendShortcut(label)
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxSize(),
@@ -473,7 +547,7 @@ private fun Shortcuts(actions: DuoStreamActions) {
                                     maxLines = 1,
                                 )
                                 if (danger) {
-                                    Text("长按确认", style = LumaType.micro, color = LumaColors.Error)
+                                    Text("需确认", style = LumaType.micro, color = LumaColors.Error)
                                 }
                             }
                         }
@@ -486,5 +560,43 @@ private fun Shortcuts(actions: DuoStreamActions) {
             style = LumaType.micro,
             color = LumaColors.Tertiary,
         )
+    }
+    when (confirmAction) {
+        "lock" -> DuoOverlay(onDismiss = { confirmAction = null }) {
+            DuoConfirmPanel(
+                title = "锁定电脑？",
+                body = "将发送 Win+L，主机立即锁定。请确认当前不在全屏游戏中误触。",
+                confirmLabel = "锁定",
+                onCancel = { confirmAction = null },
+                onConfirm = {
+                    confirmAction = null
+                    actions.sendShortcut("Win + L")
+                },
+            )
+        }
+        "sleep" -> DuoOverlay(onDismiss = { confirmAction = null }) {
+            DuoConfirmPanel(
+                title = "让主机休眠？",
+                body = "将通过 Win+X → U → S 发送休眠组合键，主机随即断开。",
+                confirmLabel = "休眠",
+                onCancel = { confirmAction = null },
+                onConfirm = {
+                    confirmAction = null
+                    actions.sleepHost()
+                },
+            )
+        }
+        "exit" -> DuoOverlay(onDismiss = { confirmAction = null }) {
+            DuoConfirmPanel(
+                title = "退出串流？",
+                body = "连接会断开，上屏回到主机预览。游戏进度由 PC 保留。",
+                confirmLabel = "退出",
+                onCancel = { confirmAction = null },
+                onConfirm = {
+                    confirmAction = null
+                    actions.exitStream()
+                },
+            )
+        }
     }
 }

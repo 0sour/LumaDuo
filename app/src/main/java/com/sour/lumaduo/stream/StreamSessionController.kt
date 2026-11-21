@@ -33,6 +33,12 @@ interface StreamSessionController {
     /** Click with 1 = left, 2 = middle, 3 = right. */
     fun mouseButton(button: Int)
 
+    fun mouseButtonDown(button: Int)
+    fun mouseButtonUp(button: Int)
+
+    /** Vertical wheel: positive scrolls up, negative scrolls down. */
+    fun mouseScroll(delta: Int)
+
     /** Release keyboard modifiers, controller buttons/triggers and touch pointers. */
     fun releaseAllInputs()
 }

@@ -3843,15 +3843,30 @@ class Game : ThemedComponentActivity(), SurfaceHolder.Callback,
     override fun unlockHost() = startHostUnlock()
 
     override fun mouseButton(button: Int) {
-        // Console contract: 1 = left, 2 = middle, 3 = right.
-        val evdevButton = when (button) {
-            1 -> EvdevListener.BUTTON_LEFT
-            2 -> EvdevListener.BUTTON_MIDDLE
-            3 -> EvdevListener.BUTTON_RIGHT
-            else -> return
-        }
+        val evdevButton = consoleButtonToEvdev(button) ?: return
         mouseButtonEvent(evdevButton, true)
         mouseButtonEvent(evdevButton, false)
+    }
+
+    override fun mouseButtonDown(button: Int) {
+        val evdevButton = consoleButtonToEvdev(button) ?: return
+        mouseButtonEvent(evdevButton, true)
+    }
+
+    override fun mouseButtonUp(button: Int) {
+        val evdevButton = consoleButtonToEvdev(button) ?: return
+        mouseButtonEvent(evdevButton, false)
+    }
+
+    override fun mouseScroll(delta: Int) {
+        conn?.sendMouseScroll(delta.coerceIn(-127, 127).toByte())
+    }
+
+    private fun consoleButtonToEvdev(button: Int): Int? = when (button) {
+        1 -> EvdevListener.BUTTON_LEFT
+        2 -> EvdevListener.BUTTON_MIDDLE
+        3 -> EvdevListener.BUTTON_RIGHT
+        else -> null
     }
 
     override fun releaseAllInputs() {

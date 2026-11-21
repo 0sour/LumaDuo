@@ -226,6 +226,7 @@ class DuoSettingsRepository(context: Context) {
     fun getBoolean(key: String, default: Boolean): Boolean = prefs.getBoolean(key, default)
     fun getString(key: String, default: String): String = prefs.getString(key, default) ?: default
     fun getInt(key: String, default: Int): Int = prefs.getInt(key, default)
+    fun getFloat(key: String, default: Float): Float = prefs.getFloat(key, default)
     fun putBoolean(key: String, value: Boolean) {
         prefs.edit().putBoolean(key, value).apply()
     }
@@ -234,6 +235,9 @@ class DuoSettingsRepository(context: Context) {
     }
     fun putInt(key: String, value: Int) {
         prefs.edit().putInt(key, value).apply()
+    }
+    fun putFloat(key: String, value: Float) {
+        prefs.edit().putFloat(key, value).apply()
     }
 
     fun sceneConfig(): PreferenceConfiguration = PreferenceConfiguration.readPreferences(appContext)

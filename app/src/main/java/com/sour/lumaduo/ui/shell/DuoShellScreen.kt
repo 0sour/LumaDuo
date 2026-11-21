@@ -40,6 +40,7 @@ import com.sour.lumaduo.duo.DuoHostRepository
 import com.sour.lumaduo.duo.DuoRemoteController
 import com.sour.lumaduo.duo.DuoRemoteRepository
 import com.sour.lumaduo.duo.DuoSettingsRepository
+import com.sour.lumaduo.duo.stream.NetworkProbe
 import com.sour.lumaduo.nvstream.http.ComputerDetails
 import com.sour.lumaduo.nvstream.http.NvApp
 import com.sour.lumaduo.nvstream.http.PairingManager
@@ -49,8 +50,11 @@ import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LocalDuoFocusMemory
 import com.sour.lumaduo.ui.luma.LumaType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Read-only context mirrored to the top display. Never editable from the top. */
 data class DuoTopContext(
@@ -116,6 +120,10 @@ fun DuoShellScreen(
     var selectedUuid by rememberSaveable { mutableStateOf("") }
     var appSheet by remember { mutableStateOf<NvApp?>(null) }
     var hostMore by remember { mutableStateOf<ComputerDetails?>(null) }
+    var netTestHost by remember { mutableStateOf<ComputerDetails?>(null) }
+    var netTestNonce by remember { mutableStateOf(0) }
+    var netTestRunning by remember { mutableStateOf(false) }
+    var netTestResult by remember { mutableStateOf<NetworkProbe.Result?>(null) }
     var confirm by remember { mutableStateOf<ConfirmRequest?>(null) }
     var addOpen by rememberSaveable { mutableStateOf(false) }
     var addAddress by rememberSaveable { mutableStateOf("") }
@@ -139,7 +147,7 @@ fun DuoShellScreen(
     val selected = hostList.firstOrNull { it.uuid == selectedUuid } ?: hostList.firstOrNull()
     val pair = pairHost ?: hostList.firstOrNull { it.uuid == pairState.hostUuid }
     val hasShellOverlay = addOpen || pair != null && (pairState.pin != null || pairState.error != null) ||
-        hostMore != null || appSheet != null || confirm != null ||
+        hostMore != null || appSheet != null || confirm != null || netTestHost != null ||
         remoteEdit || remoteAdvanced || qrContent != null
 
     // Back/Escape/Button-B reach the Presentation's dispatcher. Overlays consume the
@@ -151,6 +159,7 @@ fun DuoShellScreen(
             remoteAdvanced -> remoteAdvanced = false
             remoteEdit -> remoteEdit = false
             appSheet != null -> appSheet = null
+            netTestHost != null && !netTestRunning -> netTestHost = null
             hostMore != null -> hostMore = null
             pair != null && (pairState.pin != null || pairState.error != null) -> {
                 pairHost = null
@@ -159,6 +168,23 @@ fun DuoShellScreen(
             addOpen && !addBusy -> addOpen = false
             else -> Unit
         }
+    }
+
+    LaunchedEffect(netTestHost, netTestNonce) {
+        val target = netTestHost ?: return@LaunchedEffect
+        val address = target.activeAddress?.address
+            ?: target.localAddress?.address
+            ?: target.manualAddress?.address
+        if (address.isNullOrBlank()) {
+            netTestRunning = false
+            netTestResult = NetworkProbe.Result("不可达", "主机没有可用地址")
+            return@LaunchedEffect
+        }
+        netTestRunning = true
+        netTestResult = null
+        val result = withContext(Dispatchers.IO) { NetworkProbe.probe(address) }
+        netTestRunning = false
+        netTestResult = result
     }
 
     LaunchedEffect(destination, selected?.uuid) {
@@ -295,6 +321,10 @@ fun DuoShellScreen(
                                 onConfirm = { host.delete(target) },
                             )
                             DuoHostAction.MORE, DuoHostAction.DETAILS -> hostMore = target
+                            DuoHostAction.NETWORK_TEST -> {
+                                netTestNonce++
+                                netTestHost = target
+                            }
                             else -> host.hostMore(target, action)
                         }
                     },
@@ -345,6 +375,7 @@ fun DuoShellScreen(
                     runtime = runtime,
                     onSceneChanged = onSettingsChanged,
                     onOpenRemote = { onDestinationChange(DuoDestination.REMOTE) },
+                    onOpenHosts = { onDestinationChange(DuoDestination.HOSTS) },
                     onOpenLegacy = host::openLegacy,
                     onOpenNotices = host::openNotices,
                     onOpenHelp = host::openHelp,
@@ -404,18 +435,96 @@ fun DuoShellScreen(
                 onDismiss = { hostMore = null },
                 onAction = { action ->
                     hostMore = null
-                    if (action == DuoHostAction.DELETE) {
-                        confirm = ConfirmRequest(
+                    when (action) {
+                        DuoHostAction.DELETE -> confirm = ConfirmRequest(
                             title = "删除主机？",
                             body = "将从列表移除 ${target.name ?: "这台主机"}。",
                             confirmLabel = "删除",
                             onConfirm = { host.delete(target) },
                         )
-                    } else {
-                        host.hostMore(target, action)
+                        DuoHostAction.NETWORK_TEST -> {
+                            netTestNonce++
+                            netTestHost = target
+                        }
+                        DuoHostAction.PAIR -> {
+                            if (target.state != ComputerDetails.State.ONLINE) {
+                                host.notice("主机离线，先唤醒或检查网络")
+                            } else {
+                                pairHost = target
+                                host.pair(target)
+                            }
+                        }
+                        else -> host.hostMore(target, action)
                     }
                 },
             )
+        }
+
+        netTestHost?.let { target ->
+            val address = target.activeAddress?.address
+                ?: target.localAddress?.address
+                ?: target.manualAddress?.address
+                ?: "—"
+            DuoOverlay(
+                onDismiss = { if (!netTestRunning) netTestHost = null },
+                width = 380.dp,
+            ) {
+                Column {
+                    Text("网络测试", style = LumaType.titleM, color = LumaColors.Text)
+                    Text(
+                        "${target.name ?: "主机"} · $address",
+                        style = LumaType.micro,
+                        color = LumaColors.Tertiary,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    when {
+                        netTestRunning -> Text(
+                            "正在连接 TCP 47984 / 47989 / 47990…",
+                            style = LumaType.bodyM,
+                            color = LumaColors.Secondary,
+                        )
+                        netTestResult != null -> {
+                            Text(
+                                netTestResult!!.label,
+                                style = LumaType.titleM,
+                                color = LumaColors.Accent,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                netTestResult!!.detail,
+                                style = LumaType.caption,
+                                color = LumaColors.Secondary,
+                            )
+                        }
+                        else -> Text(
+                            "客户端只测端口连通性，不登录、不读取主机数据。",
+                            style = LumaType.caption,
+                            color = LumaColors.Tertiary,
+                        )
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "只测 TCP 连接时间；不伪造丢包或建议码率。",
+                        style = LumaType.micro,
+                        color = LumaColors.Tertiary,
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DuoTextButton(
+                            if (netTestRunning) "测试中…" else "重新测试",
+                            onClick = { netTestNonce++ },
+                            enabled = !netTestRunning,
+                            modifier = Modifier.weight(1f),
+                        )
+                        DuoTextButton(
+                            "关闭",
+                            onClick = { netTestHost = null },
+                            enabled = !netTestRunning,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
         }
 
         appSheet?.let { app ->
@@ -704,6 +813,11 @@ private fun HostMoreOverlay(
             DuoSettingRow("唤醒主机", "WOL", detail = "离线且已记录 MAC 时可用", onActivate = {
                 onAction(DuoHostAction.WAKE)
             })
+            if (host.pairState == PairingManager.PairState.PAIRED) {
+                DuoSettingRow("重新配对", "证书", detail = "重新输入主机 PIN", onActivate = {
+                    onAction(DuoHostAction.PAIR)
+                })
+            }
             DuoSettingRow("网络测试", "延迟 / 丢包", onActivate = {
                 onAction(DuoHostAction.NETWORK_TEST)
             })
@@ -748,6 +862,13 @@ private fun AppActionsOverlay(
                 style = LumaType.micro,
                 color = LumaColors.Tertiary,
             )
+            app.cmdList?.let { commands ->
+                Text(
+                    "启动命令 ${commands.size()} 条 · 由主机应用列表提供",
+                    style = LumaType.micro,
+                    color = LumaColors.Tertiary,
+                )
+            }
             Spacer(Modifier.height(8.dp))
             DuoSettingRow("启动", "B", onActivate = { onAction(DuoAppAction.LAUNCH) })
             DuoSettingRow(

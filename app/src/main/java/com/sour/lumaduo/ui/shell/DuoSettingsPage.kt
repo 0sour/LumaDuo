@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.ui.shell
 
+import android.media.MediaCodecList
+import android.os.Build
+import android.view.InputDevice
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -76,6 +80,7 @@ fun DuoSettingsPage(
     runtime: DuoRemoteController.State,
     onSceneChanged: (DuoSettingsRepository.Snapshot) -> Unit,
     onOpenRemote: () -> Unit,
+    onOpenHosts: () -> Unit,
     onOpenLegacy: () -> Unit,
     onOpenNotices: () -> Unit,
     onOpenHelp: () -> Unit,
@@ -217,6 +222,7 @@ fun DuoSettingsPage(
                             version = version,
                             onRefresh = { version++ },
                             onOpenRemote = onOpenRemote,
+                            onOpenHosts = onOpenHosts,
                             onAddHost = onAddHost,
                             onNotice = onNotice,
                         )
@@ -238,6 +244,8 @@ fun DuoSettingsPage(
                             onOpenLegacy = onOpenLegacy,
                             onOpenNotices = onOpenNotices,
                             onOpenHelp = onOpenHelp,
+                            onOpenHosts = onOpenHosts,
+                            onSubpage = { subpage = it },
                             onNotice = onNotice,
                             onOpenConsolePreview = onOpenConsolePreview,
                         )
@@ -375,6 +383,10 @@ fun DuoSettingsPage(
                             version = version,
                             onRefresh = { version++ },
                         )
+                        "diagnostics" -> DiagnosticsPage(
+                            onOpenHelp = onOpenHelp,
+                            onOpenHosts = onOpenHosts,
+                        )
                         else -> Unit
                     }
                 }
@@ -411,6 +423,7 @@ private fun subpageTitle(id: String?): String = when (id) {
     "advAudio" -> "音频 · 高级"
     "advInput" -> "输入 · 高级"
     "advHost" -> "主机 · 高级"
+    "diagnostics" -> "帮助 / 诊断"
     else -> "设置"
 }
 
@@ -800,6 +813,7 @@ private fun NetworkParent(
     version: Int,
     onRefresh: () -> Unit,
     onOpenRemote: () -> Unit,
+    onOpenHosts: () -> Unit,
     onAddHost: () -> Unit,
     onNotice: (String) -> Unit,
 ) {
@@ -833,7 +847,10 @@ private fun NetworkParent(
         value = "选择主机",
         detail = "延迟 / 抖动 / 丢包 / 建议码率",
         isSubpage = true,
-        onActivate = { onNotice("在主机详情或串流连接页发起网络测试") },
+        onActivate = {
+            onNotice("选择主机后点“网络测试”")
+            onOpenHosts()
+        },
     )
     DuoSettingRow(
         title = "手动添加主机",
@@ -1013,6 +1030,8 @@ private fun AboutParent(
     onOpenLegacy: () -> Unit,
     onOpenNotices: () -> Unit,
     onOpenHelp: () -> Unit,
+    onOpenHosts: () -> Unit,
+    onSubpage: (String) -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
 ) {
@@ -1029,9 +1048,9 @@ private fun AboutParent(
     DuoSettingRow(
         title = "帮助 / 诊断",
         value = "打开",
-        detail = "主机设置与常见问题",
+        detail = "能力、手柄、网络诊断",
         isSubpage = true,
-        onActivate = onOpenHelp,
+        onActivate = { onSubpage("diagnostics") },
     )
     DuoSettingRow(
         title = "更新",
@@ -1524,6 +1543,9 @@ private fun MicPage(
     val initial = repository.getString("list_mic_initial_state", "off")
     val bitrate = repository.getInt("seekbar_mic_bitrate_kbps", 64)
     val enhance = repository.getBoolean("checkbox_mic_voice_enhancement", true)
+    val processing = repository.getBoolean("checkbox_mic_volume_processing", false)
+    val gain = repository.getBoolean("checkbox_mic_gain", false)
+    val gainDb = repository.getInt("seekbar_mic_gain_db", 0)
     DuoSettingRow(
         title = "启用麦克风",
         value = if (enabled) "开" else "关",
@@ -1576,6 +1598,38 @@ private fun MicPage(
             repository.putBoolean("checkbox_mic_voice_enhancement", !enhance)
             onRefresh()
         },
+    )
+    DuoSettingRow(
+        title = "音量处理",
+        value = if (processing) "开" else "关",
+        detail = "增益 / 自动平衡总开关",
+        isSwitch = true,
+        switchOn = processing,
+        enabled = enabled,
+        onActivate = {
+            repository.putBoolean("checkbox_mic_volume_processing", !processing)
+            onRefresh()
+        },
+    )
+    DuoSettingRow(
+        title = "固定增益",
+        value = if (gain) "开" else "关",
+        isSwitch = true,
+        switchOn = gain,
+        enabled = enabled && processing,
+        onActivate = {
+            repository.putBoolean("checkbox_mic_gain", !gain)
+            onRefresh()
+        },
+    )
+    DuoSliderRow(
+        title = "增益量",
+        valueLabel = "${if (gainDb >= 0) "+" else ""}$gainDb dB",
+        value = gainDb.toFloat(),
+        range = -20f..20f,
+        steps = 39,
+        onValueChange = { repository.putInt("seekbar_mic_gain_db", it.toInt()) },
+        onValueChangeFinished = onRefresh,
     )
 }
 
@@ -1658,6 +1712,9 @@ private fun TouchPage(
 ) {
     val dblDrag = repository.getBoolean("pref_enable_double_click_drag", false)
     val touchKeyboard = repository.getBoolean("checkbox_touch_keyboard_auto_invoke", true)
+    val enhanced = repository.getBoolean("checkbox_enable_enhanced_touch", true)
+    val enhancedRight = repository.getBoolean("checkbox_enhanced_touch_on_which_side", false)
+    val divider = repository.getInt("enhanced_touch_zone_divider", 50)
     DuoSettingRow(
         title = "双击拖拽",
         value = if (dblDrag) "开" else "关",
@@ -1678,11 +1735,34 @@ private fun TouchPage(
             onRefresh()
         },
     )
-    DuoSettingRow(
-        title = "增强触摸分区",
-        value = "高级",
-        detail = "分区侧、分隔线、指针速度",
-        enabled = false,
+    DuoSwitchRow(
+        title = "增强触摸",
+        checked = enhanced,
+        detail = "分区映射，适合横屏握持",
+        onToggle = {
+            repository.putBoolean("checkbox_enable_enhanced_touch", !enhanced)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "增强区在右侧",
+        checked = enhancedRight,
+        detail = if (enhanced) "关闭时增强区在左侧" else "先开启增强触摸",
+        enabled = enhanced,
+        onToggle = {
+            repository.putBoolean("checkbox_enhanced_touch_on_which_side", !enhancedRight)
+            onRefresh()
+        },
+    )
+    DuoSliderRow(
+        title = "增强区边界",
+        valueLabel = "$divider%",
+        detail = "分区线位置",
+        value = divider.toFloat(),
+        range = 0f..100f,
+        steps = 9,
+        onValueChange = { repository.putInt("enhanced_touch_zone_divider", it.toInt()) },
+        onValueChangeFinished = onRefresh,
     )
 }
 
@@ -1842,6 +1922,10 @@ private fun GyroPage(
 ) {
     val sensors = repository.getBoolean("checkbox_gamepad_motion_sensors", true)
     val fallback = repository.getBoolean("checkbox_gamepad_motion_fallback", false)
+    val gyroMouse = repository.getBoolean("gyro_to_mouse", false)
+    val gyroSensitivity = repository.getFloat("gyro_sensitivity_multiplier", 1f)
+    val invertX = repository.getBoolean("gyro_invert_x_axis", false)
+    val invertY = repository.getBoolean("gyro_invert_y_axis", false)
     DuoSettingRow(
         title = "手柄体感",
         value = if (sensors) "开" else "关",
@@ -1865,9 +1949,39 @@ private fun GyroPage(
     )
     DuoSettingRow(
         title = "陀螺仪鼠标",
-        value = "串流内调整",
-        detail = "开关、激活键、灵敏度、X/Y 反转",
-        enabled = false,
+        value = if (gyroMouse) "开" else "关",
+        detail = "映射为相对鼠标移动",
+        isSwitch = true,
+        switchOn = gyroMouse,
+        onActivate = {
+            repository.putBoolean("gyro_to_mouse", !gyroMouse)
+            onRefresh()
+        },
+    )
+    DuoSliderRow(
+        title = "陀螺仪灵敏度",
+        valueLabel = String.format(java.util.Locale.US, "%.1f×", gyroSensitivity),
+        value = gyroSensitivity,
+        range = 0.2f..3.0f,
+        steps = 27,
+        onValueChange = { repository.putFloat("gyro_sensitivity_multiplier", it) },
+        onValueChangeFinished = onRefresh,
+    )
+    DuoSwitchRow(
+        title = "反转 X 轴",
+        checked = invertX,
+        onToggle = {
+            repository.putBoolean("gyro_invert_x_axis", !invertX)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "反转 Y 轴",
+        checked = invertY,
+        onToggle = {
+            repository.putBoolean("gyro_invert_y_axis", !invertY)
+            onRefresh()
+        },
     )
 }
 
@@ -1983,6 +2097,68 @@ private fun HostBehaviorPage(
             repository.putBoolean("checkbox_lock_screen_after_disconnect", !lock)
             onRefresh()
         },
+    )
+}
+
+@Composable
+private fun DiagnosticsPage(
+    onOpenHelp: () -> Unit,
+    onOpenHosts: () -> Unit,
+) {
+    val context = LocalContext.current
+    val config = context.resources.configuration
+    val codecCount = remember {
+        runCatching {
+            MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.count { info ->
+                !info.isEncoder && info.supportedTypes.any { it.startsWith("video/") }
+            }
+        }.getOrDefault(0)
+    }
+    val inputDeviceCount = remember {
+        runCatching { InputDevice.getDeviceIds().size }.getOrDefault(0)
+    }
+    DuoSettingRow(
+        title = "设备",
+        value = "${Build.MANUFACTURER} ${Build.MODEL}",
+        enabled = false,
+    )
+    DuoSettingRow(
+        title = "系统",
+        value = "Android ${Build.VERSION.RELEASE} · SDK ${Build.VERSION.SDK_INT}",
+        detail = Build.SUPPORTED_ABIS.firstOrNull() ?: "—",
+        enabled = false,
+    )
+    DuoSettingRow(
+        title = "下屏布局",
+        value = "${config.screenWidthDp} × ${config.screenHeightDp} dp",
+        detail = "当前窗口",
+        enabled = false,
+    )
+    DuoSettingRow(
+        title = "视频解码器",
+        value = "$codecCount 个",
+        detail = "H.264 / HEVC / AV1（硬件与软件）",
+        enabled = false,
+    )
+    DuoSettingRow(
+        title = "输入设备",
+        value = "$inputDeviceCount 个",
+        detail = "系统报告的手柄 / 键盘 / 触控设备",
+        enabled = false,
+    )
+    DuoSettingRow(
+        title = "网络诊断",
+        value = "选择主机",
+        detail = "对当前主机做 TCP 端口探测",
+        isSubpage = true,
+        onActivate = onOpenHosts,
+    )
+    DuoSettingRow(
+        title = "帮助文档",
+        value = "打开",
+        detail = "Sunshine / Moonlight 设置指南",
+        isSubpage = true,
+        onActivate = onOpenHelp,
     )
 }
 

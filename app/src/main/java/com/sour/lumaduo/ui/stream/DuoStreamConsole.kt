@@ -56,6 +56,7 @@ import com.sour.lumaduo.ui.luma.LumaMetrics
 import com.sour.lumaduo.ui.luma.LumaShapes
 import com.sour.lumaduo.ui.luma.LumaType
 import com.sour.lumaduo.ui.shell.DuoConfirmPanel
+import com.sour.lumaduo.ui.shell.DuoChip
 import com.sour.lumaduo.ui.shell.DuoOverlay
 import com.sour.lumaduo.ui.shell.DuoSliderRow
 import com.sour.lumaduo.ui.shell.DuoTextButton
@@ -76,6 +77,11 @@ interface DuoStreamActions {
     fun unlockHost()
     fun mouseMove(dx: Float, dy: Float)
     fun mouseButton(button: Int)
+    fun mouseButtonDown(button: Int)
+    fun mouseButtonUp(button: Int)
+
+    /** Positive scrolls up, negative scrolls down. */
+    fun mouseScroll(delta: Int)
     fun sendKey(key: String, modifiers: Set<String> = emptySet())
     fun sendShortcut(label: String)
     fun clearNotice()
@@ -96,6 +102,7 @@ fun DuoStreamConsole(
     var pane by remember { mutableStateOf("console") }
     var confirmExit by remember { mutableStateOf(false) }
     var confirmDisconnect by remember { mutableStateOf(false) }
+    var confirmSleep by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<String?>(null) }
     var refresh by remember { mutableStateOf(0) }
     var sceneState by remember { mutableStateOf(scene) }
@@ -111,8 +118,12 @@ fun DuoStreamConsole(
         if (notice == message) notice = null
     }
 
-    BackHandler(enabled = confirmExit || confirmDisconnect) {
-        if (confirmDisconnect) confirmDisconnect = false else confirmExit = false
+    BackHandler(enabled = confirmExit || confirmDisconnect || confirmSleep) {
+        when {
+            confirmSleep -> confirmSleep = false
+            confirmDisconnect -> confirmDisconnect = false
+            else -> confirmExit = false
+        }
     }
 
     fun changed() {
@@ -212,6 +223,7 @@ fun DuoStreamConsole(
                                 )
                                 DuoStreamTab.INPUT -> InputTab(
                                     mode = mode,
+                                    scene = sceneState,
                                     settingsRepository = settingsRepository,
                                     onChanged = { changed() },
                                     onEnterLocal = { actions.setMode(DuoStreamMode.LOCAL) },
@@ -223,6 +235,7 @@ fun DuoStreamConsole(
                                     onReconnect = actions::reconnect,
                                     onDisconnect = { confirmDisconnect = true },
                                     onExit = { confirmExit = true },
+                                    onSleep = { confirmSleep = true },
                                     onOpenRemote = actions::openRemote,
                                     onNetworkTest = actions::networkTest,
                                 )
@@ -274,6 +287,20 @@ fun DuoStreamConsole(
                     actions.disconnect()
                 },
                 danger = false,
+            )
+        }
+    }
+    if (confirmSleep) {
+        DuoOverlay(onDismiss = { confirmSleep = false }) {
+            DuoConfirmPanel(
+                title = "让主机休眠？",
+                body = "将通过 Win+X → U → S 发送休眠组合键，主机随即断开。",
+                confirmLabel = "休眠",
+                onCancel = { confirmSleep = false },
+                onConfirm = {
+                    confirmSleep = false
+                    actions.sleepHost()
+                },
             )
         }
     }
@@ -369,7 +396,7 @@ private fun PaneTab(label: String, active: Boolean, enabled: Boolean, onClick: (
     LumaFocusable(
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier.height(26.dp),
+        modifier = Modifier.height(26.dp).width(72.dp),
         cornerRadius = 6.dp,
     ) { focused ->
         Box(
@@ -511,6 +538,24 @@ private fun StreamTabRow(
 
 @Composable
 private fun StatusTab(state: DuoStreamState) {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text("STREAM HEALTH", style = LumaType.micro, color = LumaColors.Tertiary)
+            Text("串流状态", style = LumaType.label, color = LumaColors.Text)
+        }
+        DuoChip(
+            if (state.connected) "良好" else "未连接",
+            if (state.connected) LumaColors.Success else LumaColors.Disabled,
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(state.durationLabel, style = LumaType.micro, color = LumaColors.Tertiary)
+        Spacer(Modifier.width(6.dp))
+        DuoChip("只读")
+    }
+    Spacer(Modifier.height(6.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
         Kpi("帧率", state.fpsLabel, "接收", Modifier.weight(1f))
         Kpi("网络延迟", state.latencyLabel, "RTT ${state.rttMs?.let { "%.0f".format(it) } ?: "—"} ms", Modifier.weight(1f))
@@ -681,32 +726,77 @@ private fun VideoTab(
             onChanged()
         },
     )
-    DuoSettingRow("屏幕模式", "主机默认", detail = "物理屏 / 虚拟显示器 / 独占", requiresReconnect = true, enabled = false)
+    val screenMode = settingsRepository.getString("list_screen_combination_mode", "-1")
+    DuoSettingRow(
+        "屏幕模式",
+        screenModeLabel(screenMode),
+        detail = "主机默认 / 主屏 / 副屏 / 独占",
+        requiresReconnect = true,
+        onActivate = {
+            val options = listOf("-1", "0", "1", "2", "4", "3")
+            val index = options.indexOf(screenMode).coerceAtLeast(0)
+            settingsRepository.putString(
+                "list_screen_combination_mode",
+                options[(index + 1) % options.size],
+            )
+            onChanged()
+        },
+    )
     DuoSliderRow(
         title = "码率",
         valueLabel = "${scene.bitrateMbps} Mbps",
         value = scene.bitrateMbps.toFloat(),
-        range = 5f..100f,
-        steps = 18,
+        range = 5f..150f,
+        steps = 28,
         onValueChange = { settingsRepository.setBitrateMbps(it.toInt()) },
         onValueChangeFinished = onChanged,
     )
-    DuoSettingRow("智能码率", if (scene.adaptiveBitrate) "开" else "关", isSwitch = true, switchOn = scene.adaptiveBitrate, onActivate = {
-        settingsRepository.setAdaptive(!scene.adaptiveBitrate)
-        onChanged()
-    })
+    DuoSettingRow(
+        "智能码率",
+        if (scene.adaptiveBitrate) "开" else "关",
+        detail = "弱网自动调整",
+        isSwitch = true,
+        switchOn = scene.adaptiveBitrate,
+        onActivate = {
+            settingsRepository.setAdaptive(!scene.adaptiveBitrate)
+            onChanged()
+        },
+    )
+    val scale = settingsRepository.getInt("seekbar_resolutions_scale", 100)
     DuoSliderRow(
         title = "显示缩放",
-        valueLabel = "100%",
-        value = 100f,
+        valueLabel = "$scale%",
+        detail = "主机渲染缩放",
+        value = scale.toFloat(),
         range = 50f..200f,
         steps = 5,
-        onValueChange = { },
+        onValueChange = { settingsRepository.putInt("seekbar_resolutions_scale", it.toInt()) },
         onValueChangeFinished = onChanged,
     )
-    DuoSettingRow("HDR", if (state.hdr) "开" else "关", detail = "真实 HDR 需重连；工具内 HDR 只切 Windows", enabled = false)
+    DuoSettingRow(
+        "HDR",
+        if (scene.hdr) "开" else "关",
+        detail = "真实 HDR 需重连；工具内 HDR 只切 Windows",
+        isSwitch = true,
+        switchOn = scene.hdr,
+        onActivate = {
+            settingsRepository.setHdr(!scene.hdr)
+            onChanged()
+        },
+    )
     if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow("性能浮层", "隐藏", detail = "M3 接入浮层状态", enabled = false)
+        val overlay = settingsRepository.getBoolean("checkbox_enable_perf_overlay", false)
+        DuoSettingRow(
+            "性能浮层",
+            if (overlay) "开" else "隐藏",
+            detail = "控制台显示实时统计",
+            isSwitch = true,
+            switchOn = overlay,
+            onActivate = {
+                settingsRepository.putBoolean("checkbox_enable_perf_overlay", !overlay)
+                onChanged()
+            },
+        )
     }
 }
 
@@ -720,6 +810,7 @@ private fun AudioTab(
     val context = LocalContext.current
     val audioManager = remember(context) { context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
     var volume by remember { mutableStateOf(audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) }
+    var muted by remember { mutableStateOf(audioManager?.isStreamMute(AudioManager.STREAM_MUSIC) ?: false) }
     val maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC) ?: 15
     DuoSliderRow(
         title = "本机音量",
@@ -732,10 +823,39 @@ private fun AudioTab(
             audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
         },
     )
-    DuoSettingRow("声道", scene.audioLabel, detail = "切换提示“应用并重连”", requiresReconnect = true, enabled = false)
+    DuoSettingRow(
+        "静音",
+        if (muted) "开" else "关",
+        detail = "保留视频，关闭本机音频",
+        isSwitch = true,
+        switchOn = muted,
+        onActivate = {
+            val next = !muted
+            audioManager?.adjustStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                if (next) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE,
+                0,
+            )
+            muted = next
+        },
+    )
+    DuoSettingRow(
+        "声道",
+        scene.audioLabel,
+        detail = "切换提示“应用并重连”",
+        requiresReconnect = true,
+        onActivate = {
+            val options = listOf("2", "51", "71", "714")
+            val current = settingsRepository.getString(PreferenceConfiguration.AUDIO_CONFIG_PREF_STRING, "2")
+            val index = options.indexOf(current).coerceAtLeast(0)
+            settingsRepository.setAudio(options[(index + 1) % options.size])
+            onChanged()
+        },
+    )
     DuoSettingRow(
         "音频直通",
         if (settingsRepository.getBoolean("checkbox_enable_audio_passthrough", false)) "开" else "关",
+        detail = "AC3 / EAC3 / Opus",
         isSwitch = true,
         switchOn = settingsRepository.getBoolean("checkbox_enable_audio_passthrough", false),
         onActivate = {
@@ -747,6 +867,7 @@ private fun AudioTab(
     DuoSettingRow(
         "麦克风",
         if (settingsRepository.getBoolean("checkbox_enable_mic", false)) "开" else "关",
+        detail = "设备与码率",
         isSwitch = true,
         switchOn = settingsRepository.getBoolean("checkbox_enable_mic", false),
         onActivate = {
@@ -755,28 +876,12 @@ private fun AudioTab(
             onChanged()
         },
     )
-    if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow(
-            "音频振动",
-            if (settingsRepository.getBoolean("checkbox_audio_vibration", false)) "开" else "关",
-            isSwitch = true,
-            switchOn = settingsRepository.getBoolean("checkbox_audio_vibration", false),
-            onActivate = {
-                val current = settingsRepository.getBoolean("checkbox_audio_vibration", false)
-                settingsRepository.putBoolean("checkbox_audio_vibration", !current)
-                onChanged()
-            },
-        )
-    }
-    DuoSettingRow("主机音频", "跟随主机设置", enabled = false)
-    if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow("波形触觉测试", "P2", enabled = false)
-    }
 }
 
 @Composable
 private fun InputTab(
     mode: DuoStreamMode,
+    scene: DuoSettingsRepository.Snapshot,
     settingsRepository: DuoSettingsRepository,
     onChanged: () -> Unit,
     onEnterLocal: () -> Unit,
@@ -788,29 +893,61 @@ private fun InputTab(
         detail = if (mode == DuoStreamMode.LOCAL) "焦点在下屏" else "手柄控制 PC",
         onActivate = if (mode == DuoStreamMode.LOCAL) onResume else onEnterLocal,
     )
-    DuoSettingRow("触摸模式", touchLabel(settingsRepository.touchPreset()), enabled = false)
+    DuoSettingRow(
+        "触摸模式",
+        touchLabel(settingsRepository.touchPreset()),
+        detail = "下屏触摸映射",
+        onActivate = {
+            val options = TouchModePreset.entries
+            val current = settingsRepository.touchPreset()
+            val index = options.indexOf(current).coerceAtLeast(0)
+            settingsRepository.setTouchPreset(options[(index + 1) % options.size])
+            onChanged()
+        },
+    )
+    val speed = settingsRepository.getInt("seekbar_hardware_touchpad_pointer_speed", 100)
     DuoSliderRow(
         title = "触控板速度",
-        valueLabel = "${settingsRepository.getInt("seekbar_hardware_touchpad_pointer_speed", 100)}%",
-        value = settingsRepository.getInt("seekbar_hardware_touchpad_pointer_speed", 100).toFloat(),
+        valueLabel = touchpadSpeedLabel(speed),
+        detail = "相对鼠标灵敏度",
+        value = speed.toFloat(),
         range = 50f..300f,
         steps = 49,
         onValueChange = { settingsRepository.putInt("seekbar_hardware_touchpad_pointer_speed", it.toInt()) },
         onValueChangeFinished = onChanged,
     )
-    val gyro = settingsRepository.getBoolean("checkbox_gamepad_motion_sensors", true)
-    DuoSettingRow("陀螺仪", if (gyro) "开" else "关", isSwitch = true, switchOn = gyro, onActivate = {
-        settingsRepository.putBoolean("checkbox_gamepad_motion_sensors", !gyro)
-        onChanged()
-    })
+    val gyro = settingsRepository.getBoolean("gyro_to_right_stick", false)
+    DuoSettingRow(
+        "陀螺仪",
+        if (gyro) "开" else "关",
+        detail = "映射右摇杆或鼠标",
+        isSwitch = true,
+        switchOn = gyro,
+        onActivate = {
+            settingsRepository.putBoolean("gyro_to_right_stick", !gyro)
+            onChanged()
+        },
+    )
     if (!BuildConfig.MINIMAL_EDITION) {
         val osc = settingsRepository.getBoolean("checkbox_show_onscreen_controls", false)
         DuoSettingRow("虚拟手柄", if (osc) "开" else "关", isSwitch = true, switchOn = osc, onActivate = {
             settingsRepository.putBoolean("checkbox_show_onscreen_controls", !osc)
             onChanged()
         })
-        DuoSettingRow("手柄鼠标模拟", "设置页", enabled = false)
-        DuoSettingRow("震动", "仅手柄", enabled = false)
+    }
+    DuoSettingRow(
+        "震动",
+        scene.rumbleLabel,
+        detail = "智能 / 仅本机 / 仅手柄",
+        onActivate = {
+            val options = listOf("smart", "device", "controller")
+            val current = settingsRepository.getString(PreferenceConfiguration.GAME_RUMBLE_MODE_PREF_STRING, "controller")
+            val index = options.indexOf(current).coerceAtLeast(0)
+            settingsRepository.setRumble(options[(index + 1) % options.size])
+            onChanged()
+        },
+    )
+    if (!BuildConfig.MINIMAL_EDITION) {
         DuoSettingRow("USB 设备", "连接页", enabled = false)
     }
 }
@@ -822,13 +959,20 @@ private fun ConnectionTab(
     onReconnect: () -> Unit,
     onDisconnect: () -> Unit,
     onExit: () -> Unit,
+    onSleep: () -> Unit,
     onOpenRemote: () -> Unit,
     onNetworkTest: () -> Unit,
 ) {
-    DuoSettingRow("主机", state.hostName, detail = state.address, enabled = false)
+    DuoSettingRow("主机", state.hostName, detail = state.statusLabel, enabled = false)
+    DuoSettingRow("地址", state.address, detail = state.networkLabel, enabled = false)
     DuoSettingRow("配对", "已配对", enabled = false)
     DuoSettingRow("延迟 / RTT", "${state.latencyLabel} / ${state.rttMs?.let { "%.0f ms".format(it) } ?: "—"}", enabled = false)
-    DuoSettingRow("丢包", state.packetLossPercent?.let { "%.1f%%".format(it) } ?: "—", enabled = false)
+    DuoSettingRow(
+        "丢包 / 带宽",
+        "${state.packetLossPercent?.let { "%.1f%%".format(it) } ?: "—"} / " +
+            (state.actualBitrateMbps?.let { "%.1f Mbps".format(it) } ?: "—"),
+        enabled = false,
+    )
     DuoSettingRow("EasyTier", remoteRuntime.virtualIp ?: state.easyTierLabel, detail = "虚拟网络", isSubpage = true, onActivate = onOpenRemote)
     if (!BuildConfig.MINIMAL_EDITION) {
         DuoSettingRow("USB 设备", "${state.usbDeviceCount} 个", detail = "共享 / 释放 / 自动共享", enabled = false)
@@ -842,6 +986,7 @@ private fun ConnectionTab(
         onActivate = onNetworkTest,
     )
     DuoSettingRow("重新连接", "热切换失败时使用", isSubpage = true, onActivate = onReconnect)
+    DuoSettingRow("休眠主机", "确认", detail = "Win+X → U → S", isSubpage = true, onActivate = onSleep)
     Spacer(Modifier.height(6.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         DuoTextButton("断开", onClick = onDisconnect, modifier = Modifier.weight(1f))
@@ -924,3 +1069,15 @@ private fun touchLabel(preset: TouchModePreset): String = when (preset) {
     TouchModePreset.TRACKPAD -> "触控板"
     TouchModePreset.NATIVE -> "原生"
 }
+
+private fun screenModeLabel(value: String): String = when (value) {
+    "0" -> "不操作"
+    "1" -> "自动激活"
+    "2" -> "主屏"
+    "3" -> "独占"
+    "4" -> "副屏"
+    else -> "主机默认"
+}
+
+/** 80 -> "0.8×", 100 -> "1.0×". */
+private fun touchpadSpeedLabel(speed: Int): String = "${speed / 100}.${(speed % 100) / 10}×"

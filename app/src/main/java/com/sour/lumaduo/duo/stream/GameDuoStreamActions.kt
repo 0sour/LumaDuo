@@ -97,6 +97,18 @@ class GameDuoStreamActions(
         controller.mouseButton(button)
     }
 
+    override fun mouseButtonDown(button: Int) {
+        controller.mouseButtonDown(button)
+    }
+
+    override fun mouseButtonUp(button: Int) {
+        controller.mouseButtonUp(button)
+    }
+
+    override fun mouseScroll(delta: Int) {
+        controller.mouseScroll(delta)
+    }
+
     override fun sendKey(key: String, modifiers: Set<String>) {
         keySender.sendKey(key, modifiers)
     }
