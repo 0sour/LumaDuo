@@ -573,6 +573,16 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         com.sour.lumaduo.preferences.OpenSourceNoticesActivity.open(this)
     }
 
+    override fun openHelp() {
+        startActivity(
+            Intent(this, com.sour.lumaduo.HelpActivity::class.java).apply {
+                data = android.net.Uri.parse(
+                    "https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide",
+                )
+            },
+        )
+    }
+
     override fun openConsolePreview() {
         if (!BuildConfig.DEBUG) return
         startActivity(

@@ -85,6 +85,7 @@ interface DuoShellHost {
     fun pcConfig(): String
     fun openLegacy()
     fun openNotices()
+    fun openHelp()
     fun openConsolePreview()
     fun notice(message: String)
 }
@@ -258,7 +259,7 @@ fun DuoShellScreen(
                 destination == DuoDestination.HOSTS -> "选择主机 · ▶ 应用 · + 添加"
                 destination == DuoDestination.APPS -> "B 启动 · 操作键打开应用操作"
                 destination == DuoDestination.REMOTE -> "启动/停止 · 配置 · PC 配置"
-                else -> "分类 → 子页 → 调整"
+                else -> "分类 → 选项 → 调整"
             },
             keyHints = listOf(
                 DuoKeyHint(DuoKeys.ConfirmLabel, if (destination == DuoDestination.SETTINGS) "打开/调整" else "选择"),
@@ -346,6 +347,7 @@ fun DuoShellScreen(
                     onOpenRemote = { onDestinationChange(DuoDestination.REMOTE) },
                     onOpenLegacy = host::openLegacy,
                     onOpenNotices = host::openNotices,
+                    onOpenHelp = host::openHelp,
                     onAddHost = {
                         addAddress = "10.0.0.2"
                         addPort = "47989"

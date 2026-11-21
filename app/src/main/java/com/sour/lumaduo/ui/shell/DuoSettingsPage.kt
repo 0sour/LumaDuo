@@ -78,6 +78,7 @@ fun DuoSettingsPage(
     onOpenRemote: () -> Unit,
     onOpenLegacy: () -> Unit,
     onOpenNotices: () -> Unit,
+    onOpenHelp: () -> Unit,
     onAddHost: () -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
@@ -186,14 +187,29 @@ fun DuoSettingsPage(
                     when (category) {
                         DuoSetCat.VIDEO -> VideoParent(
                             scene = scene,
-                            config = config,
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChanged = { changed() },
+                            onChoose = ::choose,
                             onSubpage = { subpage = it },
                         )
                         DuoSetCat.AUDIO -> AudioParent(
                             scene = scene,
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChanged = { changed() },
+                            onChoose = ::choose,
                             onSubpage = { subpage = it },
                         )
-                        DuoSetCat.INPUT -> InputParent(onSubpage = { subpage = it })
+                        DuoSetCat.INPUT -> InputParent(
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChoose = ::choose,
+                            onSubpage = { subpage = it },
+                        )
                         DuoSetCat.NETWORK -> NetworkParent(
                             remote = remote,
                             runtime = runtime,
@@ -208,12 +224,20 @@ fun DuoSettingsPage(
                             repository = repository,
                             version = version,
                             onRefresh = { version++ },
+                            onChoose = ::choose,
                             onSubpage = { subpage = it },
                         )
-                        DuoSetCat.INTERFACE -> InterfaceParent(onSubpage = { subpage = it })
+                        DuoSetCat.INTERFACE -> InterfaceParent(
+                            repository = repository,
+                            version = version,
+                            onRefresh = { version++ },
+                            onChoose = ::choose,
+                            onSubpage = { subpage = it },
+                        )
                         DuoSetCat.ABOUT -> AboutParent(
                             onOpenLegacy = onOpenLegacy,
                             onOpenNotices = onOpenNotices,
+                            onOpenHelp = onOpenHelp,
                             onNotice = onNotice,
                             onOpenConsolePreview = onOpenConsolePreview,
                         )
@@ -231,12 +255,6 @@ fun DuoSettingsPage(
                         .padding(horizontal = 4.dp, vertical = 2.dp),
                 ) {
                     when (subpage) {
-                        "quality" -> QualityPage(
-                            scene = scene,
-                            repository = repository,
-                            onChanged = { changed() },
-                            onChoose = ::choose,
-                        )
                         "display" -> DisplayPage(
                             repository = repository,
                             version = version,
@@ -306,13 +324,57 @@ fun DuoSettingsPage(
                             version = version,
                             onRefresh = { version++ },
                         )
-                        "host" -> HostBehaviorPage(
+                        "console" -> ConsoleSettingsPage()
+                        "advVideo" -> AdvancedPage(
+                            "画面",
+                            listOfNotNull(
+                                AdvancedEntry(
+                                    "显示与布局",
+                                    "拉伸 · 位置 · 外接屏 · PiP",
+                                    "display",
+                                ),
+                                if (!BuildConfig.MINIMAL_EDITION) {
+                                    AdvancedEntry("性能浮层", "位置 · 方向 · 透明度", "overlay")
+                                } else {
+                                    null
+                                },
+                                if (!BuildConfig.MINIMAL_EDITION) {
+                                    AdvancedEntry("实验性", "帧生成 · PyroWave · 解码", "experimental")
+                                } else {
+                                    null
+                                },
+                            ),
+                            onSubpage = { subpage = it },
+                        )
+                        "advAudio" -> AdvancedPage(
+                            "音频",
+                            listOf(
+                                AdvancedEntry("音频输出", "系统音效 · 设备能力", "audioOutput"),
+                                AdvancedEntry("音频直通", "编码 · 缓冲 · AC3", "audioPass"),
+                                AdvancedEntry("麦克风", "音质 · 增益 · 人声增强", "mic"),
+                            ),
+                            onSubpage = { subpage = it },
+                        )
+                        "advInput" -> AdvancedPage(
+                            "输入",
+                            listOfNotNull(
+                                AdvancedEntry("手柄", "多手柄 · JoyCon · 翻键 · USB", "gamepad"),
+                                AdvancedEntry("触控", "双击拖拽 · 触屏键盘 · 增强分区", "touch"),
+                                AdvancedEntry("键盘与鼠标", "远程 IME · 中键 · 滚轮", "keyboard"),
+                                if (!BuildConfig.MINIMAL_EDITION) {
+                                    AdvancedEntry("虚拟手柄", "布局 · 透明度 · Guide", "osc")
+                                } else {
+                                    null
+                                },
+                                AdvancedEntry("体感", "设备传感器 · 回退", "gyro"),
+                            ),
+                            onSubpage = { subpage = it },
+                        )
+                        "advHost" -> HostAdvancedPage(
                             repository = repository,
                             version = version,
                             onRefresh = { version++ },
-                            onChoose = ::choose,
                         )
-                        "console" -> ConsoleSettingsPage()
                         else -> Unit
                     }
                 }
@@ -333,7 +395,6 @@ fun DuoSettingsPage(
 }
 
 private fun subpageTitle(id: String?): String = when (id) {
-    "quality" -> "串流画质"
     "display" -> "显示与布局"
     "overlay" -> "性能浮层"
     "experimental" -> "实验性"
@@ -345,8 +406,11 @@ private fun subpageTitle(id: String?): String = when (id) {
     "keyboard" -> "键盘与鼠标"
     "osc" -> "虚拟手柄"
     "gyro" -> "体感"
-    "host" -> "主机行为"
     "console" -> "控制台"
+    "advVideo" -> "画面 · 高级"
+    "advAudio" -> "音频 · 高级"
+    "advInput" -> "输入 · 高级"
+    "advHost" -> "主机 · 高级"
     else -> "设置"
 }
 
@@ -384,49 +448,348 @@ private fun SubpageHeader(title: String, onBack: () -> Unit) {
     }
 }
 
+private data class AdvancedEntry(val title: String, val value: String, val subpage: String)
+
+/**
+ * A direct settings row whose value opens the shared choice overlay. The HTML
+ * prototype uses this pattern for nearly every option, so the top-level pages
+ * stay flat and advanced upstream tuning lives behind one "高级" entry.
+ */
+@Composable
+private fun DuoChoiceRow(
+    title: String,
+    value: String,
+    options: List<ChoiceOption>,
+    current: String,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
+    detail: String? = null,
+    enabled: Boolean = true,
+    requiresReconnect: Boolean = false,
+    onSelected: (String) -> Unit,
+) {
+    DuoSettingRow(
+        title = title,
+        value = value,
+        detail = detail,
+        isSubpage = true,
+        enabled = enabled,
+        requiresReconnect = requiresReconnect,
+        onActivate = { onChoose(title, options, current, onSelected) },
+    )
+}
+
+@Composable
+private fun DuoSwitchRow(
+    title: String,
+    checked: Boolean,
+    onToggle: () -> Unit,
+    detail: String? = null,
+    enabled: Boolean = true,
+    requiresReconnect: Boolean = false,
+) {
+    DuoSettingRow(
+        title = title,
+        value = if (checked) "开" else "关",
+        detail = detail,
+        isSwitch = true,
+        switchOn = checked,
+        enabled = enabled,
+        requiresReconnect = requiresReconnect,
+        onActivate = onToggle,
+    )
+}
+
 @Composable
 private fun VideoParent(
     scene: DuoSettingsRepository.Snapshot,
-    config: PreferenceConfiguration,
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChanged: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
     onSubpage: (String) -> Unit,
 ) {
-    SubpageEntry("串流画质", "${scene.resolutionLabel} · ${scene.fps} Hz", onSubpage, "quality")
-    SubpageEntry(
-        "显示与布局",
-        if (config.stretchVideo) "拉伸 · ${prefPositionLabel(config.screenPosition.name)}" else "适应 · 居中",
-        onSubpage,
-        "display",
-    )
-    if (!BuildConfig.MINIMAL_EDITION) {
-        SubpageEntry(
-            "性能浮层",
-            if (config.enablePerfOverlay) "开 · ${config.perfOverlayStyle.name.lowercase()}" else "关",
-            onSubpage,
-            "overlay",
-        )
-        SubpageEntry("实验性", "帧生成 · PyroWave · 高级", onSubpage, "experimental")
+    val scale = repository.getInt("seekbar_resolutions_scale", 100)
+    val overlay = repository.getBoolean("checkbox_enable_perf_overlay", false)
+    // "version" is read by the caller so a preference write invalidates this page.
+
+    DuoChoiceRow(
+        title = "分辨率",
+        value = scene.resolutionLabel,
+        detail = "串流输出尺寸",
+        options = listOf(
+            ChoiceOption("native", "原生"),
+            ChoiceOption("1280x720", "1280 × 720"),
+            ChoiceOption("1920x1080", "1920 × 1080"),
+            ChoiceOption("2560x1440", "2560 × 1440"),
+            ChoiceOption("3840x2160", "3840 × 2160"),
+        ),
+        current = if (scene.isNativeResolution) "native" else scene.resolutionValue,
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        if (value == "native") {
+            repository.setResolution(sceneWidth(scene), sceneHeight(scene), true)
+        } else {
+            val parts = value.split('x')
+            repository.setResolution(parts[0].toInt(), parts[1].toInt(), false)
+        }
+        onChanged()
     }
+    DuoChoiceRow(
+        title = "帧率",
+        value = "${scene.fps} Hz",
+        detail = "上屏刷新率",
+        options = (listOf(30, 60, 90, 120) + scene.fps).distinct().sorted()
+            .map { ChoiceOption(it.toString(), "$it Hz") },
+        current = scene.fps.toString(),
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setFps(value.toInt())
+        onChanged()
+    }
+    DuoChoiceRow(
+        title = "码率",
+        value = "${scene.bitrateMbps} Mbps",
+        detail = "网络带宽上限",
+        options = (listOf(10, 20, 30, 50, 80, 100, 150) + scene.bitrateMbps)
+            .distinct().sorted()
+            .map { ChoiceOption(it.toString(), "$it Mbps") },
+        current = scene.bitrateMbps.toString(),
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setBitrateMbps(value.toInt())
+        onChanged()
+    }
+    DuoSwitchRow(
+        title = "智能码率",
+        checked = scene.adaptiveBitrate,
+        detail = "弱网自动调整",
+        onToggle = {
+            repository.setAdaptive(!scene.adaptiveBitrate)
+            onChanged()
+        },
+    )
+    DuoChoiceRow(
+        title = "视频格式",
+        value = scene.formatLabel,
+        detail = "H.264 / HEVC / AV1",
+        options = PreferenceConfiguration.FormatOption.entries
+            .filter { !BuildConfig.MINIMAL_EDITION || it != PreferenceConfiguration.FormatOption.FORCE_PYROWAVE }
+            .map { ChoiceOption(it.name, DuoSettingsRepository.formatLabel(it)) },
+        current = repository.sceneConfig().videoFormat.name,
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setFormat(PreferenceConfiguration.FormatOption.valueOf(value))
+        onChanged()
+    }
+    DuoSwitchRow(
+        title = "HDR",
+        checked = scene.hdr,
+        detail = "需要主机与上屏同时支持",
+        requiresReconnect = true,
+        onToggle = {
+            repository.setHdr(!scene.hdr)
+            onChanged()
+        },
+    )
+    DuoChoiceRow(
+        title = "显示缩放",
+        value = "$scale%",
+        detail = "主机渲染缩放",
+        options = (listOf(50, 75, 100) + scale).distinct().sortedDescending()
+            .map { ChoiceOption(it.toString(), "$it%") },
+        current = scale.toString(),
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        repository.putInt("seekbar_resolutions_scale", value.toInt())
+        onRefresh()
+    }
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSwitchRow(
+            title = "性能浮层",
+            checked = overlay,
+            detail = "控制台显示实时统计",
+            onToggle = {
+                repository.putBoolean("checkbox_enable_perf_overlay", !overlay)
+                onRefresh()
+            },
+        )
+    }
+    SubpageEntry("高级", "显示与布局 · 帧节奏 · 实验性", onSubpage, "advVideo")
 }
 
 @Composable
 private fun AudioParent(
     scene: DuoSettingsRepository.Snapshot,
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChanged: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
     onSubpage: (String) -> Unit,
 ) {
-    SubpageEntry("输出", scene.audioLabel, onSubpage, "audioOutput")
-    SubpageEntry("直通", "AC3 / EAC3 / Opus", onSubpage, "audioPass")
-    SubpageEntry("麦克风", "设备 / 码率 / 增益", onSubpage, "mic")
+    val passthrough = repository.getBoolean("checkbox_enable_audio_passthrough", false)
+    val mic = repository.getBoolean("checkbox_enable_mic", false)
+    val spatial = repository.getBoolean("checkbox_enable_spatializer", false)
+
+    DuoChoiceRow(
+        title = "声道",
+        value = scene.audioLabel,
+        detail = "设备 PCM 能力内自动降级",
+        options = listOf(
+            ChoiceOption("2", "立体声"),
+            ChoiceOption("51", "5.1 环绕"),
+            ChoiceOption("71", "7.1 环绕"),
+            ChoiceOption("714", "7.1.4 环绕"),
+        ),
+        current = repository.getString(PreferenceConfiguration.AUDIO_CONFIG_PREF_STRING, "2"),
+        requiresReconnect = true,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setAudio(value)
+        onChanged()
+    }
+    DuoSwitchRow(
+        title = "音频直通",
+        checked = passthrough,
+        detail = "AC3 / EAC3 / Opus",
+        requiresReconnect = true,
+        onToggle = {
+            repository.putBoolean("checkbox_enable_audio_passthrough", !passthrough)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "麦克风",
+        checked = mic,
+        detail = "需要 Foundation 扩展",
+        onToggle = {
+            repository.putBoolean("checkbox_enable_mic", !mic)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "空间音频",
+        checked = spatial,
+        detail = "7.1.4（如设备支持）",
+        requiresReconnect = true,
+        onToggle = {
+            repository.putBoolean("checkbox_enable_spatializer", !spatial)
+            onChanged()
+        },
+    )
+    SubpageEntry("高级", "直通编码 · 缓冲 · 麦克风增益", onSubpage, "advAudio")
 }
 
 @Composable
-private fun InputParent(onSubpage: (String) -> Unit) {
-    SubpageEntry("手柄", "死区 · 震动 · 多手柄", onSubpage, "gamepad")
-    SubpageEntry("触控", "触摸模式 · 速度 · 预设", onSubpage, "touch")
-    SubpageEntry("键盘与鼠标", "ESC 菜单 · IME · 鼠标修复", onSubpage, "keyboard")
-    if (!BuildConfig.MINIMAL_EDITION) {
-        SubpageEntry("虚拟手柄", "布局 · 透明度 · 重置", onSubpage, "osc")
+private fun InputParent(
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
+    onSubpage: (String) -> Unit,
+) {
+    val deadzone = repository.getInt("seekbar_deadzone", 7)
+    val speed = repository.getInt("seekbar_hardware_touchpad_pointer_speed", 100)
+    val gyro = repository.getBoolean("gyro_to_right_stick", false)
+    val escKey = repository.getString("list_esc_menu_key", "111").toIntOrNull() ?: 111
+    val preset = repository.touchPreset()
+    val osc = repository.getBoolean("checkbox_show_onscreen_controls", false)
+
+    DuoChoiceRow(
+        title = "摇杆死区",
+        value = "$deadzone%",
+        detail = "左 / 右摇杆",
+        options = listOf(0, 7, 12, 20).map { ChoiceOption(it.toString(), "$it%") },
+        current = deadzone.toString(),
+        onChoose = onChoose,
+    ) { value ->
+        repository.putInt("seekbar_deadzone", value.toInt())
+        onRefresh()
     }
-    SubpageEntry("体感", "陀螺仪 · 回退 · 灵敏度", onSubpage, "gyro")
+    DuoChoiceRow(
+        title = "震动模式",
+        value = repository.read().rumbleLabel,
+        detail = "主机震动去向",
+        options = listOf(
+            ChoiceOption("smart", "智能分配"),
+            ChoiceOption("device", "仅本机"),
+            ChoiceOption("controller", "仅手柄"),
+        ),
+        current = repository.getString(PreferenceConfiguration.GAME_RUMBLE_MODE_PREF_STRING, "controller"),
+        onChoose = onChoose,
+    ) { value ->
+        repository.setRumble(value)
+        onRefresh()
+    }
+    DuoChoiceRow(
+        title = "触摸模式",
+        value = touchPresetLabel(preset),
+        detail = "下屏触摸映射",
+        options = listOf(
+            ChoiceOption("enhanced", "增强"),
+            ChoiceOption("classic", "经典"),
+            ChoiceOption("trackpad", "触控板"),
+            ChoiceOption("native", "原生"),
+        ),
+        current = preset.preferenceValue,
+        onChoose = onChoose,
+    ) { value ->
+        TouchModePreset.fromPreferenceValue(value)?.let(repository::setTouchPreset)
+        onRefresh()
+    }
+    DuoChoiceRow(
+        title = "触控板速度",
+        value = touchpadSpeedLabel(speed),
+        detail = "相对鼠标灵敏度",
+        options = listOf(80, 100, 120, 150).map { ChoiceOption(it.toString(), touchpadSpeedLabel(it)) },
+        current = speed.toString(),
+        onChoose = onChoose,
+    ) { value ->
+        repository.putInt("seekbar_hardware_touchpad_pointer_speed", value.toInt())
+        onRefresh()
+    }
+    DuoSwitchRow(
+        title = "陀螺仪",
+        checked = gyro,
+        detail = "映射右摇杆或鼠标",
+        onToggle = {
+            repository.putBoolean("gyro_to_right_stick", !gyro)
+            onRefresh()
+        },
+    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSwitchRow(
+            title = "虚拟手柄",
+            checked = osc,
+            detail = "屏幕按键层",
+            onToggle = {
+                repository.putBoolean("checkbox_show_onscreen_controls", !osc)
+                onRefresh()
+            },
+        )
+    }
+    DuoChoiceRow(
+        title = "ESC 菜单键",
+        value = if (escKey == 111) "Esc" else "F${escKey - 130}",
+        detail = "双击打开本地控制台",
+        options = listOf(
+            ChoiceOption("111", "Esc"),
+            ChoiceOption("131", "F1"),
+            ChoiceOption("142", "F12"),
+        ),
+        current = escKey.toString(),
+        onChoose = onChoose,
+    ) { value ->
+        repository.putString("list_esc_menu_key", value)
+        onRefresh()
+    }
+    SubpageEntry("高级", "手柄细节 · 触控 · 键鼠 · 体感", onSubpage, "advInput")
 }
 
 @Composable
@@ -492,84 +855,184 @@ private fun HostParent(
     repository: DuoSettingsRepository,
     version: Int,
     onRefresh: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
     onSubpage: (String) -> Unit,
 ) {
     val sops = repository.getBoolean("checkbox_enable_sops", true)
     val clipText = repository.getBoolean("checkbox_clipboard_sync_text", false)
     val clipImage = repository.getBoolean("checkbox_clipboard_sync_image", false)
-    DuoSettingRow(
-        title = "主机行为",
-        value = "退出 / 后台 / 屏幕",
-        isSubpage = true,
-        onActivate = { onSubpage("host") },
-    )
-    DuoSettingRow(
-        title = "主机优化 SOPS",
-        value = if (sops) "开" else "关",
-        isSwitch = true,
-        switchOn = sops,
-        onActivate = {
+    val hostAudio = repository.getBoolean("checkbox_host_audio", false)
+    val controlOnly = repository.getBoolean("checkbox_control_only", false)
+    val screenMode = repository.getString("list_screen_combination_mode", "-1")
+    val quitMode = repository.quitMode()
+    val backgroundMode = repository.backgroundMode()
+
+    DuoSwitchRow(
+        title = "主机优化",
+        checked = sops,
+        detail = "Sunshine SOPS",
+        onToggle = {
             repository.putBoolean("checkbox_enable_sops", !sops)
             onRefresh()
         },
     )
-    DuoSettingRow(
+    DuoChoiceRow(
+        title = "屏幕组合",
+        value = screenModeLabel(screenMode),
+        detail = "主机默认 / 主屏 / 副屏 / 独占",
+        options = listOf(
+            ChoiceOption("-1", "主机默认"),
+            ChoiceOption("0", "不操作"),
+            ChoiceOption("1", "自动激活"),
+            ChoiceOption("2", "主屏"),
+            ChoiceOption("4", "副屏"),
+            ChoiceOption("3", "独占"),
+        ),
+        current = screenMode,
+        onChoose = onChoose,
+    ) { value ->
+        repository.putString("list_screen_combination_mode", value)
+        onRefresh()
+    }
+    DuoSwitchRow(
+        title = "主机音频",
+        checked = hostAudio,
+        detail = "声音在 PC 播放",
+        onToggle = {
+            repository.putBoolean("checkbox_host_audio", !hostAudio)
+            onRefresh()
+        },
+    )
+    DuoSwitchRow(
+        title = "仅控制流",
+        checked = controlOnly,
+        detail = "不传输视频",
+        requiresReconnect = true,
+        onToggle = {
+            repository.putBoolean("checkbox_control_only", !controlOnly)
+            onRefresh()
+        },
+    )
+    DuoChoiceRow(
+        title = "退出行为",
+        value = if (quitMode == QuitBehavior.DISCONNECT_ONLY) "仅断开" else "停止应用",
+        detail = "断开时是否停止主机应用",
+        options = listOf(
+            ChoiceOption("stop_host_app", "停止应用"),
+            ChoiceOption("disconnect_only", "仅断开"),
+        ),
+        current = quitMode.preferenceValue,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setQuitMode(QuitBehavior.fromPreferenceValue(value))
+        onRefresh()
+    }
+    DuoChoiceRow(
+        title = "后台串流",
+        value = when (backgroundMode) {
+            BackgroundStreamBehavior.RESUME -> "恢复"
+            BackgroundStreamBehavior.KEEP_CONNECTED -> "保持"
+            BackgroundStreamBehavior.KEEP_AUDIO -> "保持+音频"
+            else -> "断开"
+        },
+        detail = "切后台后的连接策略",
+        options = listOf(
+            ChoiceOption("disconnect", "断开"),
+            ChoiceOption("resume", "恢复"),
+            ChoiceOption("keep_connected", "保持"),
+            ChoiceOption("keep_audio", "保持+音频"),
+        ),
+        current = backgroundMode.preferenceValue,
+        onChoose = onChoose,
+    ) { value ->
+        repository.setBackgroundMode(BackgroundStreamBehaviorPolicy.fromPreferenceValue(value))
+        onRefresh()
+    }
+    DuoSwitchRow(
         title = "剪贴板文本",
-        value = if (clipText) "开" else "关",
-        detail = "保留 V+ 剪贴板同步，不做文件传输",
-        isSwitch = true,
-        switchOn = clipText,
-        onActivate = {
+        checked = clipText,
+        detail = "双向同步；不做文件传输",
+        onToggle = {
             repository.putBoolean("checkbox_clipboard_sync_text", !clipText)
             onRefresh()
         },
     )
-    DuoSettingRow(
+    DuoSwitchRow(
         title = "剪贴板图片",
-        value = if (clipImage) "开" else "关",
-        isSwitch = true,
-        switchOn = clipImage,
-        onActivate = {
+        checked = clipImage,
+        detail = "本机到主机",
+        onToggle = {
             repository.putBoolean("checkbox_clipboard_sync_image", !clipImage)
             onRefresh()
         },
     )
+    SubpageEntry("高级", "断开后锁屏", onSubpage, "advHost")
 }
 
 @Composable
-private fun InterfaceParent(onSubpage: (String) -> Unit) {
+private fun InterfaceParent(
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+    onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
+    onSubpage: (String) -> Unit,
+) {
+    val style = repository.getString("list_perf_overlay_style", "standard")
+
     DuoSettingRow("语言", "简体中文", detail = "MVP 锁定；多语言不在范围", enabled = false)
-    DuoSettingRow("主题", "深色 · Lumen Gold", detail = "品牌主题锁定", enabled = false)
-    SubpageEntry("控制台", "状态页指标 · 不透明度说明", onSubpage, "console")
-    DuoSettingRow("动画", "标准", detail = "焦点 120ms · 页面 180ms", enabled = false)
+    DuoSettingRow("主题", "深色", detail = "深色 + Lumen Gold 锁定", enabled = false)
+    DuoSettingRow(
+        title = "状态页指标",
+        value = "默认 5 项",
+        detail = "帧率 / 延迟 / 码率 / RTT / 丢包",
+        isSubpage = true,
+        onActivate = { onSubpage("console") },
+    )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoChoiceRow(
+            title = "浮层样式",
+            value = prefOverlayStyleLabel(style),
+            detail = "迷你 / 标准 / 详细",
+            options = listOf(
+                ChoiceOption("mini", "迷你"),
+                ChoiceOption("standard", "标准"),
+                ChoiceOption("detailed", "详细"),
+            ),
+            current = style,
+            onChoose = onChoose,
+        ) { value ->
+            repository.putString("list_perf_overlay_style", value)
+            onRefresh()
+        }
+    }
+    DuoSettingRow("控制台不透明度", "固定", detail = "直通 60% / 本地 100%", enabled = false)
 }
 
 @Composable
 private fun AboutParent(
     onOpenLegacy: () -> Unit,
     onOpenNotices: () -> Unit,
+    onOpenHelp: () -> Unit,
     onNotice: (String) -> Unit,
     onOpenConsolePreview: () -> Unit,
 ) {
-    DuoSettingRow("版本", BuildConfig.VERSION_NAME, detail = "versionCode ${BuildConfig.VERSION_CODE}", enabled = false)
-    DuoSettingRow("上游", "Moonlight V+ 12.15.17", enabled = false)
-    DuoSettingRow("主机端", "Foundation Sunshine", enabled = false)
-    DuoSettingRow("许可证", "GPL-3.0", enabled = false)
+    DuoSettingRow("版本", BuildConfig.VERSION_NAME, detail = "LumaDuo", enabled = false)
+    DuoSettingRow("上游", "Moonlight V+ 12.15.17", detail = "串流客户端基线", enabled = false)
+    DuoSettingRow("许可证", "GPL-3.0", detail = "项目整体", enabled = false)
     DuoSettingRow(
         title = "开源声明",
         value = "查看",
+        detail = "上游与素材许可",
         isSubpage = true,
         onActivate = onOpenNotices,
     )
-    if (!BuildConfig.MINIMAL_EDITION) {
-        DuoSettingRow(
-            title = "帮助 / 诊断",
-            value = "旧版",
-            detail = "旧版 V+：A 确认 · B 返回",
-            isSubpage = true,
-            onActivate = onOpenLegacy,
-        )
-    }
+    DuoSettingRow(
+        title = "帮助 / 诊断",
+        value = "打开",
+        detail = "主机设置与常见问题",
+        isSubpage = true,
+        onActivate = onOpenHelp,
+    )
     DuoSettingRow(
         title = "更新",
         value = "暂不可用",
@@ -578,10 +1041,22 @@ private fun AboutParent(
     )
     DuoSettingRow(
         title = "隐私",
-        value = "无遥测",
-        detail = "不含 Firebase / Crashlytics",
-        enabled = false,
+        value = "说明",
+        detail = "无遥测、无 Crashlytics",
+        isSubpage = true,
+        onActivate = {
+            onNotice("LumaDuo 不含遥测、Firebase 或 Crashlytics；诊断信息只保留在设备本地。")
+        },
     )
+    if (!BuildConfig.MINIMAL_EDITION) {
+        DuoSettingRow(
+            title = "旧版界面",
+            value = "打开",
+            detail = "旧版 V+：A 确认 · B 返回",
+            isSubpage = true,
+            onActivate = onOpenLegacy,
+        )
+    }
     if (BuildConfig.DEBUG) {
         DuoSettingRow(
             title = "串流控制台预览",
@@ -793,15 +1268,6 @@ private fun DisplayPage(
             onRefresh()
         },
     )
-    DuoSliderRow(
-        title = "主机渲染缩放",
-        valueLabel = "${config.resolutionScale}%",
-        value = config.resolutionScale.toFloat(),
-        range = 50f..400f,
-        steps = 6,
-        onValueChange = { repository.putInt("seekbar_resolutions_scale", it.toInt()) },
-        onValueChangeFinished = onRefresh,
-    )
 }
 
 @Composable
@@ -957,42 +1423,11 @@ private fun AudioOutputPage(
     onChanged: () -> Unit,
     onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
 ) {
-    val spatial = repository.getBoolean("checkbox_enable_spatializer", false)
     val audioFx = repository.getBoolean("checkbox_enable_audiofx", false)
-    DuoSettingRow(
-        title = "声道",
-        value = scene.audioLabel,
-        isSubpage = true,
-        onActivate = {
-            onChoose(
-                "声道",
-                listOf(
-                    ChoiceOption("2", "立体声"),
-                    ChoiceOption("51", "5.1 环绕"),
-                    ChoiceOption("71", "7.1 环绕"),
-                    ChoiceOption("714", "7.1.4 环绕"),
-                ),
-                repository.getString(PreferenceConfiguration.AUDIO_CONFIG_PREF_STRING, "2"),
-            ) {
-                repository.setAudio(it)
-                onChanged()
-            }
-        },
-    )
-    DuoSettingRow(
-        title = "空间音频",
-        value = if (spatial) "开" else "关",
-        detail = "设备支持时可用",
-        isSwitch = true,
-        switchOn = spatial,
-        onActivate = {
-            repository.putBoolean("checkbox_enable_spatializer", !spatial)
-            onChanged()
-        },
-    )
     DuoSettingRow(
         title = "系统音效",
         value = if (audioFx) "开" else "关",
+        detail = "设备支持时可用",
         isSwitch = true,
         switchOn = audioFx,
         onActivate = {
@@ -1153,39 +1588,10 @@ private fun GamepadPage(
     onRefresh: () -> Unit,
     onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
 ) {
-    val deadzone = repository.getInt("seekbar_deadzone", 7)
     val multi = repository.getBoolean("checkbox_multi_controller", true)
     val joycon = repository.getBoolean("checkbox_combine_joycons", true)
     val flip = repository.getBoolean("checkbox_flip_face_buttons", false)
     val nativeHaptics = repository.getBoolean("checkbox_native_device_haptics", false)
-    DuoSliderRow(
-        title = "摇杆死区",
-        valueLabel = "$deadzone%",
-        value = deadzone.toFloat(),
-        range = 0f..20f,
-        steps = 19,
-        onValueChange = { repository.putInt("seekbar_deadzone", it.toInt()) },
-        onValueChangeFinished = onRefresh,
-    )
-    DuoSettingRow(
-        title = "震动模式",
-        value = scene.rumbleLabel,
-        isSubpage = true,
-        onActivate = {
-            onChoose(
-                "震动模式",
-                listOf(
-                    ChoiceOption("smart", "智能分配"),
-                    ChoiceOption("device", "仅本机"),
-                    ChoiceOption("controller", "仅手柄"),
-                ),
-                repository.getString(PreferenceConfiguration.GAME_RUMBLE_MODE_PREF_STRING, "controller"),
-            ) {
-                repository.setRumble(it)
-                onChanged()
-            }
-        },
-    )
     DuoSettingRow(
         title = "多手柄",
         value = if (multi) "开" else "关",
@@ -1250,44 +1656,8 @@ private fun TouchPage(
     onRefresh: () -> Unit,
     onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
 ) {
-    val preset = repository.touchPreset()
-    val speed = repository.getInt("seekbar_hardware_touchpad_pointer_speed", 100)
     val dblDrag = repository.getBoolean("pref_enable_double_click_drag", false)
     val touchKeyboard = repository.getBoolean("checkbox_touch_keyboard_auto_invoke", true)
-    DuoSettingRow(
-        title = "触摸模式",
-        value = when (preset) {
-            TouchModePreset.ENHANCED -> "增强"
-            TouchModePreset.CLASSIC -> "经典"
-            TouchModePreset.TRACKPAD -> "触控板"
-            TouchModePreset.NATIVE -> "原生"
-        },
-        isSubpage = true,
-        onActivate = {
-            onChoose(
-                "触摸模式",
-                listOf(
-                    ChoiceOption("enhanced", "增强"),
-                    ChoiceOption("classic", "经典"),
-                    ChoiceOption("trackpad", "触控板"),
-                    ChoiceOption("native", "原生"),
-                ),
-                preset.preferenceValue,
-            ) {
-                TouchModePreset.fromPreferenceValue(it)?.let(repository::setTouchPreset)
-                onRefresh()
-            }
-        },
-    )
-    DuoSliderRow(
-        title = "触控板指针速度",
-        valueLabel = "$speed%",
-        value = speed.toFloat(),
-        range = 50f..300f,
-        steps = 49,
-        onValueChange = { repository.putInt("seekbar_hardware_touchpad_pointer_speed", it.toInt()) },
-        onValueChangeFinished = onRefresh,
-    )
     DuoSettingRow(
         title = "双击拖拽",
         value = if (dblDrag) "开" else "关",
@@ -1324,7 +1694,6 @@ private fun KeyboardPage(
     onChoose: (String, List<ChoiceOption>, String, (String) -> Unit) -> Unit,
 ) {
     val escMenu = repository.getBoolean("checkbox_enable_esc_menu", true)
-    val escKey = repository.getString("list_esc_menu_key", "111").toIntOrNull() ?: 111
     val remoteIme = repository.getBoolean("checkbox_remote_ime_auto_show", true)
     val middle = repository.getBoolean("checkbox_mouse_middle", true)
     val wheel = repository.getBoolean("checkbox_mouse_wheel", true)
@@ -1337,21 +1706,6 @@ private fun KeyboardPage(
         onActivate = {
             repository.putBoolean("checkbox_enable_esc_menu", !escMenu)
             onRefresh()
-        },
-    )
-    DuoSettingRow(
-        title = "菜单键",
-        value = if (escKey == 111) "Esc" else "F${escKey - 130}",
-        isSubpage = true,
-        onActivate = {
-            onChoose(
-                "ESC 菜单键",
-                listOf(ChoiceOption("111", "Esc")) + (1..12).map { ChoiceOption((130 + it).toString(), "F$it") },
-                escKey.toString(),
-            ) {
-                repository.putString("list_esc_menu_key", it)
-                onRefresh()
-            }
         },
     )
     DuoSettingRow(
@@ -1641,6 +1995,52 @@ private fun ConsoleSettingsPage() {
     DuoSettingRow("主机负载", "未提供", detail = "不伪造 CPU/GPU/内存", enabled = false)
 }
 
+/**
+ * Secondary page for upstream options that the HTML prototype does not show.
+ * It keeps the one-entry "高级" row promise: every unrepresented control stays
+ * reachable without pushing extra rows into the first-level page.
+ */
+@Composable
+private fun AdvancedPage(
+    category: String,
+    entries: List<AdvancedEntry>,
+    onSubpage: (String) -> Unit,
+) {
+    Text(
+        text = "$category · 上游高级项",
+        style = LumaType.micro,
+        color = LumaColors.Tertiary,
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+    )
+    entries.forEach { entry ->
+        SubpageEntry(entry.title, entry.value, onSubpage, entry.subpage)
+    }
+}
+
+@Composable
+private fun HostAdvancedPage(
+    repository: DuoSettingsRepository,
+    version: Int,
+    onRefresh: () -> Unit,
+) {
+    val lock = repository.getBoolean("checkbox_lock_screen_after_disconnect", false)
+    DuoSwitchRow(
+        title = "断开后锁屏",
+        checked = lock,
+        detail = "串流结束后锁定 Windows 会话",
+        onToggle = {
+            repository.putBoolean("checkbox_lock_screen_after_disconnect", !lock)
+            onRefresh()
+        },
+    )
+    DuoSettingRow(
+        title = "主机端能力",
+        value = "Foundation",
+        detail = "自动解锁 / WebUI 等在主机的更多操作中",
+        enabled = false,
+    )
+}
+
 @Composable
 private fun SubpageEntry(
     title: String,
@@ -1677,6 +2077,25 @@ private fun DuoChoiceOverlay(
             DuoTextButton("取消", onClick = onDismiss, modifier = Modifier.fillMaxWidth())
         }
     }
+}
+
+private fun touchPresetLabel(preset: TouchModePreset): String = when (preset) {
+    TouchModePreset.ENHANCED -> "增强"
+    TouchModePreset.CLASSIC -> "经典"
+    TouchModePreset.TRACKPAD -> "触控板"
+    TouchModePreset.NATIVE -> "原生"
+}
+
+/** 80 -> "0.8×", 100 -> "1.0×"; avoids locale-dependent decimal separators. */
+private fun touchpadSpeedLabel(speed: Int): String = "${speed / 100}.${(speed % 100) / 10}×"
+
+private fun screenModeLabel(value: String): String = when (value) {
+    "0" -> "不操作"
+    "1" -> "自动激活"
+    "2" -> "主屏"
+    "3" -> "独占"
+    "4" -> "副屏"
+    else -> "主机默认"
 }
 
 private fun prefPositionLabel(name: String): String = when (name) {
