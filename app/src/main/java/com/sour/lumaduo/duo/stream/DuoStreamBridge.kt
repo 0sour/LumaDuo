@@ -152,6 +152,26 @@ class DuoStreamBridge(
         _mode.value = mode
     }
 
+    fun setNetworkTestRunning() {
+        _state.update {
+            it.copy(
+                networkTestRunning = true,
+                networkTestLabel = null,
+                networkTestDetail = "正在测试 TCP 47984/47989/47990…",
+            )
+        }
+    }
+
+    fun setNetworkTestResult(result: NetworkProbe.Result) {
+        _state.update {
+            it.copy(
+                networkTestRunning = false,
+                networkTestLabel = result.label,
+                networkTestDetail = result.detail,
+            )
+        }
+    }
+
     fun postNotice(message: String) {
         _state.update { it.copy(notice = message) }
     }

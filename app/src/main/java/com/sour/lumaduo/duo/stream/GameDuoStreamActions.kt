@@ -50,7 +50,18 @@ class GameDuoStreamActions(
     }
 
     override fun networkTest() {
-        bridge.postNotice("网络测试将在连接页接入")
+        val state = bridge.state.value
+        if (state.networkTestRunning) return
+        val address = state.address
+        if (address.isBlank() || address == "—") {
+            bridge.postNotice("当前没有可测试的主机地址")
+            return
+        }
+        bridge.setNetworkTestRunning()
+        Thread {
+            val result = NetworkProbe.probe(address)
+            mainHandler.post { bridge.setNetworkTestResult(result) }
+        }.apply { name = "DuoNetworkProbe" }.start()
     }
 
     override fun localKeyboard() {

@@ -833,7 +833,14 @@ private fun ConnectionTab(
     if (!BuildConfig.MINIMAL_EDITION) {
         DuoSettingRow("USB 设备", "${state.usbDeviceCount} 个", detail = "共享 / 释放 / 自动共享", enabled = false)
     }
-    DuoSettingRow("网络测试", "重新测速", isSubpage = true, onActivate = onNetworkTest)
+    DuoSettingRow(
+        "网络测试",
+        if (state.networkTestRunning) "测试中…" else state.networkTestLabel ?: "重新测速",
+        detail = state.networkTestDetail ?: "TCP 47984/47989/47990",
+        isSubpage = true,
+        enabled = !state.networkTestRunning,
+        onActivate = onNetworkTest,
+    )
     DuoSettingRow("重新连接", "热切换失败时使用", isSubpage = true, onActivate = onReconnect)
     Spacer(Modifier.height(6.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
