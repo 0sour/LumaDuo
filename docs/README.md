@@ -22,23 +22,24 @@
 3. [DECISIONS.md](DECISIONS.md) — 已锁定/已取代决策，冲突时以此为准
 4. [ARCHITECTURE.md](ARCHITECTURE.md) — 技术架构、模块边界、状态页数据契约
 5. [DEVICE-MATRIX.md](DEVICE-MATRIX.md) — RP Duo / AYN Thor 的显示与输入差异
-6. [INPUT-AND-FOCUS.md](INPUT-AND-FOCUS.md) — 手柄状态机、键位、焦点
-7. [ui/DUO-PITFALLS.md](ui/DUO-PITFALLS.md) — bili-duo / UUYC-Duo 双屏与手柄踩坑复盘
-8. [ui/DESIGN-SYSTEM.md](ui/DESIGN-SYSTEM.md) — 颜色、字体、间距、组件、动效
-9. [ui/SCREEN-SPEC.md](ui/SCREEN-SPEC.md) — 页面与布局规格
-10. [ui/FEATURE-MAP.md](ui/FEATURE-MAP.md) — 上游功能盘点与 LumaDuo 入口矩阵
-11. [ui/TOP-SCREEN.md](ui/TOP-SCREEN.md) — 上屏视频与只读状态
-12. [ui/PROTOTYPE.md](ui/PROTOTYPE.md) — 原型范围、交互、限制
-13. [ui/prototype/index.html](ui/prototype/index.html) — 可点击 HTML 原型
-14. [ui/prototype/README.md](ui/prototype/README.md) — 原型页面、键位、URL 参数
-15. [ROADMAP.md](ROADMAP.md) — M0 / M0.5 / M1–M5
-16. [STREAM-CONSOLE.md](STREAM-CONSOLE.md) — `Game` 托管下屏、状态桥、直通/本地输入与单屏控制台
-17. [MINIMAL-EDITION.md](MINIMAL-EDITION.md) — 最小 `duo` 产品面、构建变体、瘦身数据与 Phase B/C 路线
-18. [BUILDING.md](BUILDING.md) — 工具链、源码、构建命令
-19. [NETWORKING.md](NETWORKING.md) — 配对、EasyTier、虚拟 IP
-20. [TESTING.md](TESTING.md) — 测试策略与设备验收
-21. [LEGAL.md](LEGAL.md) / [../NOTICE](../NOTICE) — 许可证与来源
-22. [../SECURITY.md](../SECURITY.md) — 敏感数据、状态页/主机数据与权限边界
+6. [RP-DUO-DEV.md](RP-DUO-DEV.md) — RP Duo 平台参考：显示/窗口/输入/ABXY/音视频/调试与 LumaDuo 复核
+7. [INPUT-AND-FOCUS.md](INPUT-AND-FOCUS.md) — 手柄状态机、键位、焦点
+8. [ui/DUO-PITFALLS.md](ui/DUO-PITFALLS.md) — bili-duo / UUYC-Duo 双屏与手柄踩坑复盘
+9. [ui/DESIGN-SYSTEM.md](ui/DESIGN-SYSTEM.md) — 颜色、字体、间距、组件、动效
+10. [ui/SCREEN-SPEC.md](ui/SCREEN-SPEC.md) — 页面与布局规格
+11. [ui/FEATURE-MAP.md](ui/FEATURE-MAP.md) — 上游功能盘点与 LumaDuo 入口矩阵
+12. [ui/TOP-SCREEN.md](ui/TOP-SCREEN.md) — 上屏视频与只读状态
+13. [ui/PROTOTYPE.md](ui/PROTOTYPE.md) — 原型范围、交互、限制
+14. [ui/prototype/index.html](ui/prototype/index.html) — 可点击 HTML 原型
+15. [ui/prototype/README.md](ui/prototype/README.md) — 原型页面、键位、URL 参数
+16. [ROADMAP.md](ROADMAP.md) — M0 / M0.5 / M1–M5
+17. [STREAM-CONSOLE.md](STREAM-CONSOLE.md) — `Game` 托管下屏、状态桥、直通/本地输入与单屏控制台
+18. [MINIMAL-EDITION.md](MINIMAL-EDITION.md) — 最小 `duo` 产品面、构建变体、瘦身数据与 Phase B/C 路线
+19. [BUILDING.md](BUILDING.md) — 工具链、源码、构建命令
+20. [NETWORKING.md](NETWORKING.md) — 配对、EasyTier、虚拟 IP
+21. [TESTING.md](TESTING.md) — 测试策略与设备验收
+22. [LEGAL.md](LEGAL.md) / [../NOTICE](../NOTICE) — 许可证与来源
+23. [../SECURITY.md](../SECURITY.md) — 敏感数据、状态页/主机数据与权限边界
 
 ## 文档状态
 
@@ -46,6 +47,7 @@
 |---|---|
 | PRODUCT / DECISIONS / ARCHITECTURE | v0.3 设计基线；状态页、数据源、图标规则、7 类设置已定 |
 | DEVICE-MATRIX / INPUT-AND-FOCUS | v0.2；Thor 需真机复核 |
+| RP-DUO-DEV | v1.0（2026-11-22）；bili-duo 实测 + LumaDuo 同机复核；含 ABXY 风格、输入转发、显示/音频缺口 |
 | DESIGN-SYSTEM / SCREEN-SPEC / TOP-SCREEN | v0.3；7 类设置、主机详情、远程配置、控制台/toolkit、确认层 |
 | FEATURE-MAP | v0.3；上游 PcView/设置树/Game Menu/输入网络能力 → LumaDuo 单一入口矩阵 |
 | DUO-PITFALLS | v0.1；bili-duo / UUYC-Duo 的显示、焦点、IME、构建与发布踩坑复盘 |

@@ -1,7 +1,8 @@
 # 现状与近期开发规划
 
-> 更新：2026-11-21 · 源码 `67c95e90` · 产品包名 `com.sour.lumaduo`（debug `.debug`）
-> 当前阶段：双屏 RP Duo 主链路已跑通；单屏/PiP 按 D-043 延期，不作为当前验收门槛。
+> 更新：2026-11-22 · 源码 `b1ef5dea` · 产品包名 `com.sour.lumaduo`（debug `.debug`）
+> 当前阶段：双屏 RP Duo 主链路已跑通；2026-11-22 复核发现实体手柄转发与 ABXY 风格归一化缺口，
+> 已列入 P0；单屏/PiP 按 D-043 延期，不作为当前验收门槛。
 
 ## 1. 一句话现状
 
@@ -17,12 +18,12 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 | 产物 | 包名 | 大小 | 状态 |
 |---|---|---:|---|
-| `duoRelease` | `com.sour.lumaduo` | 16,455,976 B | 未签名；待正式签名/发布审计 |
-| `duoDebug` | `com.sour.lumaduo.debug` | 37,343,599 B | 已在 RP Duo 安装验证 |
+| `duoRelease` | `com.sour.lumaduo` | 16,455,976 B | 旧构建（11-21 20:43），未签名；不包含最新应用页/上屏图标 |
+| `duoDebug` | `com.sour.lumaduo.debug` | 32,433,597 B | 最新构建，已在 RP Duo 安装验证 |
 | `nonRootRelease` | `com.sour.lumaduo.full` | 26,370,119 B | full 对照/调试用 |
 
-源码：本仓库，`main` 最新 `67c95e90`。
-文档：`docs`。
+源码：本仓库，`main` 最新 `b1ef5dea`。
+文档：`docs`；RP Duo 平台复核见 `docs/RP-DUO-DEV.md`。
 
 ## 3. 已真机验证（RP Duo / Android 16 / Sunshine）
 
@@ -61,6 +62,18 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 - 音频输出/声道/麦克风的实际听感；
 - 538×469 与 Thor（当前无设备）。
 
+### 4.1.1 2026-11-22 RP Duo 复核发现（新增 P0）
+
+- **实体手柄到不了下屏**：Activity 没有向下屏 Presentation 转发按键。虚拟
+  `input -d 2 keyevent 20` 能移动焦点，注入实体 `BTN_DPAD_DOWN` 不能；实体 B 直接退出到桌面。
+- **ABXY 风格未归一化**：`DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，等价于 Retro 原始码；
+  Xbox 风格下物理确认/返回可能反向。需要读取/确认风格并做 A↔B、X↔Y 归一化。
+- **下屏查找未过滤 `STATE_OFF`**：合盖/休眠时可能选中不可用屏。
+- **缺少下屏 launcher 启动 re-home**：`DuoMainActivity` 无 `singleTop` / `setLaunchDisplayId(0)`。
+- **音频解码**：本机 vendor codec XML 无 AC3/E-AC3，存在 AAC/Opus/FLAC/raw；串流不要依赖杜比硬解。
+
+完整资料与复核表见 [RP-DUO-DEV.md](RP-DUO-DEV.md)。
+
 ### 4.2 产品功能
 
 - 设置高级项已与设计稿对齐（增强触摸/麦克风增益/陀螺仪已实现），并补齐帧节奏/FEC、手柄鼠标速度/D-pad、麦克风按钮显示/位置/颜色；摇杆校准/手柄诊断仍无产品入口，按 P1/P2 待定；
@@ -77,7 +90,7 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 - full edition 与 legacy 源码仍在：`PcView`/`AppView`/`StreamSettings`/`GameMenu` 等由 R8 删除，但源码未删（D2）；
 - `audioHapticsSdkDir` 仍是全局构建硬依赖，`moonlight-core` 仍编译 haptics 适配层；
 - `:framegen`、`:usbip-backend`、`:moonlight-haptics-android` 仍是 full 编译依赖；
-- release 仍未配置正式签名；私有远程仓库已建立（GitHub，2026-11-21）；
+- release 仍未配置正式签名；公开仓库已建立（GitHub `0sour/LumaDuo`，2026-11-21），无 tag/release；
 - GPL/NOTICE 已保留，但发布前仍需完整审计；
 - 未推送、未打 tag、未发布（继续遵守“用户测试前不发布”）。
 
@@ -87,7 +100,10 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 | 任务 | 验收 |
 |---|---|
-| 实体手柄全键位 | 直通控制 PC；本地 A 返回/B 确认/HAT 移动焦点；切回无卡键 |
+| 实体手柄转发 | Activity → Presentation 转发 + 40ms 去重；实体 D-pad 能移动下屏焦点；实体下键确认、右键返回 |
+| ABXY 风格归一化 | Xbox/Retro 两种风格下物理下键=确认、右键=返回；UI 标签跟随风格 |
+| 下屏生命周期 | `STATE_OFF` 过滤；下屏 launcher 启动 re-home 到 Display 0；合盖/拔插恢复 |
+| 实体手柄全键位 | 直通控制 PC；本地下确认/右返回/HAT 移动焦点；切回无卡键 |
 | 键盘/快捷键 | ASCII 键、Ctrl/Alt/Win/Shift、12 快捷键、断流释放 |
 | EasyTier 端到端 | VPN 授权 → 虚拟 IP → 串流 → 停止；失败有明确提示 |
 | 长时串流 | ≥30 分钟；无崩溃/ANR/黑屏；退出后主机显示正常 |

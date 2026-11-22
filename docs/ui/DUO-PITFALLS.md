@@ -5,6 +5,18 @@
 >
 > 本文只记录可复用的技术结论，不包含账号 UID、设备地址、网络密钥、二维码内容或截图中的个人信息。
 > 适用于 LumaDuo，也适用于后续任何 RP Duo / AYN Thor 双屏应用。
+>
+> **2026-11-22 复核补充**：新增 [RP-DUO-DEV.md](../RP-DUO-DEV.md)，包含更完整的显示/窗口/输入/
+> ABXY 风格/音视频/调试资料与 LumaDuo 同机复核表。以下三点是本次最重要的修正：
+>
+> 1. **ABXY 风格会改原始 keycode**。物理位置固定为「下确认、右返回、左动作、上未绑定」，但
+>    Xbox/Retro 两种风格的 `BUTTON_A/B/X/Y` 会互换。当前 LumaDuo `DuoKeys` 硬编码
+>    `ButtonB` 确认 / `ButtonA` 返回，未做风格归一化；Xbox 风格下可能整体反向。
+> 2. **实体手柄事件不一定先到 Presentation**。未 root 时事件可能先到上屏 Activity；必须有
+>    Activity → Presentation 的转发/统一 router。LumaDuo 目前缺这一步，实体 D-pad 实测无法
+>    移动下屏焦点。
+> 3. **找下屏要过滤 `STATE_OFF`**，并补下屏 launcher 启动时的 re-home（`singleTop` +
+>    `setLaunchDisplayId(0)`）。LumaDuo 当前两处都缺。
 
 ## 0. 先记住八条
 
@@ -134,6 +146,9 @@ bili-duo 在 `onStop` 里置 DESTROYED + clear store，但明确警告：**不�
 LumaDuo 已按这个模式加入 `refreshDisplays()`、`InvalidDisplayException`/`BadTokenException` 重试和
 “排除 Activity 自身 display”。真机拔插仍需验收。
 
+**2026-11-22 复核**：`findPresentationDisplay()` 目前**没有过滤 `STATE_OFF`**。合盖/休眠时可能选中
+一块不可用的屏，需要补 `display.state != Display.STATE_OFF`。另见 [RP-DUO-DEV.md](../RP-DUO-DEV.md) §2.4。
+
 ### 1.7 上屏与下屏的常亮、系统栏
 
 - 串流/本地 UI 期间两屏都加 `FLAG_KEEP_SCREEN_ON`，不要用 wake lock；
@@ -173,6 +188,20 @@ bili-duo / UUYC-Duo 一致；`SecondScreenPresentation` 也改为拦截实体 A 
 页面（PcView、Game Menu 等）仍是 A 确认/B 返回**，这是当前已知的隔离例外。仍需真机确认 Duo
 固件丝印和 Xbox/Retro 风格，再决定是否替换/隔离 legacy 入口；不要同时给用户两套提示。
 
+**2026-11-22 复核（重要）**：上表说的是**物理位置**；RP Duo 的 Xbox/Retro 风格会改变原始
+keycode。bili-duo 实测：
+
+| 物理位置 | Xbox 原始 | Retro 原始 |
+|---|---|---|
+| 下 · 确认 | `BUTTON_A` (96) | `BUTTON_B` (97) |
+| 右 · 返回 | `BUTTON_B` (97) | `BUTTON_A` (96) |
+| 左 · 动作 | `BUTTON_X` (99) | `BUTTON_Y` (100) |
+| 上 · 未绑定 | `BUTTON_Y` (100) | `BUTTON_X` (99) |
+
+当前 `DuoKeys.Confirm = Key.ButtonB` / `Back = Key.ButtonA` 没有风格归一化，等价于 Retro 原始码；
+Xbox 风格下物理确认/返回可能整体反向。必须先读取/确认风格，再做 A↔B、X↔Y 归一化，并让 UI 标签
+跟随风格。完整表见 [RP-DUO-DEV.md](../RP-DUO-DEV.md) §4。
+
 ### 2.2 Compose 不认 BUTTON_A/B
 
 Compose 的 click 默认只响应 `DPAD_CENTER`/`ENTER`，`BUTTON_A/B` 不会自动触发 `clickable`。
@@ -209,6 +238,12 @@ Compose overlay。必须自己分发，并做约 250ms 去抖，避免系统同�
 
 LumaDuo 已把 BACK/ESC/BUTTON_B 路由到 `OnBackPressedDispatcher`，overlay 和设置子页优先关闭；
 但 IME 状态和双 pop 仍需真机验证。
+
+**2026-11-22 复核（重要）**：除了“Presentation 有焦点”这条路径，实体手柄事件还可能先到上屏
+Activity。若 Activity 不把它转发给下屏，下屏焦点不会移动——本机外接 Xbox 手柄实测：
+`input -d 2 keyevent 20` 可移动下屏焦点，注入实体 `BTN_DPAD_DOWN` 则不动。必须补
+Activity → Presentation 的按键转发，并与 Presentation 自己的按键做约 40ms 去重。详见
+[RP-DUO-DEV.md](../RP-DUO-DEV.md) §3。
 
 ### 2.4 不要无差别消费 generic motion
 
@@ -559,7 +594,9 @@ bili-duo 的 rc57 补测里，亮色主题、交换布局、未登录空态、PG
 
 ### P0（上真机前必须做）
 
-- [ ] 真机锁定实体键语义：新壳层已按 B 确认/A 返回实现；确认丝印后处理 legacy V+ 页面。
+- [ ] 真机锁定实体键语义：下确认 / 右返回 / 左动作 / 上未绑定；按 Xbox/Retro 风格归一化 keycode，
+      再处理 legacy V+ 页面。
+- [ ] Activity → Presentation 按键转发 + 40ms 去重；实体 D-pad 必须能移动下屏焦点。
 - [ ] `SecondScreenPresentation` 的 ActivityResultRegistry 不能再是 no-op；SAF/权限请求要路由到
       Activity。
 - [x] overlay 焦点边界：Up/Down/Tab 被限制在 overlay；关闭后经 `DuoFocusMemory` 回到触发控件。
@@ -568,7 +605,8 @@ bili-duo 的 rc57 补测里，亮色主题、交换布局、未登录空态、PG
 - [ ] 新增/修改行后重新检查上下左右焦点链，不用默认二维搜索赌。
 - [ ] IME 状态自维护；B 第一次收键盘、第二次返回；系统 IME 与内置键盘互斥。
 - [ ] 手柄直通切本地/断线时 release-all + 零值 + disconnect。
-- [ ] 下屏拔插/re-home：排除 Activity 自身 display；InvalidDisplay/BadToken 重试。
+- [ ] `findPresentationDisplay()` 过滤 `STATE_OFF`；下屏 launcher 启动 re-home 到 Display 0
+      （`singleTop` + `setLaunchDisplayId(0)` + `EXTRA_REHOMED`）。
 - [ ] clean 构建并检查 APK 内类/文案，避免旧 dex。
 - [ ] 538×469 与 640×480 两档布局检查。
 

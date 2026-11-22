@@ -419,6 +419,7 @@ LumaDuo 以 **GNU General Public License v3.0** 发布，见 [LICENSE](LICENSE)�
 - [产品定位与 MVP 边界](docs/PRODUCT.md)
 - [技术架构](docs/ARCHITECTURE.md)
 - [双屏设备矩阵](docs/DEVICE-MATRIX.md)
+- [RP Duo 平台开发参考](docs/RP-DUO-DEV.md)
 - [输入与焦点](docs/INPUT-AND-FOCUS.md)
 - [串流控制台](docs/STREAM-CONSOLE.md)
 - [最小可控版与瘦身记录](docs/MINIMAL-EDITION.md)
