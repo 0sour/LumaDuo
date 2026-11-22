@@ -11,8 +11,12 @@ All notable changes to LumaDuo are recorded here.
   longer fall back to the package name and now show **LumaDuo**.
 - Physical controller input now reaches the bottom shell: `DuoMainActivity`
   forwards key events to the bottom `Presentation` before its own fallback.
-  With the connected Xbox controller, D-pad navigation, B confirm and A back
-  were verified on device.
+  With the connected Xbox controller, D-pad navigation, bottom confirm and
+  right back were verified on device.
+- Xbox-style ABXY mapping: raw capture shows bottom=`BUTTON_A` (96),
+  right=`BUTTON_B` (97), left=`BUTTON_X` (99), top=`BUTTON_Y` (100).
+  `DuoKeys` and the Activity/Presentation A/B interception now use that mapping;
+  Retro style still needs A↔B/X↔Y normalization.
 - Bottom-display discovery now ignores `STATE_OFF` displays.
 - `DuoMainActivity` is `singleTop` and re-homes an instance that the bottom
   launcher started on display 2 back to display 0; verified with

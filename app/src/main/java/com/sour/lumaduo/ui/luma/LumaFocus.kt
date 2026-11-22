@@ -30,11 +30,14 @@ import androidx.compose.ui.unit.dp
 
 /**
  * The single source of truth for local gamepad semantics. RP Duo's physical silk is
- * B = confirm, A = back (bili-duo / UUYC-Duo both verified this on device).
+ * B = confirm, A = back (bili-duo / UUYC-Duo both verified this on device). In Xbox
+ * style the firmware reports the bottom/confirm button as BUTTON_A (96) and the
+ * right/back button as BUTTON_B (97), so labels stay B/A while the key constants are
+ * A/B respectively.
  */
 object DuoKeys {
-    val Confirm = Key.ButtonB
-    val Back = Key.ButtonA
+    val Confirm = Key.ButtonA
+    val Back = Key.ButtonB
     const val ConfirmLabel = "B"
     const val BackLabel = "A"
 }

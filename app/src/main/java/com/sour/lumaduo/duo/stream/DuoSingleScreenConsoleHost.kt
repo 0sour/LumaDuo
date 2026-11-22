@@ -141,7 +141,7 @@ class DuoSingleScreenConsoleHost(
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (!visible) return false
         if (event.action == KeyEvent.ACTION_DOWN &&
-            (event.keyCode == KeyEvent.KEYCODE_BUTTON_B ||
+            (event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
                 event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
         ) {
             if (event.repeatCount > 0) return true
@@ -153,7 +153,7 @@ class DuoSingleScreenConsoleHost(
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 &&
             (event.keyCode == KeyEvent.KEYCODE_BACK ||
                 event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_A)
+                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             game.onBackPressedDispatcher.onBackPressed()
             return true

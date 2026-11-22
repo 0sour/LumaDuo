@@ -274,7 +274,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         // Single-screen fallback hosts the shell in this window, so it needs the same
         // physical B-confirm / A-back contract as the bottom Presentation.
         if (event.action == KeyEvent.ACTION_DOWN &&
-            (event.keyCode == KeyEvent.KEYCODE_BUTTON_B ||
+            (event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
                 event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
         ) {
             if (event.repeatCount > 0) return true
@@ -288,11 +288,11 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         val faceKey = event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
             event.keyCode == KeyEvent.KEYCODE_BUTTON_B
         if (typing && !faceKey) return super.dispatchKeyEvent(event)
-        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_B) return super.dispatchKeyEvent(event)
+        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_A) return super.dispatchKeyEvent(event)
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 &&
             (event.keyCode == KeyEvent.KEYCODE_BACK ||
                 event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_A)
+                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             onBackPressedDispatcher.onBackPressed()
             return true

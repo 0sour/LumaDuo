@@ -232,12 +232,12 @@ Activity 的单屏 fallback。实测（外接 Xbox 手柄）：
 `BTN_DPAD_DOWN` 后下屏焦点不移动；`dumpsys input` 的 `KeyGestureController` 还出现过设备 10 的
 `keycodes=[4]`（BACK）/`[3]`（HOME）。
 
-修复 Activity → Presentation 转发后，同一个外接 Xbox 手柄的 D-pad、B、A 都能正常操作下屏。
+修复 Activity → Presentation 转发后，同一个 Xbox 手柄的 D-pad、下确认、右返回都能正常操作下屏。
 因此**不能再把之前的退桌面归因于“系统重映射”**；真正原因是事件落在 Activity、而应用没有转发。
 `KeyGestureController` 的记录可能来自其他按键，不能作为 A/B 被系统消费的证据。
 
-内置手柄（尤其 Xbox/Retro 风格切换）仍需用实体按键 + `getevent` 单独复核，不要用外接手柄的
-结果替代。
+随后在系统「手柄测试」中捕获到 Xbox 风格原始键码：下=304/BUTTON_A、右=305/BUTTON_B、
+左=307/BUTTON_X、上=308/BUTTON_Y；LumaDuo 已按此修正 A/B 拦截。Retro 风格仍需单独捕获。
 
 ## 4. ABXY / 手柄风格
 
@@ -267,19 +267,31 @@ bili-duo 实测映射：
 - `KEYCODE_BUTTON_X` (99) ≠ 键盘 `KEYCODE_X` (52)；`BUTTON_A` (96) ≠ `KEYCODE_A` (29)。
 
 **本机设置记录（2026-11-22）**：`settings get system flip_button_layout` = `1`；
-`temp_abxy_layout_mode` = `0`。RPSettings 的 `array_controller_style` 为 `Xbox / Retro / None`，
-`flip_button_layout` 默认值为 `0`。布尔值到 Xbox/Retro 的语义尚未由实体内置手柄确认，不能仅凭
-设置值推断。
+`temp_abxy_layout_mode` = `0`。RPSettings 的 `array_controller_style` 为 `Xbox / Retro / None`；
+RPSettings 的 `ControllerStylePreference` 映射为：
 
-**⚠️ LumaDuo 现状**：
+- style 0 → `flip_button_layout=1`、`temp_abxy_layout_mode=0`（Xbox）
+- style 1 → `flip_button_layout=0`、`temp_abxy_layout_mode=1`（Retro）
+- style 2 → `temp_abxy_layout_mode=2`、`no_create_gamepad_button_layout=1`（None）
 
-- `DuoKeys.Confirm = Key.ButtonB` (97)，`Back = Key.ButtonA` (96)，没有风格检测/归一化。
-- 这等价于 **Retro 原始码**：Retro 风格下物理下键发 97，确认正确；Xbox 风格下物理下键发 96，
-  会被当成返回，**确认/返回整体反向**。
-- 2026-11-22 外接 Xbox 手柄实测：B(97)=确认、A(96)=返回，当前代码在这个输入设备上正常。
-- UI 固定写“B 选择 / A 退出”，与 Retro 印字不一致。
-- 需要：读取当前风格（或提供设置项），归一化后再给焦点树/串流层；UI 标签按风格显示。
-  在确认前，至少要用实体内置手柄在两种风格下各测一遍。
+因此本机当前是 **Xbox 风格**。
+
+**本机原始捕获（2026-11-22，event8）**：
+
+| 物理按键 | Linux 事件 | Android keycode |
+|---|---|---|
+| 下 · 确认 | `BTN_GAMEPAD` | `BUTTON_A` (96) |
+| 右 · 返回 | `BTN_EAST` | `BUTTON_B` (97) |
+| 左 · 动作 | `BTN_NORTH` | `BUTTON_X` (99) |
+| 上 · 未绑定 | `BTN_WEST` | `BUTTON_Y` (100) |
+
+**✅ 已修（Xbox 风格）**：`DuoKeys.Confirm = Key.ButtonA` (96)，`Back = Key.ButtonB` (97)；
+Activity、Presentation、单屏控制台的 A/B 拦截和 40ms 确认去重也同步交换。实测下键确认、
+右键返回、D-pad 移动焦点均正常。UI 标签保持“B 选择 / A 退出”，与 Xbox 风格印字一致。
+
+**📋 Retro 风格待处理**：Retro 的原始码应为下=97、右=96、左=100、上=99。当前代码未做
+风格自动归一化；切到 Retro 后 A/B/X/Y 可能反向。下一步需要在 Retro 风格下用同一捕获流程确认，
+再决定读取 `flip_button_layout` 做自动交换，还是提供手动布局设置。
 
 ### 4.1 常用 keycode
 
@@ -444,13 +456,13 @@ adb shell dumpsys connectivity | grep -iE "VPN|Proxy"
 | 下屏查找排除自身 display | ✅ | `findPresentationDisplay(context, ownDisplayId())` |
 | 下屏查找过滤 `STATE_OFF` | ✅（代码） | 已加 `display.state != Display.STATE_OFF`；合盖物理场景待验收 |
 | 从下屏 launcher re-home | ✅ | `singleTop` + `setLaunchDisplayId(0)`；`am start --display 2` 实测回到 Display 0 |
-| Activity → Presentation 输入转发 | ✅ | 实体 D-pad 移动焦点、B 确认、A 返回均实测通过 |
-| ABXY 风格归一化 | ⚠️/📋 | `DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，无风格检测；内置手柄 Xbox 风格可能反向 |
+| Activity → Presentation 输入转发 | ✅ | 实体 D-pad、下确认、右返回均实测通过 |
+| ABXY 风格归一化 | ✅ Xbox / 📋 Retro | Xbox：下=96 确认、右=97 返回已实测；Retro 需 A↔B、X↔Y 归一化 |
 | HAT 轴处理 | ✅/📋 | Activity 不拦截；Presentation 将 HAT 转 DPAD，需真机确认不与实体 D-pad 冲突 |
 | AC3/E-AC3 解码 | ✅（不存在） | vendor codec XML 无 AC3/EAC3；AAC/Opus/FLAC/raw 存在 |
 | 两屏 `KEEP_SCREEN_ON` | ✅ | Activity 与 Presentation 都设置 |
 | 窗口亮度独立控制 | ⚠️ | 未实现，P1 |
-| 实体内置手柄 A/B/X/Y | 📋 | 外接 Xbox 手柄 D-pad/B/A 已通过转发验证；内置手柄两种风格仍需实体按键复核 |
+| 实体内置手柄 A/B/X/Y | ✅ Xbox / 📋 Retro | 2026-11-22 event8 捕获：下=304、右=305、左=307、上=308；Xbox 已通过 |
 | 键盘/快捷键到 host | 📋 | 代码路径已接，未在主机侧验证 |
 | EasyTier 端到端 | 📋 | UI/状态已接，未做真实隧道串流 |
 | 30 分钟长时/断流重连/音频听感 | 📋 | 未验收 |
