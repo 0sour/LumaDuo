@@ -137,8 +137,8 @@ finish()
 - `findPresentationDisplay()` 同时排除 Activity 自身 display，作为双保险。
 - re-home 提前 `return` 后，不要碰尚未初始化的 Presentation 字段。
 
-**⚠️ LumaDuo 现状**：`DuoMainActivity` 没有 re-home 逻辑，也没有 `singleTop`。如果从下屏
-launcher 启动，当前会留在 Display 2 并退化为单屏壳层。需要补。
+**✅ 已修（2026-11-22）**：`DuoMainActivity` 已加 `singleTop` 和 re-home；用
+`am start --display 2` 启动后实测会回到 Display 0，上屏显示品牌页、下屏显示 Presentation。
 
 ### 2.4 找下屏
 
@@ -159,8 +159,8 @@ fun findPresentationDisplay(context: Context, excludeDisplayId: Int): Display? {
 }
 ```
 
-**⚠️ LumaDuo 现状**：已排除 Activity 自身 display，也检查 `FLAG_PRESENTATION`，但**没有过滤
-`STATE_OFF`**。需要补。
+**✅ 已修（2026-11-22）**：`findPresentationDisplay()` 已加 `display.state != Display.STATE_OFF`。
+合盖/休眠的物理场景仍需单独验收。
 
 ### 2.5 Display 监听与常亮
 
@@ -205,14 +205,16 @@ Presentation.dispatchKeyEvent
 - Presentation 自己处理 `BACK`/`ESCAPE`，并与 `OnBackInvokedCallback` 走同一逻辑 + 约 250ms 去抖。
 - 返回优先级：系统 IME → Compose overlay/页内拦截 → 页面返回 → 根页退出。
 
-**⚠️ LumaDuo 现状（2026-11-22 实测）**：
+**✅ 已修（2026-11-22）**：`DuoMainActivity.dispatchKeyEvent()` 现在先把按键转发给
+`SecondScreenPresentation`，由 Presentation 的 Compose 焦点树/back dispatcher 消费；未消费时再走
+Activity 的单屏 fallback。实测（外接 Xbox 手柄）：
 
-- Activity **没有**把按键转发给下屏 Presentation；下屏只处理自己收到的键。
-- 虚拟 `adb shell input -d 2 keyevent 20` 能让下屏焦点从「主机」移动到「应用」。
-- 通过外接 Xbox 手柄注入实体 D-pad（`BTN_DPAD_DOWN`）时，下屏焦点**没有移动**；实体 B 则直接
-  退出到桌面。说明实体手柄事件走了上屏/系统路径，而 LumaDuo 没有转发。
-- 结论：**实体手柄当前不能可靠操作下屏壳层**，这是 P0。需要补 Activity → Presentation 的
-  按键转发和统一去重。
+- 实体 D-pad Down：焦点从「主机」移动到「应用」。
+- 实体 B：进入应用页（确认）。
+- 实体 A：从应用页返回主机页（返回）。
+
+修复前的现象（记录用于回归）：Activity 不转发时，实体 D-pad 不动下屏焦点，实体 B 直接退出到
+桌面；虚拟 `input -d 2 keyevent 20` 可移动焦点。**这不是系统重映射，而是缺少输入转发。**
 
 ### 3.2 不要无差别消费 HAT 轴
 
@@ -224,19 +226,18 @@ Presentation.dispatchKeyEvent
 **✅ LumaDuo Activity 没有拦截 generic motion**；`SecondScreenPresentation` 会在下屏把 HAT
 转换成 DPAD 键，供 Compose 焦点树使用。后者需要在真机上确认不会与实体 D-pad 冲突。
 
-### 3.3 外接 Xbox 手柄的系统级重映射
+### 3.3 外接 Xbox 手柄实测记录
 
-2026-11-22 在本机连接 **Xbox Wireless Controller** 后观察到：
+2026-11-22 在转发修复前观察到：注入 `BTN_EAST`（B）后应用退到桌面，注入
+`BTN_DPAD_DOWN` 后下屏焦点不移动；`dumpsys input` 的 `KeyGestureController` 还出现过设备 10 的
+`keycodes=[4]`（BACK）/`[3]`（HOME）。
 
-- 注入 `BTN_EAST`（B）后应用退到桌面；
-- 注入 `BTN_DPAD_DOWN` 后下屏焦点不移动；
-- `dumpsys input` 的 `KeyGestureController` 出现设备 10 的 `keycodes=[4]`（BACK）和
-  `keycodes=[3]`（HOME）；
-- 同一事件用 `input -d 2 keyevent 4` 可以正常触发应用的 back。
+修复 Activity → Presentation 转发后，同一个外接 Xbox 手柄的 D-pad、B、A 都能正常操作下屏。
+因此**不能再把之前的退桌面归因于“系统重映射”**；真正原因是事件落在 Activity、而应用没有转发。
+`KeyGestureController` 的记录可能来自其他按键，不能作为 A/B 被系统消费的证据。
 
-**结论（限定范围）**：这套外接 Xbox 手柄在当前固件/游戏助手组合下，A/B 可能被系统导航消费，
-而不是原样送到应用。内置手柄是否同样受影响，仍需用实体按键 + `getevent` 复核。不要据此把
-“外接 Xbox 手柄”与“RP Duo 内置手柄”混为一谈。
+内置手柄（尤其 Xbox/Retro 风格切换）仍需用实体按键 + `getevent` 单独复核，不要用外接手柄的
+结果替代。
 
 ## 4. ABXY / 手柄风格
 
@@ -265,11 +266,17 @@ bili-duo 实测映射：
 - 屏幕提示不要写死 A/B/X/Y，按当前风格显示。
 - `KEYCODE_BUTTON_X` (99) ≠ 键盘 `KEYCODE_X` (52)；`BUTTON_A` (96) ≠ `KEYCODE_A` (29)。
 
+**本机设置记录（2026-11-22）**：`settings get system flip_button_layout` = `1`；
+`temp_abxy_layout_mode` = `0`。RPSettings 的 `array_controller_style` 为 `Xbox / Retro / None`，
+`flip_button_layout` 默认值为 `0`。布尔值到 Xbox/Retro 的语义尚未由实体内置手柄确认，不能仅凭
+设置值推断。
+
 **⚠️ LumaDuo 现状**：
 
 - `DuoKeys.Confirm = Key.ButtonB` (97)，`Back = Key.ButtonA` (96)，没有风格检测/归一化。
 - 这等价于 **Retro 原始码**：Retro 风格下物理下键发 97，确认正确；Xbox 风格下物理下键发 96，
   会被当成返回，**确认/返回整体反向**。
+- 2026-11-22 外接 Xbox 手柄实测：B(97)=确认、A(96)=返回，当前代码在这个输入设备上正常。
 - UI 固定写“B 选择 / A 退出”，与 Retro 印字不一致。
 - 需要：读取当前风格（或提供设置项），归一化后再给焦点树/串流层；UI 标签按风格显示。
   在确认前，至少要用实体内置手柄在两种风格下各测一遍。
@@ -435,15 +442,15 @@ adb shell dumpsys connectivity | grep -iE "VPN|Proxy"
 | Presentation 内禁用系统 Dialog | ✅ | 壳层/控制台无 `Dialog`/`AlertDialog`/`ModalBottomSheet` |
 | 不依赖 `WindowInsets.isImeVisible` | ✅ | 壳层未使用该 API，自行维护输入面板状态 |
 | 下屏查找排除自身 display | ✅ | `findPresentationDisplay(context, ownDisplayId())` |
-| 下屏查找过滤 `STATE_OFF` | ⚠️ | 代码未过滤；合盖/休眠可能选中不可用屏 |
-| 从下屏 launcher re-home | ⚠️ | 无 `setLaunchDisplayId`，Activity 无 `singleTop` |
-| Activity → Presentation 输入转发 | ⚠️ | 未实现；实体 D-pad 不动下屏焦点，虚拟 `input -d 2` 可动 |
-| ABXY 风格归一化 | ⚠️ | `DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，无风格检测；Xbox 风格可能反向 |
+| 下屏查找过滤 `STATE_OFF` | ✅（代码） | 已加 `display.state != Display.STATE_OFF`；合盖物理场景待验收 |
+| 从下屏 launcher re-home | ✅ | `singleTop` + `setLaunchDisplayId(0)`；`am start --display 2` 实测回到 Display 0 |
+| Activity → Presentation 输入转发 | ✅ | 实体 D-pad 移动焦点、B 确认、A 返回均实测通过 |
+| ABXY 风格归一化 | ⚠️/📋 | `DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，无风格检测；内置手柄 Xbox 风格可能反向 |
 | HAT 轴处理 | ✅/📋 | Activity 不拦截；Presentation 将 HAT 转 DPAD，需真机确认不与实体 D-pad 冲突 |
 | AC3/E-AC3 解码 | ✅（不存在） | vendor codec XML 无 AC3/EAC3；AAC/Opus/FLAC/raw 存在 |
 | 两屏 `KEEP_SCREEN_ON` | ✅ | Activity 与 Presentation 都设置 |
 | 窗口亮度独立控制 | ⚠️ | 未实现，P1 |
-| 实体内置手柄 A/B/X/Y | 📋 | 外接 Xbox 手柄受系统导航影响；内置手柄两种风格仍需实体按键复核 |
+| 实体内置手柄 A/B/X/Y | 📋 | 外接 Xbox 手柄 D-pad/B/A 已通过转发验证；内置手柄两种风格仍需实体按键复核 |
 | 键盘/快捷键到 host | 📋 | 代码路径已接，未在主机侧验证 |
 | EasyTier 端到端 | 📋 | UI/状态已接，未做真实隧道串流 |
 | 30 分钟长时/断流重连/音频听感 | 📋 | 未验收 |

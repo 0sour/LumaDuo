@@ -281,6 +281,7 @@ fun findPresentationDisplay(context: Context, excludeDisplayId: Int = Display.DE
         .filter { display ->
             display.displayId != excludeDisplayId &&
                 display.isValid &&
+                display.state != Display.STATE_OFF &&
                 (display.flags and Display.FLAG_PRESENTATION) != 0
         }
         // Stable choice if a device exposes more than one presentation display.

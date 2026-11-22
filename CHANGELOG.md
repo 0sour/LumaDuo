@@ -9,6 +9,14 @@ All notable changes to LumaDuo are recorded here.
 - Declare `android:label="@string/app_label"` on the `<application>` element.
   Launchers that read the application label instead of the activity alias no
   longer fall back to the package name and now show **LumaDuo**.
+- Physical controller input now reaches the bottom shell: `DuoMainActivity`
+  forwards key events to the bottom `Presentation` before its own fallback.
+  With the connected Xbox controller, D-pad navigation, B confirm and A back
+  were verified on device.
+- Bottom-display discovery now ignores `STATE_OFF` displays.
+- `DuoMainActivity` is `singleTop` and re-homes an instance that the bottom
+  launcher started on display 2 back to display 0; verified with
+  `am start --display 2`.
 
 ### Added
 

@@ -3,6 +3,7 @@ package com.sour.lumaduo.duo
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -102,6 +103,10 @@ import kotlinx.coroutines.launch
  * window never owns buttons, focus or overlays.
  */
 class DuoMainActivity : ComponentActivity(), DuoShellHost {
+    companion object {
+        private const val EXTRA_REHOMED = "com.sour.lumaduo.extra.REHOMED"
+    }
+
     private var bottomPresentation: SecondScreenPresentation? = null
     private var bottomDisplay by mutableStateOf<Display?>(null)
     private var bottomMetrics by mutableStateOf<DisplayMetrics?>(null)
@@ -152,6 +157,9 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        // The bottom launcher can start an Activity on display 2. LumaDuo must live on
+        // display 0 and host the shell in a Presentation on the secondary display.
+        if (rehomeFromSecondaryDisplay()) return
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
@@ -259,6 +267,10 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Physical gamepads can deliver events to the Activity window even while the
+        // bottom shell is visible. Forward to the Presentation first so its Compose
+        // focus tree and back dispatcher see exactly one copy of the event.
+        if (forwardKeyToBottom(event)) return true
         // Single-screen fallback hosts the shell in this window, so it needs the same
         // physical B-confirm / A-back contract as the bottom Presentation.
         if (event.action == KeyEvent.ACTION_DOWN &&
@@ -286,6 +298,37 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             return true
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    private fun forwardKeyToBottom(event: KeyEvent): Boolean {
+        val presentation = bottomPresentation ?: return false
+        if (!presentation.isShowing || isFinishing || isDestroyed) return false
+        return presentation.dispatchKeyEvent(event)
+    }
+
+    /**
+     * Returns true when this instance was launched on a secondary display and has handed
+     * off to a fresh Display-0 instance. The caller must stop initializing this instance.
+     */
+    private fun rehomeFromSecondaryDisplay(): Boolean {
+        if (ownDisplayId() == Display.DEFAULT_DISPLAY) return false
+        if (intent.getBooleanExtra(EXTRA_REHOMED, false)) return false
+
+        val relaunch = Intent(intent).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            putExtra(EXTRA_REHOMED, true)
+        }
+        val options = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ActivityOptions.makeBasic()
+                .setLaunchDisplayId(Display.DEFAULT_DISPLAY)
+                .toBundle()
+        } else {
+            null
+        }
+        LimeLog.info("LumaDuo: re-homing from display ${ownDisplayId()} to display 0")
+        startActivity(relaunch, options)
+        finish()
+        return true
     }
 
     @Suppress("DEPRECATION")

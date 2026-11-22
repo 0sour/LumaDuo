@@ -62,14 +62,15 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 - 音频输出/声道/麦克风的实际听感；
 - 538×469 与 Thor（当前无设备）。
 
-### 4.1.1 2026-11-22 RP Duo 复核发现（新增 P0）
+### 4.1.1 2026-11-22 RP Duo 复核发现与修复
 
-- **实体手柄到不了下屏**：Activity 没有向下屏 Presentation 转发按键。虚拟
-  `input -d 2 keyevent 20` 能移动焦点，注入实体 `BTN_DPAD_DOWN` 不能；实体 B 直接退出到桌面。
-- **ABXY 风格未归一化**：`DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，等价于 Retro 原始码；
-  Xbox 风格下物理确认/返回可能反向。需要读取/确认风格并做 A↔B、X↔Y 归一化。
-- **下屏查找未过滤 `STATE_OFF`**：合盖/休眠时可能选中不可用屏。
-- **缺少下屏 launcher 启动 re-home**：`DuoMainActivity` 无 `singleTop` / `setLaunchDisplayId(0)`。
+- **✅ 实体手柄转发已修**：Activity 现在把按键转发给下屏 Presentation。实体 D-pad 可移动焦点，
+  B 确认、A 返回均实测通过；修复前实体 B 会直接退到桌面。
+- **⚠️ ABXY 风格未归一化**：`DuoKeys` 硬编码 `ButtonB` 确认 / `ButtonA` 返回，等价于 Retro 原始码；
+  Xbox 风格下物理确认/返回可能反向。外接 Xbox 手柄实测正常，内置手柄两种风格仍需实体测试。
+- **✅ `STATE_OFF` 过滤已加**：合盖/休眠的物理场景仍需单独验收。
+- **✅ 下屏 launcher re-home 已加**：`DuoMainActivity` 改 `singleTop` + `setLaunchDisplayId(0)`；
+  `am start --display 2` 实测回到 Display 0。
 - **音频解码**：本机 vendor codec XML 无 AC3/E-AC3，存在 AAC/Opus/FLAC/raw；串流不要依赖杜比硬解。
 
 完整资料与复核表见 [RP-DUO-DEV.md](RP-DUO-DEV.md)。
@@ -100,9 +101,9 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 | 任务 | 验收 |
 |---|---|
-| 实体手柄转发 | Activity → Presentation 转发 + 40ms 去重；实体 D-pad 能移动下屏焦点；实体下键确认、右键返回 |
+| 实体手柄转发 ✅ | 已实现 Activity → Presentation 转发；实体 D-pad/B/A 实测通过（2026-11-22） |
 | ABXY 风格归一化 | Xbox/Retro 两种风格下物理下键=确认、右键=返回；UI 标签跟随风格 |
-| 下屏生命周期 | `STATE_OFF` 过滤；下屏 launcher 启动 re-home 到 Display 0；合盖/拔插恢复 |
+| 下屏生命周期 ✅ | `STATE_OFF` 过滤 + re-home 已实现；`am start --display 2` 实测回到 Display 0；合盖/拔插仍待验 |
 | 实体手柄全键位 | 直通控制 PC；本地下确认/右返回/HAT 移动焦点；切回无卡键 |
 | 键盘/快捷键 | ASCII 键、Ctrl/Alt/Win/Shift、12 快捷键、断流释放 |
 | EasyTier 端到端 | VPN 授权 → 虚拟 IP → 串流 → 停止；失败有明确提示 |
