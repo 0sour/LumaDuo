@@ -1,6 +1,6 @@
 # 现状与近期开发规划
 
-> 更新：2026-11-24 · 源码工作区（基于 `795debc9`，Foundation Fs* 适配未提交） ·
+> 更新：2026-11-24 · `main` `e275f965`（Foundation Fs* 适配已提交并推送） ·
 > 产品包名 `com.sour.lumaduo`（debug `.debug`）
 > 当前阶段：双屏 RP Duo 主链路、Foundation 1123 客户端能力、应用英雄图和输入释放已跑通；
 > 单屏/PiP 按 D-043 延期，不作为当前验收门槛。
@@ -23,7 +23,7 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 | `duoDebug` | `com.sour.lumaduo.debug` | 37,329,790 B | 最新构建（11-24 22:38，debug R8 dex 较多），已在 RP Duo 安装验证；SHA-256 `cf71cf68…c1ebec8` |
 | `nonRootRelease` | `com.sour.lumaduo.full` | 26,370,119 B | full 对照/调试用 |
 
-源码：本仓库，`main` 最新 `b1ef5dea`。
+源码：本仓库，`main` 最新 `e275f965`（已推送 `lumaduo`）。
 文档：`docs`；RP Duo 平台复核见 `docs/RP-DUO-DEV.md`。
 
 ## 3. 已真机验证（RP Duo / Android 16 / Sunshine）
