@@ -24,9 +24,32 @@ All notable changes to LumaDuo are recorded here.
 - `DuoMainActivity` is `singleTop` and re-homes an instance that the bottom
   launcher started on display 2 back to display 0; verified with
   `am start --display 2`.
+- Pausing the stream or opening an overlay now releases forwarded keyboard
+  keys, right-click state and middle-click state instead of leaving them held
+  on the host. The change follows V+ #865 and also clears the pending toggle-grab
+  callback.
+- Control-only mode no longer aborts during RTSP ANNOUNCE: the video SETUP is
+  skipped in that mode, so `SdpGenerator` now uses the well-known 47998 port for
+  the SDP video line instead of asserting on a zero port. Verified on RP Duo with
+  control-only on; normal video streaming still passes.
+- Local key hints now follow the Retroid controller style: Xbox style shows
+  B confirm / A back, Retro style shows A confirm / B back. The canonical key
+  constants stay A/B.
+- Lint fixes for the duo variant: `AudioManager.isStreamMute` is guarded below
+  API 23, and the diagnostics page reads Compose `LocalConfiguration` instead
+  of the activity resources.
 
 ### Added
 
+- Foundation Sunshine Fs* capability v1: `/serverinfo` profile fields
+  (`FsPlatform`, `FsOsVersion`, `FsGpu`, `FsDisplayModes`, `FsHostIcon`) and
+  `/applist` facts (`FsKind`, `FsSource`, `FsDefault`, `FsLastPlayed`,
+  `FsPlaySeconds`, `FsArtVersion`, `FsArt`) are parsed with optional fallbacks
+  for plain Sunshine/GFE hosts. The host detail shows real OS/GPU/display
+  modes, and the app detail shows source, kind, default and last-played facts.
+- Top-display app preview now uses Foundation's 16:9 `hero` art when the app
+  advertises it, with the existing poster as fallback. Heroes are fetched
+  lazily for the selected app, keyed by `FsArtVersion`, and capped in memory.
 - Host page: all/paired/unpaired filter chips, online→paired→name ordering,
   multi-address selection with a real address sheet, and "restore last session"
   across any online host with a running app.

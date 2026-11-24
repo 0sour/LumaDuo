@@ -58,6 +58,25 @@ class NvAppCmdListTest {
     }
 
     @Test
+    fun appListXmlParsesFoundationFactsWithoutConsumingSuperCommands() {
+        val apps = NvHTTP.getAppListByReader(StringReader(
+            """<root status_code="200"><App><AppTitle>Slay the Spire 2</AppTitle><ID>2</ID><IsHdrSupported>0</IsHdrSupported><FsKind>game</FsKind><FsSource>steam</FsSource><FsDefault>1</FsDefault><FsLastPlayed>1794390000</FsLastPlayed><FsPlaySeconds>7200</FsPlaySeconds><FsArtVersion>123</FsArtVersion><FsArt>poster,hero,logo,icon</FsArt><SuperCmds>[{"id":"001","name":"Start"}]</SuperCmds></App></root>"""
+        ))
+
+        assertEquals(1, apps.size)
+        val app = apps[0]
+        assertEquals("game", app.fsKind)
+        assertEquals("steam", app.fsSource)
+        assertEquals(true, app.fsDefault)
+        assertEquals(1794390000L, app.fsLastPlayed)
+        assertEquals(7200L, app.fsPlaySeconds)
+        assertEquals("123", app.fsArtVersion)
+        assertEquals(setOf("poster", "hero", "logo", "icon"), app.fsArtTypes)
+        assertEquals(true, app.hasFsArt("hero"))
+        assertNotNull(app.cmdList)
+    }
+
+    @Test
     fun appListXmlParsesCommandsAndKeepsNullOrMissingCommandsAbsent() {
         val apps = NvHTTP.getAppListByReader(StringReader(
             """<root status_code="200"><App><AppTitle>Game</AppTitle><ID>1</ID><IsHdrSupported>1</IsHdrSupported><SuperCmds>[{"id":"001","name":"Start &amp; Play"}]</SuperCmds></App><App><AppTitle>Desktop</AppTitle><ID>2</ID><SuperCmds>null</SuperCmds></App><App><AppTitle>Other</AppTitle><ID>3</ID></App></root>"""

@@ -310,8 +310,11 @@ RPSettings 的 `ControllerStylePreference` 映射为：
 - `DuoFaceButtonMapper` 只对 Retro 内置手柄（vendor `0x2022` / product `0x3001`）做 A↔B、
   X↔Y 交换；Xbox 内置手柄和外接控制器不受影响。
 - 实测：Xbox 和 Retro 的下确认、右返回、D-pad 移动焦点均正常。
-- 已知 UI 细节：按键提示仍写“B 选择 / A 退出”（Xbox 印字）；Retro 印字为 A/B，提示随风格
-  切换还未实现，不影响实际按键动作。
+- ✅ 键位提示已随风格：Xbox 显示 B/A，Retro 显示 A/B；`DuoKeys.labels()` 读取系统
+  `flip_button_layout` / `temp_abxy_layout_mode`，keycode 仍用 canonical A/B。
+- ✅ 仅控制流已修：控制流模式跳过 video SETUP，`SdpGenerator` 不再断言
+  `VideoPortNumber != 0`，SDP 的 video 行用 47998 兜底；RP Duo 实测控制流串流正常，
+  普通视频串流仍正常。
 
 ### 4.1 常用 keycode
 
@@ -394,6 +397,8 @@ AudioTrack.Builder()
 - `Surface.setFrameRate(fps, FRAME_RATE_COMPATIBILITY_FIXED_SOURCE)`（API 30+）匹配流帧率。
 - 60fps 优先 60Hz；120Hz 可用于高帧率/降低运动模糊。
 - 低延迟不要自己 sleep，用 `releaseOutputBuffer(index, presentationTimeUs, true)`。
+- 仅控制流：跳过 video/audio SETUP 与 PLAY，但 RTSP ANNOUNCE 仍要有合法 video 行；
+  用 47998 兜底，不要断言 `VideoPortNumber != 0`。
 
 **✅ LumaDuo 使用 V+ 的 MediaCodec + SurfaceView 视频链路；音频实际解码/延迟尚未逐项验收。**
 
@@ -426,6 +431,42 @@ adb logcat -s MediaCodec MediaCodecRenderer
 ```
 
 端到端延迟以高速相机拍“手柄按下 → 屏幕反应”为准，不要只信代码时间戳。
+
+### 7.1 Foundation Sunshine 的 Fs* 客户端接口
+
+实际对接主机是 `AlkaidLab/foundation-sunshine`（基地版），不是 V+。1123 起
+`/serverinfo` 与 `/applist` 追加了 capability v1 的 Fs* 字段，全部是 additive，
+旧 Sunshine/GFE 不会发送。
+
+`/serverinfo`：
+
+- `FsCapabilityVersion`（当前 `1`）
+- `FsFeatures`：`profile,appfacts,art,poster_variants`，有 Big Screen 条目时加 `bigscreen`
+- `poster_variants=1`
+- 已配对时的 `FsPlatform` / `FsOsVersion` / `FsGpu` / `FsDisplayModes` / `FsHostIcon`
+
+`/applist`：
+
+- `FsKind`：`bigscreen` / `desktop` / `game` / `tool`
+- `FsDefault`、`FsSource`（`steam` / `xbox` / `custom`）
+- `FsLastPlayed`、`FsPlaySeconds`
+- `FsArtVersion`、`FsArt`（`poster,hero,logo,icon`）
+
+`/appasset`：无图应用由主机生成封面，竖版 600×900、横版 1920×1080；
+`type=poster|hero|logo|icon` 取对应图。LumaDuo 现有 `AssetType=2` 仍取 poster；
+`hero` 只在 `FsArt` 包含它时请求，失败回退 poster。
+
+实现约束：
+
+- 所有 Fs* 读取按 `FsFeatures` 门控，缺字段时保持原 UI。
+- 大屏/桌面/工具只做标签，不强制从网格隐藏；`FsKind=bigscreen` 不靠名字猜。
+- `FsLastPlayed` 是 Unix 秒；为 0/缺失不显示“最近游玩”。
+- cap2 的 `FsLaunchMode`、`FsSession`、`events`、`FsEventSeq`、`FsHostAvatarVersion`
+  尚未在 host master 落地，不要提前实现。
+- 当前 UI 只展示 `FsOsVersion`/`FsGpu`/`FsDisplayModes`；`FsHostIcon` 和
+  `poster_variants` 已保存但未做展示/分层海报，属于 P2。
+- Foundation 的配置 API 现在要求凭据；ABR/网络探测/剪贴板/显示器接口都在
+  nvhttp 流端口（mTLS），不受影响。
 
 ## 8. 调试命令
 
@@ -464,7 +505,7 @@ adb shell curl -sS -o /dev/null -w "%{http_code} %{http_version}\n" https://<hos
 adb shell dumpsys connectivity | grep -iE "VPN|Proxy"
 ```
 
-## 9. LumaDuo 复核结果（2026-11-22）
+## 9. LumaDuo 复核结果（2026-11-22/24）
 
 | 项目 | 结果 | 证据 / 动作 |
 |---|---|---|
@@ -483,7 +524,11 @@ adb shell dumpsys connectivity | grep -iE "VPN|Proxy"
 | 两屏 `KEEP_SCREEN_ON` | ✅ | Activity 与 Presentation 都设置 |
 | 窗口亮度独立控制 | ⚠️ | 未实现，P1 |
 | 实体内置手柄 A/B/X/Y | ✅ Xbox + Retro | Xbox：下=304/右=305/左=307/上=308；Retro：下=305/右=304；两种风格均实测 |
-| 键盘/快捷键到 host | 📋 | 代码路径已接，未在主机侧验证 |
+| Foundation Fs* 主机信息 | ✅ | 真机主机页显示真实系统版本、GPU 名称和双显示器模式（不在文档记录具体硬件） |
+| Foundation Fs* 应用事实 | ✅ | 真机应用详情显示 Steam/工具、大屏/默认；解析 4 个默认应用 |
+| Foundation 生成封面 | ✅ | 1123 主机为“大屏”等无图应用下发主机生成封面，LumaDuo 直接显示 |
+| FsArt hero 上屏 | ✅ | 选中 Steam、大屏时上屏显示 300×169 的 16:9 hero；无 hero 时回退 poster |
+| 键盘/快捷键到 host | 📋 | 代码路径已接，未在主机侧验证；#865 的释放逻辑已移植 |
 | EasyTier 端到端 | 📋 | UI/状态已接，未做真实隧道串流 |
 | 30 分钟长时/断流重连/音频听感 | 📋 | 未验收 |
 

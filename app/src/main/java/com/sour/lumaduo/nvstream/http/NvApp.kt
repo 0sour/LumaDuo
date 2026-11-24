@@ -16,6 +16,40 @@ class NvApp {
         private set
     var hdrSupported: Boolean = false
 
+    /**
+     * Foundation Sunshine's additive per-app facts from /applist.
+     * Other hosts leave this empty; callers must treat every value as optional.
+     */
+    val fsExtras: MutableMap<String, String> = linkedMapOf()
+
+    val fsKind: String?
+        get() = fsExtras["FsKind"]?.trim()?.takeIf { it.isNotEmpty() }
+
+    val fsSource: String?
+        get() = fsExtras["FsSource"]?.trim()?.takeIf { it.isNotEmpty() }
+
+    val fsDefault: Boolean
+        get() = fsExtras["FsDefault"]?.let { it == "1" || it.equals("true", ignoreCase = true) } == true
+
+    val fsLastPlayed: Long?
+        get() = fsExtras["FsLastPlayed"]?.toLongOrNull()?.takeIf { it > 0 }
+
+    val fsPlaySeconds: Long?
+        get() = fsExtras["FsPlaySeconds"]?.toLongOrNull()?.takeIf { it >= 0 }
+
+    val fsArtVersion: String?
+        get() = fsExtras["FsArtVersion"]?.trim()?.takeIf { it.isNotEmpty() }
+
+    val fsArtTypes: Set<String>
+        get() = fsExtras["FsArt"]
+            ?.split(',')
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.toSet()
+            ?: emptySet()
+
+    fun hasFsArt(type: String): Boolean = fsArtTypes.contains(type)
+
     var cmdList: JsonArray? = null
 
     constructor()

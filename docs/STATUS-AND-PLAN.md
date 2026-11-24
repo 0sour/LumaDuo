@@ -1,8 +1,9 @@
 # 现状与近期开发规划
 
-> 更新：2026-11-22 · 源码 `b1ef5dea` · 产品包名 `com.sour.lumaduo`（debug `.debug`）
-> 当前阶段：双屏 RP Duo 主链路已跑通；2026-11-22 复核发现实体手柄转发与 ABXY 风格归一化缺口，
-> 已列入 P0；单屏/PiP 按 D-043 延期，不作为当前验收门槛。
+> 更新：2026-11-24 · 源码工作区（基于 `795debc9`，Foundation Fs* 适配未提交） ·
+> 产品包名 `com.sour.lumaduo`（debug `.debug`）
+> 当前阶段：双屏 RP Duo 主链路、Foundation 1123 客户端能力、应用英雄图和输入释放已跑通；
+> 单屏/PiP 按 D-043 延期，不作为当前验收门槛。
 
 ## 1. 一句话现状
 
@@ -18,8 +19,8 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 | 产物 | 包名 | 大小 | 状态 |
 |---|---|---:|---|
-| `duoRelease` | `com.sour.lumaduo` | 16,455,976 B | 旧构建（11-21 20:43），未签名；不包含最新应用页/上屏图标 |
-| `duoDebug` | `com.sour.lumaduo.debug` | 32,433,597 B | 最新构建，已在 RP Duo 安装验证 |
+| `duoRelease` | `com.sour.lumaduo` | 16,498,792 B | 最新构建（11-24 22:41，含 control-only 修复），未签名；SHA-256 `138716d3…d8e062` |
+| `duoDebug` | `com.sour.lumaduo.debug` | 37,329,790 B | 最新构建（11-24 22:38，debug R8 dex 较多），已在 RP Duo 安装验证；SHA-256 `cf71cf68…c1ebec8` |
 | `nonRootRelease` | `com.sour.lumaduo.full` | 26,370,119 B | full 对照/调试用 |
 
 源码：本仓库，`main` 最新 `b1ef5dea`。
@@ -44,7 +45,10 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 - 工具态三页可用：触摸板单指移动/点击、双指滚动/右键、双击/长按拖拽；键盘 ASCII 5 行 + 符号 + 系统 IME；快捷键 12 键 + 动作条，Win+L/休眠/退出均二次确认；
 - 主机页网络测试改为真实 TCP 探测（3/3 端口，最低 2 ms、平均 10 ms），结果覆盖层可重测；更多菜单增加重新配对；
 - 设置“帮助 / 诊断”页显示真实设备/系统/640×480dp/29 个视频解码器/11 个输入设备，并可跳转网络诊断与帮助文档；
-- 上屏浏览态按页面补全：主机大标题/地址/状态 tags/显示器示意、应用首字母色块、EasyTier 网络图与虚拟 IP、设置分类说明 + 前 5 条当前值；仍只读、无焦点；
+- 上屏浏览态按页面补全：主机大标题/地址/状态 tags/显示器示意、应用真实图、EasyTier 网络图与虚拟 IP、设置分类说明 + 前 5 条当前值；仍只读、无焦点；
+- 2026-11-24 Foundation 1123 能力适配：主机页显示真实系统/GPU/显示器模式；应用详情显示来源（Steam/Xbox）、类型（桌面/大屏/工具）、默认标记和最近游玩；无图应用的生成封面直接显示；
+- 2026-11-24 上屏应用图升级：Foundation `FsArt` 有 `hero` 时显示 300×169 横图，Steam Big Picture / 大屏实机通过；无 hero 回退 190×190 poster；
+- 2026-11-24 输入释放：暂停/弹层/退出时释放转发键、右键和中键状态（V+ #865 等价移植）；lint 的 API 23 与 LocalConfiguration 两处错误已修；
 - 旧 full debug 覆盖安装到正式包名，配对/远程配置保留；
 - Presentation 退出 lifecycle 崩溃已修复（`bcfefa01`）；
 - 主机 Sunshine 已从 `ensure_only_display` 改为 `ensure_active`，物理屏在串流/退出后保持激活。
@@ -70,6 +74,11 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
   vendor 0x2022/product 0x3001，下键=305/BUTTON_B、右键=304/BUTTON_A。`DuoKeys` 用
   `ButtonA` 确认 / `ButtonB` 返回，`DuoFaceButtonMapper` 只对 Retro 内置手柄交换 A↔B/X↔Y；
   两种风格下确认/返回实测通过。
+- **✅ 仅控制流崩溃已修**：`checkbox_control_only=true` 时跳过 video SETUP，原 `SdpGenerator`
+  断言 `VideoPortNumber != 0` 触发 SIGABRT；现在 ANNOUNCE 的 video 行用 47998 兜底。
+  已用 RP Duo 实测控制流串流正常，普通视频串流同时通过。
+- **✅ 键位提示已随风格**：Xbox 显示 B/A，Retro 显示 A/B；读取系统
+  `flip_button_layout` / `temp_abxy_layout_mode`，canonical keycode 仍为 A/B。
 - **✅ `STATE_OFF` 过滤已加**：合盖/休眠的物理场景仍需单独验收。
 - **✅ 下屏 launcher re-home 已加**：`DuoMainActivity` 改 `singleTop` + `setLaunchDisplayId(0)`；
   `am start --display 2` 实测回到 Display 0。
@@ -84,7 +93,7 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 - 表单输入仍依赖系统 IME，手柄 ASCII 输入未覆盖 PIN/IP/EasyTier 表单；
 - 主机详情/编辑、运行中游戏的退出/切换冲突处理仍可完善；应用搜索/首字母索引未做（P2）；
 - Sunshine WebUI 改为打开系统浏览器，不在客户端保存认证凭据；
-- 主机实时 CPU/GPU/内存未接，继续显示“未提供”；
+- 主机静态 OS/GPU/显示模式已接 Foundation `FsPlatform/FsOsVersion/FsGpu/FsDisplayModes`；实时 CPU/GPU/内存负载仍未接，继续显示“未提供”；
 - QR 扫码未接（duo 已移除相机权限，暂不做）；
 - 单屏模式与 PiP 延期（D-043），代码保留、PiP 入口标记延期，不继续投入。
 
@@ -99,6 +108,9 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 ## 5. 近期规划
 
+> 完整的分阶段开发计划（v0.2 → v0.3 → v1.0、下一 sprint、发布门槛与风险）见
+> [ROADMAP.md](ROADMAP.md)。本节保留近期 P0/P1/P2 清单。
+
 ### P0 — 稳定性收口（下一轮优先）
 
 | 任务 | 验收 |
@@ -106,6 +118,8 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 | 实体手柄转发 ✅ | 已实现 Activity → Presentation 转发；实体 D-pad、下确认、右返回实测通过（2026-11-22） |
 | ABXY ✅ Xbox + Retro | Xbox 下=96/右=97；Retro 下=97/右=96，product 0x3001 已归一化并实测 |
 | 下屏生命周期 ✅ | `STATE_OFF` 过滤 + re-home 已实现；`am start --display 2` 实测回到 Display 0；合盖/拔插仍待验 |
+| 键位提示 ✅ | Xbox B/A、Retro A/B 随系统风格切换；真机两种风格已截屏核对 |
+| 仅控制流 ✅ | 原生 `SdpGenerator` 零端口断言已修；控制流串流不再 SIGABRT |
 | 实体手柄全键位 | 直通控制 PC；本地下确认/右返回/HAT 移动焦点；切回无卡键 |
 | 键盘/快捷键 | ASCII 键、Ctrl/Alt/Win/Shift、12 快捷键、断流释放 |
 | EasyTier 端到端 | VPN 授权 → 虚拟 IP → 串流 → 停止；失败有明确提示 |
@@ -117,6 +131,10 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 | 任务 | 验收 |
 |---|---|
+| Foundation Fs* 元数据 ✅ | `/serverinfo` 主机 profile + `/applist` 应用事实已解析；真机显示系统/GPU/显示模式、来源/类型/默认/最近游玩 |
+| Foundation 封面/hero ✅ | 生成封面自动显示；`FsArt` hero 上屏 300×169，poster 回退；按 `FsArtVersion` 懒加载并限缓存 |
+| V+ #865 输入释放 ✅ | 暂停/弹层/退出释放转发键、右键、中键；lint 通过 |
+| 大屏/桌面/工具语义 | 当前仅标签；是否从应用网格移到独立入口、工具分组的决定未做 |
 | 画面/音频页占位清理 | 每行是“可用/需重连/隐藏”之一，不再有模糊占位 |
 | 表单 ASCII 输入 | PIN、IP、EasyTier 表单可完全用手柄完成 |
 | 主机/应用操作 | 运行中游戏退出/切换、应用详情、隐藏/快捷方式语义清楚 |

@@ -69,6 +69,7 @@ data class DuoTopContext(
     val appInitial: String? = null,
     val appColor: Color? = null,
     val appIcon: Bitmap? = null,
+    val appHero: Bitmap? = null,
     val appHdr: Boolean = false,
     val settingsCategory: String? = null,
     val settingsDescription: String? = null,
@@ -114,6 +115,7 @@ interface DuoShellHost {
     fun quitApp(host: ComputerDetails, app: NvApp?, thenLaunch: NvApp?)
     fun setAppHidden(host: ComputerDetails, app: NvApp, hidden: Boolean)
     fun appHidden(host: ComputerDetails, app: NvApp): Boolean
+    fun requestAppHero(host: ComputerDetails, app: NvApp?)
     fun createShortcut(host: ComputerDetails, app: NvApp)
     fun startStopEasyTier()
     fun saveRemoteConfig(config: DuoRemoteRepository.Config)
@@ -136,6 +138,7 @@ fun DuoShellScreen(
     appsLoading: StateFlow<Boolean>,
     appsError: StateFlow<String?>,
     appIcons: StateFlow<Map<Int, android.graphics.Bitmap>>,
+    appHeroes: StateFlow<Map<Int, Bitmap>>,
     settings: DuoSettingsRepository.Snapshot,
     remote: DuoRemoteRepository.Snapshot,
     remoteConfig: DuoRemoteRepository.Config,
@@ -176,12 +179,16 @@ fun DuoShellScreen(
     }
     var appSelection by remember { mutableStateOf<NvApp?>(null) }
     val focusMemory = remember { DuoFocusMemory() }
+    // Read on every shell composition: an RPSettings style switch is reflected after
+    // the next resume/recomposition without restarting the app.
+    val keyLabels = DuoKeys.labels(LocalContext.current)
 
     val hostList by hosts.collectAsState()
     val appList by apps.collectAsState()
     val appLoading by appsLoading.collectAsState()
     val appError by appsError.collectAsState()
     val appIconMap by appIcons.collectAsState()
+    val appHeroMap by appHeroes.collectAsState()
     val visibleHosts = remember(hostList, hostFilter) {
         when (hostFilter) {
             DuoHostFilter.ALL -> hostList
@@ -259,6 +266,9 @@ fun DuoShellScreen(
         else -> null
     }
     val topApp = appSelection?.takeIf { destination == DuoDestination.APPS }
+    LaunchedEffect(selected?.uuid, topApp?.appId) {
+        selected?.let { host.requestAppHero(it, topApp) }
+    }
     val topContext = DuoTopContext(
         hostName = selected?.name,
         hostAddress = hostAddress?.address,
@@ -269,6 +279,7 @@ fun DuoShellScreen(
         appInitial = topApp?.appName?.trim()?.firstOrNull()?.uppercase(),
         appColor = topApp?.let { topAppColors[((it.appId % topAppColors.size) + topAppColors.size) % topAppColors.size] },
         appIcon = topApp?.let { appIconMap[it.appId] },
+        appHero = topApp?.let { appHeroMap[it.appId] },
         appHdr = topApp?.isHdrSupported() == true,
         settingsCategory = settingsTop.label.takeIf { destination == DuoDestination.SETTINGS },
         settingsDescription = settingsTop.description.takeIf { destination == DuoDestination.SETTINGS },
@@ -358,8 +369,8 @@ fun DuoShellScreen(
                 else -> "分类 → 选项 → 调整"
             },
             keyHints = listOf(
-                DuoKeyHint(DuoKeys.ConfirmLabel, if (destination == DuoDestination.SETTINGS) "打开/调整" else "选择"),
-                DuoKeyHint(DuoKeys.BackLabel, if (destination == DuoDestination.HOSTS) "退出" else "返回"),
+                DuoKeyHint(keyLabels.confirm, if (destination == DuoDestination.SETTINGS) "打开/调整" else "选择"),
+                DuoKeyHint(keyLabels.back, if (destination == DuoDestination.HOSTS) "退出" else "返回"),
             ),
             modifier = modifier,
         ) {
@@ -409,6 +420,7 @@ fun DuoShellScreen(
                         addOpen = true
                     },
                     onRefresh = { host.refreshHosts() },
+                    keyLabels = keyLabels,
                 )
                 DuoDestination.APPS -> DuoAppsPage(
                     host = selected,

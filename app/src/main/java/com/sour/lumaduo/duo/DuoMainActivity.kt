@@ -408,6 +408,7 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
             appsLoading = hostRepository.appsLoading,
             appsError = hostRepository.appsError,
             appIcons = hostRepository.appIcons,
+            appHeroes = hostRepository.appHeroes,
             settings = settingsSnapshot,
             remote = remoteSnapshot,
             remoteConfig = remoteConfig,
@@ -620,6 +621,10 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
 
     override fun appHidden(host: ComputerDetails, app: NvApp): Boolean =
         hostRepository.isAppHidden(host, app)
+
+    override fun requestAppHero(host: ComputerDetails, app: NvApp?) {
+        hostRepository.loadAppHero(host, app)
+    }
 
     override fun createShortcut(host: ComputerDetails, app: NvApp) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -1018,33 +1023,58 @@ private fun TopVisual(
                         .background(LumaColors.Surface2),
                 )
             }
-            DuoDestination.APPS -> Box(
-                Modifier
-                    .size(190.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(context.appColor ?: LumaColors.Surface2)
-                    .border(
-                        1.dp,
-                        LumaColors.Outline.copy(alpha = 0.7f),
-                        RoundedCornerShape(28.dp),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                val icon = context.appIcon
-                if (icon != null) {
-                    Image(
-                        bitmap = icon.asImageBitmap(),
-                        contentDescription = context.appName,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                    )
+            DuoDestination.APPS -> {
+                val hero = context.appHero
+                if (hero != null) {
+                    Box(
+                        Modifier
+                            .width(300.dp)
+                            .height(169.dp)
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(LumaColors.Surface2)
+                            .border(
+                                1.dp,
+                                LumaColors.Outline.copy(alpha = 0.7f),
+                                RoundedCornerShape(18.dp),
+                            ),
+                    ) {
+                        Image(
+                            bitmap = hero.asImageBitmap(),
+                            contentDescription = context.appName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
                 } else {
-                    Text(
-                        text = context.appInitial ?: "?",
-                        fontSize = 84.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF121216),
-                    )
+                    Box(
+                        Modifier
+                            .size(190.dp)
+                            .clip(RoundedCornerShape(28.dp))
+                            .background(context.appColor ?: LumaColors.Surface2)
+                            .border(
+                                1.dp,
+                                LumaColors.Outline.copy(alpha = 0.7f),
+                                RoundedCornerShape(28.dp),
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        val icon = context.appIcon
+                        if (icon != null) {
+                            Image(
+                                bitmap = icon.asImageBitmap(),
+                                contentDescription = context.appName,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        } else {
+                            Text(
+                                text = context.appInitial ?: "?",
+                                fontSize = 84.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF121216),
+                            )
+                        }
+                    }
                 }
             }
             DuoDestination.REMOTE -> Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -815,7 +815,15 @@ private fun AudioTab(
     val context = LocalContext.current
     val audioManager = remember(context) { context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
     var volume by remember { mutableStateOf(audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) }
-    var muted by remember { mutableStateOf(audioManager?.isStreamMute(AudioManager.STREAM_MUSIC) ?: false) }
+    var muted by remember {
+        mutableStateOf(
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                audioManager?.isStreamMute(AudioManager.STREAM_MUSIC) ?: false
+            } else {
+                false
+            }
+        )
+    }
     val maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC) ?: 15
     DuoSliderRow(
         title = "本机音量",

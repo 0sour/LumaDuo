@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -2336,8 +2337,7 @@ private fun DiagnosticsPage(
     onOpenHelp: () -> Unit,
     onOpenHosts: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val config = context.resources.configuration
+    val config = LocalConfiguration.current
     val codecCount = remember {
         runCatching {
             MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.count { info ->

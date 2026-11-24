@@ -72,6 +72,7 @@ fun DuoHostsPage(
     onAction: (ComputerDetails, DuoHostAction) -> Unit,
     onAdd: () -> Unit,
     onRefresh: () -> Unit,
+    keyLabels: DuoKeys.Labels = DuoKeys.Labels(DuoKeys.ConfirmLabel, DuoKeys.BackLabel),
     modifier: Modifier = Modifier,
 ) {
     val selected = hosts.firstOrNull { it.uuid == selectedUuid } ?: hosts.firstOrNull()
@@ -126,7 +127,7 @@ fun DuoHostsPage(
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "${DuoKeys.ConfirmLabel} 选择 · → 详情 · + 添加",
+                    "${keyLabels.confirm} 选择 · → 详情 · + 添加",
                     style = LumaType.micro,
                     color = LumaColors.Tertiary,
                 )
@@ -306,6 +307,21 @@ private fun DuoHostDetail(
         DetailLine("主机名", host.name ?: "—")
         DetailLine("配对", if (paired) "证书就绪" else "需要配对")
         DetailLine("Sunshine", host.sunshineVersion ?: "—")
+        val platform = when (host.fsPlatform?.lowercase()) {
+            "windows" -> "Windows"
+            "linux" -> "Linux"
+            "macos" -> "macOS"
+            else -> host.fsPlatform?.takeIf { it.isNotBlank() }
+        }
+        // FsOsVersion already contains the product name on Windows; only fall back
+        // to FsPlatform when the host did not send a version string.
+        val os = host.fsOsVersion?.takeIf { it.isNotBlank() } ?: platform
+        if (!os.isNullOrBlank()) DetailLine("系统", os)
+        host.fsGpu?.takeIf { it.isNotBlank() }?.let { DetailLine("GPU", it) }
+        host.fsDisplayModes
+            ?.takeIf { it.isNotBlank() }
+            ?.replace(",", ", ")
+            ?.let { DetailLine("显示", it) }
         Spacer(Modifier.weight(1f))
 
         val primary = when {

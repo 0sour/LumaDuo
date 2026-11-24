@@ -482,6 +482,21 @@ class NvHTTP(
         details.vddCapabilityVersion = parseVddCapabilityVersion(
             getXmlString(serverInfo, "VddCapabilityVersion", false)
         )
+        details.fsCapabilityVersion = getXmlString(serverInfo, "FsCapabilityVersion", false)
+            ?.trim()
+            ?.toIntOrNull()
+        details.fsFeatures = getXmlString(serverInfo, "FsFeatures", false)
+            ?.split(',')
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.toSet()
+            ?: emptySet()
+        details.posterVariants = getXmlString(serverInfo, "poster_variants", false) == "1"
+        details.fsPlatform = getXmlString(serverInfo, "FsPlatform", false)?.trim()?.takeIf { it.isNotEmpty() }
+        details.fsOsVersion = getXmlString(serverInfo, "FsOsVersion", false)?.trim()?.takeIf { it.isNotEmpty() }
+        details.fsGpu = getXmlString(serverInfo, "FsGpu", false)?.trim()?.takeIf { it.isNotEmpty() }
+        details.fsDisplayModes = getXmlString(serverInfo, "FsDisplayModes", false)?.trim()?.takeIf { it.isNotEmpty() }
+        details.fsHostIcon = getXmlString(serverInfo, "FsHostIcon", false)?.trim()?.takeIf { it.isNotEmpty() }
 
         try {
             details.sunshineVersion = getSunshineVersion(serverInfo)
@@ -733,6 +748,22 @@ class NvHTTP(
     @Throws(IOException::class, InterruptedException::class)
     fun getBoxArt(app: NvApp): InputStream {
         val resp = openHttpConnection(httpClientLongConnectTimeout, getHttpsUrl(true), "appasset", "appid=${app.appId}&AssetType=2&AssetIdx=0")
+        return resp.byteStream()
+    }
+
+    /**
+     * Foundation Sunshine's typed app asset channel. Older hosts keep using
+     * [getBoxArt]; callers should only ask for a type advertised in FsArt.
+     */
+    @Throws(IOException::class, InterruptedException::class)
+    fun getAppArt(app: NvApp, type: String): InputStream {
+        require(type == "poster" || type == "hero" || type == "logo" || type == "icon")
+        val resp = openHttpConnection(
+            httpClientLongConnectTimeout,
+            getHttpsUrl(true),
+            "appasset",
+            "appid=${app.appId}&type=$type",
+        )
         return resp.byteStream()
     }
 
@@ -1521,6 +1552,17 @@ class NvHTTP(
                                 val cmdListStr = xpp.text
                                 if (cmdListStr != "null") {
                                     app.setCmdList(xpp.text)
+                                }
+                            }
+                            else -> {
+                                // Foundation Sunshine adds FsKind/FsSource/FsDefault/
+                                // FsLastPlayed/FsArtVersion/FsArt to every App node.
+                                // Keep them as raw session facts so new host fields work
+                                // without another parser change.
+                                val tag = currentTag.peek()
+                                val value = xpp.text
+                                if (tag.startsWith("Fs") && !value.isNullOrBlank()) {
+                                    app.fsExtras[tag] = value
                                 }
                             }
                         }

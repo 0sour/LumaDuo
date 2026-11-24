@@ -196,6 +196,8 @@ export PATH="$JAVA_HOME/bin:$PATH"
 - [x] 新包名下再次串流 Desktop 并退出：回到壳层应用页，主机物理显示器保持激活（`ensure_active`），无 lifecycle 崩溃；
 - [x] 连接页真实网络测试：TCP 47984/47989/47990，返回 `3/3 端口 · 最低 3 ms · 平均 4 ms`，无伪造丢包；
 - [x] 主机应用图标：Desktop / Steam Big Picture / Xbox Game 从 Sunshine `appasset` 拉取真实 box art，失败时保留字母占位；
+- [x] 2026-11-24 Foundation 1123：应用列表显示 Desktop / Steam Big Picture / Xbox Game / 大屏 4 项，无图应用使用主机生成封面；应用详情显示 `FsSource`/`FsKind`/`FsDefault`；主机详情显示真实 `FsOsVersion`/`FsGpu`/`FsDisplayModes`；
+- [x] 2026-11-24 上屏由方图升级为 Foundation `FsArt` hero（Steam Big Picture、大屏实机），无 hero 时回退 poster；
 - [x] 上屏品牌页、下屏真实壳层（主机/主机详情），显示真实主机名/地址；
 - [x] 发现并配对 `GAMING-PC`（PIN 验证，`/api/pin` 返回 `status:true`），进入应用页读取 3 个真实应用；
 - [x] 启动 Desktop 串流：上屏 PC 桌面正常，下屏控制台显示 1920×1080 60Hz、59–60 FPS、3–4 ms RTT、Wi-Fi、电量/温度；主机负载显示“未提供”，实测码率为 `—`，无伪造；

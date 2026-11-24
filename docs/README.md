@@ -1,6 +1,6 @@
 # LumaDuo 文档索引
 
-> 最后更新：2026-11-21 · 当前阶段：双屏 RP Duo 主链路已跑通，Phase A/B/C/D1、设置/远程/密度修复、控制台入口补齐与上屏内容补全完成（`67c95e90`）：duo release **16.46 MB**，正式包名 `com.sour.lumaduo`；启动/发现/配对/串流/直通/本地/退出/断开、网络测试、真实应用图标、5 页签控制台与工具态通过。单屏/PiP 按 D-043 延期；下一步稳定性收口（实体手柄/键盘/EasyTier/长时）与 D2 代码清理
+> 最后更新：2026-11-24 · 当前阶段：双屏 RP Duo 主链路、Phase A/B/C/D1、Foundation Fs* v1（主机/应用事实、生成封面、16:9 hero）和 V+ #865 输入释放已跑通；duo release **16.50 MB**（未签名），正式包名 `com.sour.lumaduo`。下一阶段按 ROADMAP 的 v0.2（稳定性）→ v0.3（产品打磨）→ v1.0（工程/发布）推进；单屏/PiP 按 D-043 延期。
 > 源码在本仓库；真机数据与未验证项见 TESTING.md，不用构建结果替代设备验收。
 
 本目录是 LumaDuo 的设计与开发基线。代码已开始：M1 包名/品牌化、M2a 主题/壳层、M2b 真实数据、M3 UI v0.3 与真实串流控制台已落地；单屏代码保留但按 D-043 延期，不作为当前验收目标。
@@ -13,7 +13,7 @@
 - 控制台/工具双态：工具为触摸板 / 键盘 / 快捷键，全宽；工具只在本地模式可操作。
 - 上屏只读；控件只在下屏；生产串流默认直通，Return/Back 进入本地。
 - 品牌标：UUYC A1 全金矢量源直接缩放，不重绘小尺寸版本。
-- 主机实时 CPU/GPU/内存不是 MVP 硬依赖；状态页缺省显示“未提供”，接入 Host Bridge 后再补。
+- 主机静态 OS/GPU/显示模式已接 Foundation `Fs*`；实时 CPU/GPU/内存不是 MVP 硬依赖，状态页缺省显示“未提供”，接入 Host Bridge 后再补。
 
 ## 阅读顺序
 
@@ -32,7 +32,7 @@
 13. [ui/PROTOTYPE.md](ui/PROTOTYPE.md) — 原型范围、交互、限制
 14. [ui/prototype/index.html](ui/prototype/index.html) — 可点击 HTML 原型
 15. [ui/prototype/README.md](ui/prototype/README.md) — 原型页面、键位、URL 参数
-16. [ROADMAP.md](ROADMAP.md) — M0 / M0.5 / M1–M5
+16. [ROADMAP.md](ROADMAP.md) — 当前 v0.2 → v0.3 → v1.0 开发计划；历史 M0 / M0.5 / M1–M5
 17. [STREAM-CONSOLE.md](STREAM-CONSOLE.md) — `Game` 托管下屏、状态桥、直通/本地输入与单屏控制台
 18. [MINIMAL-EDITION.md](MINIMAL-EDITION.md) — 最小 `duo` 产品面、构建变体、瘦身数据与 Phase B/C 路线
 19. [BUILDING.md](BUILDING.md) — 工具链、源码、构建命令

@@ -285,12 +285,26 @@ private fun DuoAppDetail(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            val meta = listOfNotNull(
+                host.name ?: "主机",
+                app.fsSourceLabel(),
+                app.fsKindLabel(),
+                "默认".takeIf { app.fsDefault },
+            ).joinToString(" · ")
             Text(
-                text = host.name ?: "主机",
+                text = meta,
                 style = LumaType.micro,
                 color = LumaColors.Tertiary,
                 maxLines = 1,
             )
+            app.fsLastPlayed?.let { played ->
+                Text(
+                    text = "最近游玩 · ${formatLastPlayed(played)}",
+                    style = LumaType.micro,
+                    color = LumaColors.Tertiary,
+                    maxLines = 1,
+                )
+            }
         }
         Spacer(Modifier.width(8.dp))
         DuoTextButton(
@@ -305,6 +319,32 @@ private fun DuoAppDetail(
             onClick = { onAction(app, DuoAppAction.INFO) },
             modifier = Modifier.width(92.dp),
         )
+    }
+}
+
+private fun NvApp.fsSourceLabel(): String? = when (fsSource) {
+    "steam" -> "Steam"
+    "xbox" -> "Xbox"
+    "custom" -> null
+    else -> fsSource
+}
+
+private fun NvApp.fsKindLabel(): String? = when (fsKind) {
+    "desktop" -> "桌面"
+    "bigscreen" -> "大屏"
+    "tool" -> "工具"
+    "game" -> null
+    else -> fsKind
+}
+
+private fun formatLastPlayed(epochSeconds: Long): String {
+    val minutes = ((System.currentTimeMillis() / 1000L - epochSeconds).coerceAtLeast(0L)) / 60L
+    return when {
+        minutes < 1L -> "刚刚"
+        minutes < 60L -> "$minutes 分钟前"
+        minutes < 1440L -> "${minutes / 60L} 小时前"
+        minutes < 43_200L -> "${minutes / 1440L} 天前"
+        else -> "较早"
     }
 }
 

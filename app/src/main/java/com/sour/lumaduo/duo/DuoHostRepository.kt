@@ -39,6 +39,10 @@ import kotlinx.coroutines.withContext
  * shell needs a simple loading/error state while the legacy AppView owns its own poller.
  */
 class DuoHostRepository(context: Context) {
+    private companion object {
+        const val MAX_CACHED_HEROES = 8
+    }
+
     private val appContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -56,6 +60,12 @@ class DuoHostRepository(context: Context) {
 
     private val _appIcons = MutableStateFlow<Map<Int, Bitmap>>(emptyMap())
     val appIcons: StateFlow<Map<Int, Bitmap>> = _appIcons.asStateFlow()
+
+    /** Foundation hero art, fetched lazily for the selected app and keyed by app ID. */
+    private val _appHeroes = MutableStateFlow<Map<Int, Bitmap>>(emptyMap())
+    val appHeroes: StateFlow<Map<Int, Bitmap>> = _appHeroes.asStateFlow()
+    private val heroVersions = HashMap<Int, String?>()
+    private var heroJob: Job? = null
 
     data class PairUiState(
         val hostUuid: String? = null,
@@ -163,8 +173,11 @@ class DuoHostRepository(context: Context) {
         appsJob?.cancel()
         appsHostUuid = uuid
         iconsJob?.cancel()
+        heroJob?.cancel()
         if (hostChanged) {
             _appIcons.value = emptyMap()
+            _appHeroes.value = emptyMap()
+            heroVersions.clear()
         }
         _appsLoading.value = true
         _appsError.value = null
@@ -253,14 +266,75 @@ class DuoHostRepository(context: Context) {
         }
     }
 
+    /**
+     * Fetches Foundation's 16:9 hero art for the current selection. Only hosts that
+     * advertise "hero" in FsArt get a request; every other app keeps the poster.
+     */
+    fun loadAppHero(host: ComputerDetails, app: NvApp?) {
+        if (app == null || !app.hasFsArt("hero")) {
+            heroJob?.cancel()
+            heroJob = null
+            if (app != null && _appHeroes.value.containsKey(app.appId)) {
+                _appHeroes.value = _appHeroes.value - app.appId
+                heroVersions.remove(app.appId)
+            }
+            return
+        }
+        val version = app.fsArtVersion
+        if (_appHeroes.value.containsKey(app.appId) && heroVersions[app.appId] == version) {
+            return
+        }
+        val manager = binder ?: return
+        val address = host.activeAddress ?: return
+        heroJob?.cancel()
+        heroJob = scope.launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                try {
+                    val http = NvHTTP(
+                        address,
+                        host.httpsPort,
+                        manager.getUniqueId(),
+                        "",
+                        host.serverCert,
+                        PlatformBinding.getCryptoProvider(appContext),
+                    )
+                    val options = BitmapFactory.Options().apply { inSampleSize = 2 }
+                    http.getAppArt(app, "hero").use {
+                        BitmapFactory.decodeStream(it, null, options)
+                    }
+                } catch (e: Exception) {
+                    LimeLog.info("App hero fetch failed for ${app.appName}: ${e.message}")
+                    null
+                }
+            }
+            if (bitmap != null) {
+                heroVersions[app.appId] = version
+                val updated = _appHeroes.value + (app.appId to bitmap)
+                // Selected-app art only; keep a small LRU-ish window so browsing many
+                // 1920x1080 heroes cannot grow the bitmap cache without bound.
+                _appHeroes.value = if (updated.size <= MAX_CACHED_HEROES) {
+                    updated
+                } else {
+                    updated.entries
+                        .drop(updated.size - MAX_CACHED_HEROES)
+                        .associate { it.key to it.value }
+                }
+            }
+        }
+    }
+
     fun stopAppList() {
         appsJob?.cancel()
         appsJob = null
         iconsJob?.cancel()
         iconsJob = null
+        heroJob?.cancel()
+        heroJob = null
         appsHostUuid = null
         _apps.value = emptyList()
         _appIcons.value = emptyMap()
+        _appHeroes.value = emptyMap()
+        heroVersions.clear()
         _appsError.value = null
         _appsLoading.value = false
     }

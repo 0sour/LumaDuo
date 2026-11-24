@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package com.sour.lumaduo.ui.luma
 
+import android.content.Context
+import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -29,17 +31,46 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * The single source of truth for local gamepad semantics. RP Duo's physical silk is
- * B = confirm, A = back (bili-duo / UUYC-Duo both verified this on device). In Xbox
- * style the firmware reports the bottom/confirm button as BUTTON_A (96) and the
- * right/back button as BUTTON_B (97), so labels stay B/A while the key constants are
- * A/B respectively.
+ * The single source of truth for local gamepad semantics. The physical layout is
+ * fixed: bottom = confirm, right = back. RP Duo prints different letters per style:
+ * Xbox style prints B on the bottom and A on the right; Retro style prints A on the
+ * bottom and B on the right. Key constants stay canonical A/B; only the labels follow
+ * the system style.
  */
 object DuoKeys {
+    data class Labels(val confirm: String, val back: String)
+
     val Confirm = Key.ButtonA
     val Back = Key.ButtonB
     const val ConfirmLabel = "B"
     const val BackLabel = "A"
+
+    /**
+     * Reads the Retroid controller style from the system settings that RPSettings
+     * writes. Values are readable without a special permission; any failure keeps
+     * the Xbox-style B/A labels.
+     */
+    fun labels(context: Context): Labels {
+        return try {
+            val resolver = context.contentResolver
+            val flip = Settings.System.getInt(resolver, "flip_button_layout", 1)
+            val temp = Settings.System.getInt(resolver, "temp_abxy_layout_mode", 0)
+            val noGamepad = Settings.System.getInt(
+                resolver,
+                "no_create_gamepad_button_layout",
+                0,
+            )
+            if (noGamepad != 0) {
+                Labels(ConfirmLabel, BackLabel)
+            } else if (flip == 0 || temp == 1) {
+                Labels("A", "B")
+            } else {
+                Labels(ConfirmLabel, BackLabel)
+            }
+        } catch (e: RuntimeException) {
+            Labels(ConfirmLabel, BackLabel)
+        }
+    }
 }
 
 /** Remembers the last focused Luma control so an overlay can restore it on close. */

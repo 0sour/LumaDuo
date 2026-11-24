@@ -71,6 +71,21 @@ class ComputerDetails {
     var supportsDesktopSpecialApp = false
     var vddCapabilityVersion: Int? = null
 
+    // Foundation Sunshine's additive /serverinfo profile. Optional on every other host.
+    var fsCapabilityVersion: Int? = null
+    var fsFeatures: Set<String> = emptySet()
+    var posterVariants = false
+    var fsPlatform: String? = null
+    var fsOsVersion: String? = null
+    var fsGpu: String? = null
+    var fsDisplayModes: String? = null
+    var fsHostIcon: String? = null
+
+    val isFoundation: Boolean
+        get() = fsCapabilityVersion != null || vddCapabilityVersion != null
+
+    fun supportsFsFeature(feature: String): Boolean = fsFeatures.contains(feature)
+
     constructor()
 
     constructor(details: ComputerDetails) : this() {
@@ -139,6 +154,14 @@ class ComputerDetails {
         }
         this.supportsDesktopSpecialApp = details.supportsDesktopSpecialApp
         this.vddCapabilityVersion = details.vddCapabilityVersion
+        this.fsCapabilityVersion = details.fsCapabilityVersion
+        this.fsFeatures = details.fsFeatures
+        this.posterVariants = details.posterVariants
+        this.fsPlatform = details.fsPlatform
+        this.fsOsVersion = details.fsOsVersion
+        this.fsGpu = details.fsGpu
+        this.fsDisplayModes = details.fsDisplayModes
+        this.fsHostIcon = details.fsHostIcon
 
         this.availableAddresses = ArrayList(details.availableAddresses)
     }
