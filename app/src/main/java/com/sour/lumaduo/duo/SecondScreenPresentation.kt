@@ -209,37 +209,38 @@ class SecondScreenPresentation(
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (!focusEnabled) return super.dispatchKeyEvent(event)
-        if (!backInterceptionEnabled) return super.dispatchKeyEvent(event)
-        if (consumeDuplicateConfirm(event)) return true
+        val keyEvent = DuoFaceButtonMapper.normalize(event)
+        if (!focusEnabled) return super.dispatchKeyEvent(keyEvent)
+        if (!backInterceptionEnabled) return super.dispatchKeyEvent(keyEvent)
+        if (consumeDuplicateConfirm(keyEvent)) return true
         // While a text field owns an IME connection, ordinary keys belong to it.
         // Face buttons keep local semantics: bottom/confirm is BUTTON_A, right/back
         // is BUTTON_B in the verified Xbox-style mapping.
         val typing = (context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
             ?.isAcceptingText == true
-        val faceKey = event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
-            event.keyCode == KeyEvent.KEYCODE_BUTTON_B
+        val faceKey = keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+            keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_B
         // While the system IME is typing, ordinary keys belong to the text field.
         // Face buttons keep their local semantics; BUTTON_A is passed to Compose as confirm.
         if (typing && !faceKey) {
-            return super.dispatchKeyEvent(event)
+            return super.dispatchKeyEvent(keyEvent)
         }
-        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_A) {
-            return super.dispatchKeyEvent(event)
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A) {
+            return super.dispatchKeyEvent(keyEvent)
         }
-        if (event.action == KeyEvent.ACTION_DOWN &&
-            event.repeatCount == 0 &&
-            (event.keyCode == KeyEvent.KEYCODE_BACK ||
-                event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
+        if (keyEvent.action == KeyEvent.ACTION_DOWN &&
+            keyEvent.repeatCount == 0 &&
+            (keyEvent.keyCode == KeyEvent.KEYCODE_BACK ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_ESCAPE ||
                 // RP Duo physical right/A is the back/close key; the physical
                 // bottom/B confirm key is BUTTON_A and must reach Compose.
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
+                keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             LimeLog.info("LumaDuo bottom presentation received back/escape/button-b")
             backDispatcher.onBackPressed()
             return true
         }
-        return super.dispatchKeyEvent(event)
+        return super.dispatchKeyEvent(keyEvent)
     }
 
     /**

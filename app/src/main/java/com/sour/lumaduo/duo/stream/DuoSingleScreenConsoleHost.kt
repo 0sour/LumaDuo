@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sour.lumaduo.Game
+import com.sour.lumaduo.duo.DuoFaceButtonMapper
 import com.sour.lumaduo.duo.DuoSettingsRepository
 import com.sour.lumaduo.ui.luma.LumaColors
 import com.sour.lumaduo.ui.luma.LumaTheme
@@ -140,27 +141,28 @@ class DuoSingleScreenConsoleHost(
      */
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (!visible) return false
-        if (event.action == KeyEvent.ACTION_DOWN &&
-            (event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
-                event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+        val keyEvent = DuoFaceButtonMapper.normalize(event)
+        if (keyEvent.action == KeyEvent.ACTION_DOWN &&
+            (keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
         ) {
-            if (event.repeatCount > 0) return true
+            if (keyEvent.repeatCount > 0) return true
             val now = SystemClock.uptimeMillis()
             val duplicate = now - lastConfirmAt < 40L
             lastConfirmAt = now
             if (duplicate) return true
         }
-        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 &&
-            (event.keyCode == KeyEvent.KEYCODE_BACK ||
-                event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
+        if (keyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.repeatCount == 0 &&
+            (keyEvent.keyCode == KeyEvent.KEYCODE_BACK ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             game.onBackPressedDispatcher.onBackPressed()
             return true
         }
         // Local console owns the controller/keyboard while open. Dispatching directly to
         // the ComposeView also covers the case where window focus has not settled yet.
-        composeView.dispatchKeyEvent(event)
+        composeView.dispatchKeyEvent(keyEvent)
         return true
     }
 

@@ -15,8 +15,11 @@ All notable changes to LumaDuo are recorded here.
   right back were verified on device.
 - Xbox-style ABXY mapping: raw capture shows bottom=`BUTTON_A` (96),
   right=`BUTTON_B` (97), left=`BUTTON_X` (99), top=`BUTTON_Y` (100).
-  `DuoKeys` and the Activity/Presentation A/B interception now use that mapping;
-  Retro style still needs A↔B/X↔Y normalization.
+  `DuoKeys` and the Activity/Presentation A/B interception now use that mapping.
+- Retro-style ABXY normalization: the Retro built-in controller identifies as
+  vendor `0x2022` / product `0x3001`; `DuoFaceButtonMapper` swaps A↔B and X↔Y
+  only for that device. Verified with raw `BTN_EAST`/`BTN_GAMEPAD` injection:
+  bottom confirms and right returns.
 - Bottom-display discovery now ignores `STATE_OFF` displays.
 - `DuoMainActivity` is `singleTop` and re-homes an instance that the bottom
   launcher started on display 2 back to display 0; verified with

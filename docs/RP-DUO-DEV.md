@@ -289,7 +289,7 @@ RPSettings 的 `ControllerStylePreference` 映射为：
 
 因此本机当前是 **Xbox 风格**。
 
-**本机原始捕获（2026-11-22，event8）**：
+**本机原始捕获（Xbox 风格，event8 = “Xbox Wireless Controller”，product 0x3002）**：
 
 | 物理按键 | Linux 事件 | Android keycode |
 |---|---|---|
@@ -298,13 +298,20 @@ RPSettings 的 `ControllerStylePreference` 映射为：
 | 左 · 动作 | `BTN_NORTH` | `BUTTON_X` (99) |
 | 上 · 未绑定 | `BTN_WEST` | `BUTTON_Y` (100) |
 
-**✅ 已修（Xbox 风格）**：`DuoKeys.Confirm = Key.ButtonA` (96)，`Back = Key.ButtonB` (97)；
-Activity、Presentation、单屏控制台的 A/B 拦截和 40ms 确认去重也同步交换。实测下键确认、
-右键返回、D-pad 移动焦点均正常。UI 标签保持“B 选择 / A 退出”，与 Xbox 风格印字一致。
+**Retro 风格（event8 = “Retroid Pocket Controller”，vendor 0x2022 / product 0x3001）**：
+驱动层仍是 `0x130→BUTTON_A`、`0x131→BUTTON_B`，但固件把物理键换成
+下=`BUTTON_B` (97)、右=`BUTTON_A` (96)、左=`BUTTON_Y` (100)、上=`BUTTON_X` (99)。
+本机用 `BTN_EAST`/`BTN_GAMEPAD` 注入复测：下确认、右返回均正常。
 
-**📋 Retro 风格待处理**：Retro 的原始码应为下=97、右=96、左=100、上=99。当前代码未做
-风格自动归一化；切到 Retro 后 A/B/X/Y 可能反向。下一步需要在 Retro 风格下用同一捕获流程确认，
-再决定读取 `flip_button_layout` 做自动交换，还是提供手动布局设置。
+**✅ 已修（两种风格）**：
+
+- `DuoKeys.Confirm = Key.ButtonA` (96)，`Back = Key.ButtonB` (97)；Activity、Presentation、
+  单屏控制台的 A/B 拦截和 40ms 确认去重同步使用 canonical 映射。
+- `DuoFaceButtonMapper` 只对 Retro 内置手柄（vendor `0x2022` / product `0x3001`）做 A↔B、
+  X↔Y 交换；Xbox 内置手柄和外接控制器不受影响。
+- 实测：Xbox 和 Retro 的下确认、右返回、D-pad 移动焦点均正常。
+- 已知 UI 细节：按键提示仍写“B 选择 / A 退出”（Xbox 印字）；Retro 印字为 A/B，提示随风格
+  切换还未实现，不影响实际按键动作。
 
 ### 4.1 常用 keycode
 
@@ -470,12 +477,12 @@ adb shell dumpsys connectivity | grep -iE "VPN|Proxy"
 | 下屏查找过滤 `STATE_OFF` | ✅（代码） | 已加 `display.state != Display.STATE_OFF`；合盖物理场景待验收 |
 | 从下屏 launcher re-home | ✅ | `singleTop` + `setLaunchDisplayId(0)`；`am start --display 2` 实测回到 Display 0 |
 | Activity → Presentation 输入转发 | ✅ | 实体 D-pad、下确认、右返回均实测通过 |
-| ABXY 风格归一化 | ✅ Xbox / 📋 Retro | Xbox：下=96 确认、右=97 返回已实测；Retro 需 A↔B、X↔Y 归一化 |
+| ABXY 风格归一化 | ✅ Xbox + Retro | Xbox 下=96/右=97；Retro 下=97/右=96，`DuoFaceButtonMapper` 按 product 0x3001 交换 |
 | HAT 轴处理 | ✅/📋 | Activity 不拦截；Presentation 将 HAT 转 DPAD，需真机确认不与实体 D-pad 冲突 |
 | AC3/E-AC3 解码 | ✅（不存在） | vendor codec XML 无 AC3/EAC3；AAC/Opus/FLAC/raw 存在 |
 | 两屏 `KEEP_SCREEN_ON` | ✅ | Activity 与 Presentation 都设置 |
 | 窗口亮度独立控制 | ⚠️ | 未实现，P1 |
-| 实体内置手柄 A/B/X/Y | ✅ Xbox / 📋 Retro | 2026-11-22 event8 捕获：下=304、右=305、左=307、上=308；Xbox 已通过 |
+| 实体内置手柄 A/B/X/Y | ✅ Xbox + Retro | Xbox：下=304/右=305/左=307/上=308；Retro：下=305/右=304；两种风格均实测 |
 | 键盘/快捷键到 host | 📋 | 代码路径已接，未在主机侧验证 |
 | EasyTier 端到端 | 📋 | UI/状态已接，未做真实隧道串流 |
 | 30 分钟长时/断流重连/音频听感 | 📋 | 未验收 |

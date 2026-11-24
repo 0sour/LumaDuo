@@ -66,9 +66,10 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 
 - **✅ 实体手柄转发已修**：Activity 现在把按键转发给下屏 Presentation。实体 D-pad、下确认、
   右返回均实测通过；修复前实体 B 会直接退到桌面。
-- **✅ Xbox ABXY 已修 / 📋 Retro 待处理**：原始捕获确认 Xbox 风格下键=304/BUTTON_A、
-  右键=305/BUTTON_B、左键=307/BUTTON_X、上键=308/BUTTON_Y；`DuoKeys` 已改为 `ButtonA` 确认 /
-  `ButtonB` 返回，下确认/右返回实测通过。Retro 风格仍需 A↔B、X↔Y 归一化。
+- **✅ 两种风格 ABXY 已修**：Xbox 下键=304/BUTTON_A、右键=305/BUTTON_B；Retro 设备为
+  vendor 0x2022/product 0x3001，下键=305/BUTTON_B、右键=304/BUTTON_A。`DuoKeys` 用
+  `ButtonA` 确认 / `ButtonB` 返回，`DuoFaceButtonMapper` 只对 Retro 内置手柄交换 A↔B/X↔Y；
+  两种风格下确认/返回实测通过。
 - **✅ `STATE_OFF` 过滤已加**：合盖/休眠的物理场景仍需单独验收。
 - **✅ 下屏 launcher re-home 已加**：`DuoMainActivity` 改 `singleTop` + `setLaunchDisplayId(0)`；
   `am start --display 2` 实测回到 Display 0。
@@ -103,7 +104,7 @@ LumaDuo 已经是一个可安装、可配对、可串流、可退出/断开的�
 | 任务 | 验收 |
 |---|---|
 | 实体手柄转发 ✅ | 已实现 Activity → Presentation 转发；实体 D-pad、下确认、右返回实测通过（2026-11-22） |
-| ABXY ✅ Xbox / 📋 Retro | Xbox：下=96 确认、右=97 返回，已实测；Retro 需 A↔B、X↔Y 归一化 |
+| ABXY ✅ Xbox + Retro | Xbox 下=96/右=97；Retro 下=97/右=96，product 0x3001 已归一化并实测 |
 | 下屏生命周期 ✅ | `STATE_OFF` 过滤 + re-home 已实现；`am start --display 2` 实测回到 Display 0；合盖/拔插仍待验 |
 | 实体手柄全键位 | 直通控制 PC；本地下确认/右返回/HAT 移动焦点；切回无卡键 |
 | 键盘/快捷键 | ASCII 键、Ctrl/Alt/Win/Shift、12 快捷键、断流释放 |

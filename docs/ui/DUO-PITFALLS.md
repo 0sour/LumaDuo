@@ -10,8 +10,9 @@
 > ABXY 风格/音视频/调试资料与 LumaDuo 同机复核表。以下三点是本次最重要的修正：
 >
 > 1. **ABXY 风格会改原始 keycode**。物理位置固定为「下确认、右返回、左动作、上未绑定」，但
->    Xbox/Retro 两种风格的 `BUTTON_A/B/X/Y` 会互换。**Xbox 风格已修（2026-11-22）**：
->    `DuoKeys` 现在 `ButtonA` 确认 / `ButtonB` 返回，实测下=96、右=97；Retro 风格仍需 A↔B/X↔Y 归一化。
+>    Xbox/Retro 两种风格的 `BUTTON_A/B/X/Y` 会互换。**两种风格已修（2026-11-22）**：
+>    `DuoKeys` 用 `ButtonA` 确认 / `ButtonB` 返回；`DuoFaceButtonMapper` 只对 Retro 内置手柄
+>    （product 0x3001）交换 A↔B/X↔Y。Xbox/Retro 下确认、右返回均实测。
 > 2. **实体手柄事件不一定先到 Presentation**。未 root 时事件可能先到上屏 Activity；必须有
 >    Activity → Presentation 的转发/统一 router。**已修（2026-11-22）**：D-pad、下确认、右返回实测可用。
 > 3. **找下屏要过滤 `STATE_OFF`**，并补下屏 launcher 启动时的 re-home（`singleTop` +
@@ -187,7 +188,7 @@ bili-duo / UUYC-Duo 一致；`SecondScreenPresentation` 也改为拦截实体 A 
 页面（PcView、Game Menu 等）仍是 A 确认/B 返回**，这是当前已知的隔离例外。仍需真机确认 Duo
 固件丝印和 Xbox/Retro 风格，再决定是否替换/隔离 legacy 入口；不要同时给用户两套提示。
 
-**2026-11-22 复核（Xbox 已修）**：上表说的是**物理位置**；RP Duo 的 Xbox/Retro 风格会改变原始
+**2026-11-22 复核（两种风格已修）**：上表说的是**物理位置**；RP Duo 的 Xbox/Retro 风格会改变原始
 keycode。bili-duo 实测：
 
 | 物理位置 | Xbox 原始 | Retro 原始 |
@@ -197,10 +198,10 @@ keycode。bili-duo 实测：
 | 左 · 动作 | `BUTTON_X` (99) | `BUTTON_Y` (100) |
 | 上 · 未绑定 | `BUTTON_Y` (100) | `BUTTON_X` (99) |
 
-本机 2026-11-22 原始捕获（Xbox 风格）：下=304/BUTTON_A、右=305/BUTTON_B、左=307/BUTTON_X、
-上=308/BUTTON_Y。`DuoKeys` 已改为 `Confirm=ButtonA` / `Back=ButtonB`，Activity/Presentation
-的 A/B 拦截同步交换；实测下确认、右返回正常。**Retro 风格仍需 A↔B、X↔Y 归一化**。完整表见
-[RP-DUO-DEV.md](../RP-DUO-DEV.md) §4。
+本机 2026-11-22 捕获：Xbox 下=304/BUTTON_A、右=305/BUTTON_B；Retro 设备改为
+vendor 0x2022/product 0x3001，下=305/BUTTON_B、右=304/BUTTON_A。`DuoKeys` 统一用
+`Confirm=ButtonA` / `Back=ButtonB`，`DuoFaceButtonMapper` 只对 product 0x3001 做 A↔B/X↔Y
+交换；两种风格下确认/返回均已实测。完整表见 [RP-DUO-DEV.md](../RP-DUO-DEV.md) §4。
 
 ### 2.2 Compose 不认 BUTTON_A/B
 
@@ -594,7 +595,7 @@ bili-duo 的 rc57 补测里，亮色主题、交换布局、未登录空态、PG
 ### P0（上真机前必须做）
 
 - [x] Xbox 风格实体键语义：下确认 / 右返回 / 左动作 / 上未绑定；原始 304/305/307/308 已捕获并适配。
-- [ ] Retro 风格键位：A↔B、X↔Y 归一化后复测下确认/右返回。
+- [x] Retro 风格键位：product 0x3001 的 A↔B、X↔Y 已归一化；下确认/右返回实测通过。
 - [x] Activity → Presentation 按键转发；实体 D-pad、下确认、右返回实测通过（2026-11-22）。
 - [ ] `SecondScreenPresentation` 的 ActivityResultRegistry 不能再是 no-op；SAF/权限请求要路由到
       Activity。

@@ -271,13 +271,14 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         // bottom shell is visible. Forward to the Presentation first so its Compose
         // focus tree and back dispatcher see exactly one copy of the event.
         if (forwardKeyToBottom(event)) return true
+        val keyEvent = DuoFaceButtonMapper.normalize(event)
         // Single-screen fallback hosts the shell in this window, so it needs the same
         // physical B-confirm / A-back contract as the bottom Presentation.
-        if (event.action == KeyEvent.ACTION_DOWN &&
-            (event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
-                event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+        if (keyEvent.action == KeyEvent.ACTION_DOWN &&
+            (keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
         ) {
-            if (event.repeatCount > 0) return true
+            if (keyEvent.repeatCount > 0) return true
             val now = SystemClock.uptimeMillis()
             val duplicate = now - lastConfirmAt < 40L
             lastConfirmAt = now
@@ -285,19 +286,19 @@ class DuoMainActivity : ComponentActivity(), DuoShellHost {
         }
         val typing = (getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
             ?.isAcceptingText == true
-        val faceKey = event.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
-            event.keyCode == KeyEvent.KEYCODE_BUTTON_B
-        if (typing && !faceKey) return super.dispatchKeyEvent(event)
-        if (event.keyCode == KeyEvent.KEYCODE_BUTTON_A) return super.dispatchKeyEvent(event)
-        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 &&
-            (event.keyCode == KeyEvent.KEYCODE_BACK ||
-                event.keyCode == KeyEvent.KEYCODE_ESCAPE ||
-                event.keyCode == KeyEvent.KEYCODE_BUTTON_B)
+        val faceKey = keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A ||
+            keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_B
+        if (typing && !faceKey) return super.dispatchKeyEvent(keyEvent)
+        if (keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_A) return super.dispatchKeyEvent(keyEvent)
+        if (keyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.repeatCount == 0 &&
+            (keyEvent.keyCode == KeyEvent.KEYCODE_BACK ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_B)
         ) {
             onBackPressedDispatcher.onBackPressed()
             return true
         }
-        return super.dispatchKeyEvent(event)
+        return super.dispatchKeyEvent(keyEvent)
     }
 
     private fun forwardKeyToBottom(event: KeyEvent): Boolean {
